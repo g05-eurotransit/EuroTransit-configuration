@@ -2,7 +2,7 @@
 
 This document owns the delivery topology for EuroTransit Marketplace.
 
-**Owner:** Technical Coordinator + Delivery/Security Owner.
+**Owner:** Technical Coordinator + Gateway/Security Slice Owner.
 
 ## Responsibilities
 
@@ -10,7 +10,7 @@ This document owns the delivery topology for EuroTransit Marketplace.
 - The configuration repository stores Kubernetes desired state.
 - ArgoCD reconciles the target cluster from this repository.
 - CI must not hold direct cluster credentials.
-- The Technical Coordinator + Delivery/Security Owner owns the GitHub Actions workflows, image build/publish automation, configuration-repository update automation, and delivery rollback procedure.
+- The Technical Coordinator + Gateway/Security Slice Owner owns the GitHub Actions workflows, image build/publish automation, configuration-repository update automation, and delivery rollback procedure.
 
 ## Required Inputs from Service Owners
 

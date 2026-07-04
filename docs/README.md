@@ -2,7 +2,7 @@
 
 This repository owns deployment, GitOps, Kubernetes, delivery, observability, reliability, and operational governance documentation for EuroTransit Marketplace.
 
-Application behavior, API contracts, service design, authentication model, idempotency semantics, and team implementation planning live in the application repository: `/Users/matteo/IdeaProjects/EuroTransit-application/docs`.
+Application behavior, API contracts, service design, authentication model, idempotency semantics, and team implementation planning live in the sibling application repository: `../EuroTransit-application/docs`.
 
 ## Documentation Map
 

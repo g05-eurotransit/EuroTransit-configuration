@@ -13,16 +13,21 @@ This checklist defines the configuration-side criteria for EuroTransit Marketpla
 
 - [ ] kind workflow creates a temporary Kubernetes cluster in CI.
 - [ ] Service images are built and loaded into kind.
+- [ ] React frontend image is built and loaded into kind when frontend routing is part of the check.
 - [ ] Kubernetes manifests or Helm/Kustomize output deploy successfully.
 - [ ] Readiness checks pass for all required services.
 - [ ] Kotlin/JUnit e2e smoke tests run through the gateway.
 
 ## Gateway, Auth, and Routing
 
+- [ ] React frontend route is exposed through the gateway.
 - [ ] Traefik exposes only intended public APIs.
+- [ ] Keycloak is configured as the OIDC provider for target-cluster proof.
 - [ ] Protected APIs reject unauthenticated requests.
 - [ ] Inventory and Payments are not publicly routable.
 - [ ] Secret and config values are externalized and not committed as plaintext secrets.
+- [ ] Payment provider sandbox/test credentials are configured through the selected secret mechanism.
+- [ ] Final cluster/demo proof does not depend on mocked services.
 
 ## Progressive Delivery
 

@@ -2,7 +2,7 @@
 
 Docker Compose remains the fast developer loop. kind is the Kubernetes acceptance gate used by CI to prove that manifests, routing, authentication boundaries, readiness probes, and core e2e behavior work on Kubernetes.
 
-**Owner:** Technical Coordinator + Delivery/Security Owner.
+**Owner:** Technical Coordinator + Gateway/Security Slice Owner.
 
 ## Expected Workflow
 
@@ -29,6 +29,7 @@ Include:
 - gateway routing checks;
 - authentication smoke checks;
 - public/internal route separation;
+- React frontend route availability;
 - a minimal checkout happy path when dependencies are available.
 
 Exclude from the mandatory PR gate:
@@ -45,4 +46,5 @@ Those heavier checks belong in manual, nightly, pre-demo, or target-cluster vali
 - Services expose stable health/readiness endpoints.
 - Service runtime variables are documented.
 - E2E tests are kept aligned with API contracts.
-- Mock auth material is available for CI.
+- Local/CI auth material is available for smoke tests. Fixed development JWTs or a mock OIDC issuer are allowed only for local/kind smoke checks; target-cluster proof uses Keycloak.
+- Payment provider sandbox/test credentials are available through the selected secret mechanism when the Payments slice is included in the smoke workflow.
