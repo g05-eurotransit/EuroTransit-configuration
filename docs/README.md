@@ -9,8 +9,10 @@ Application behavior, API contracts, service design, authentication model, idemp
 - `delivery/`: GitOps, CI/CD, kind smoke/e2e checks, progressive delivery, and delivery readiness.
 - `platform/`: Kubernetes networking, ingress, secrets, observability stack, and references to application contracts.
 - `reliability/`: SLOs, chaos experiment reports, and postmortems.
-- `governance/`: agent threat model and agent activity log.
+- `governance/`: agent threat model, agent activity log, and agent skill routing.
 
 Keep this repository focused on how EuroTransit is deployed, operated, observed, and validated on Kubernetes. Do not duplicate service API or domain design documents here; link to the application repository instead.
 
 The expected Kubernetes/GitOps artifact shape is tracked in [delivery/configuration-artifact-backlog.md](delivery/configuration-artifact-backlog.md) until concrete manifests and Helm/Kustomize assets are added.
+
+Agent skill drafts are canonical in the sibling application repository under `../EuroTransit-application/docs/agent-skills`; this repository keeps only the configuration-side routing note in [governance/agent-skill-recommendations.md](governance/agent-skill-recommendations.md).
