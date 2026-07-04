@@ -1,6 +1,6 @@
 # EuroTransit Delivery Readiness Checklist
 
-This checklist defines the configuration-side criteria for EuroTransit Marketplace to be considered ready to run and be demonstrated on Kubernetes. The general product Definition of Done lives in the application repository at `../EuroTransit-application/docs/definition-of-done.md` from the parent project directory.
+This checklist defines the configuration-side criteria for EuroTransit Marketplace to be considered ready to run and be demonstrated on Kubernetes. The general product Definition of Done lives in the application repository at `../EuroTransit-application/docs/capstone-dod.md` from the parent project directory.
 
 ## GitOps Delivery
 

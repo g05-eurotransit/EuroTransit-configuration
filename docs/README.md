@@ -12,3 +12,5 @@ Application behavior, API contracts, service design, authentication model, idemp
 - `governance/`: agent threat model and agent activity log.
 
 Keep this repository focused on how EuroTransit is deployed, operated, observed, and validated on Kubernetes. Do not duplicate service API or domain design documents here; link to the application repository instead.
+
+The expected Kubernetes/GitOps artifact shape is tracked in [delivery/configuration-artifact-backlog.md](delivery/configuration-artifact-backlog.md) until concrete manifests and Helm/Kustomize assets are added.
