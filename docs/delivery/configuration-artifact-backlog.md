@@ -17,7 +17,7 @@ Application behavior and service contracts remain canonical in the sibling appli
 - [ ] Keycloak/OIDC configuration references for the cluster/proof target.
 - [ ] SealedSecrets or selected external secret mechanism.
 - [ ] Strimzi Kafka topics/users required by the application.
-- [ ] CloudNativePG cluster/database configuration for Orders order-state persistence.
+- [ ] CloudNativePG cluster/database configuration for `orders_db`, `inventory_db`, and `payments_db` with separate service credentials.
 - [ ] kube-prometheus-stack and tracing collector configuration.
 - [ ] Chaos Mesh installation or reference.
 
@@ -44,4 +44,5 @@ Application behavior and service contracts remain canonical in the sibling appli
 - [ ] RBAC and ServiceAccount definitions with least privilege.
 - [ ] Network/routing rules proving Inventory and Payments are not public.
 - [ ] Secret names and rotation expectations documented for Keycloak, payment sandbox provider, databases, and Kafka.
+- [ ] Service environment/config values for idempotency retention: Inventory 30 minutes, Orders 24 hours, Payments 24 hours.
 - [ ] Policy or review checklist for generated manifests before merge.
