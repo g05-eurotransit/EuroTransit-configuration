@@ -11,3 +11,15 @@ This document owns the platform-side observability stack.
 - Distributed tracing for the money path.
 
 Service instrumentation conventions are coordinated with the application repository; dashboards, alert rules, and platform deployment live here.
+
+## Money-Path Proof Checklist
+
+- Public Orders route rejects unauthenticated checkout.
+- Catalog route is reachable according to the selected public/auth policy.
+- Inventory and Payments have no public ingress.
+- A checkout flow carries one `X-Correlation-Id` through Orders, Inventory, Payments, Kafka events, and Notifications where applicable.
+- Duplicate order placement with the same idempotency key does not create a second logical order.
+- Inventory idempotency retention is configured for 30 minutes while seat holds still expire after 10 minutes.
+- Orders and Payments idempotency retention are configured for 24 hours.
+- Payment sandbox credentials are loaded from Kubernetes secret material, not source code.
+- Notifications outage does not fail an already confirmed checkout.
