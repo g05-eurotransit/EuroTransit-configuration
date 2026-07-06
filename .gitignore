@@ -28,7 +28,7 @@ kubeconfig
 
 # Helm (ignore downloaded dependencies if running `helm dep build` locally)
 # charts/ directory inside your Helm chart directories
-**/charts/
+# **/charts/
 # Temporary Helm directories
 **/tmpcharts/
 

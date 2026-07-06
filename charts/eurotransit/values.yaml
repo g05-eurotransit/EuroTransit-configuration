@@ -1,0 +1,41 @@
+global:
+  domain: eurotransit.local
+  database:
+    host: eurotransit-db-rw
+    port: 5432
+    secretName: db-credentials
+
+catalog:
+  image:
+    repository: eurotransit/catalog
+    tag: "latest" # Will be overridden by CI
+  replicaCount: 1
+  resources: {}
+
+orders:
+  image:
+    repository: eurotransit/orders
+    tag: "latest"
+  replicaCount: 1
+  resources: {}
+
+inventory:
+  image:
+    repository: eurotransit/inventory
+    tag: "latest"
+  replicaCount: 1
+  resources: {}
+
+payments:
+  image:
+    repository: eurotransit/payments
+    tag: "latest"
+  replicaCount: 1
+  resources: {}
+
+notifications:
+  image:
+    repository: eurotransit/notifications
+    tag: "latest"
+  replicaCount: 1
+  resources: {}
