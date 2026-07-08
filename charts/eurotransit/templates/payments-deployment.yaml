@@ -6,6 +6,10 @@ metadata:
     app: payments
 spec:
   replicas: {{ .Values.payments.replicaCount }}
+  revisionHistoryLimit: {{ .Values.global.deployment.revisionHistoryLimit }}
+  minReadySeconds: {{ .Values.global.deployment.minReadySeconds }}
+  strategy:
+    {{- toYaml .Values.global.deployment.strategy | nindent 4 }}
   selector:
     matchLabels:
       app: payments
@@ -14,6 +18,35 @@ spec:
       labels:
         app: payments
     spec:
+      terminationGracePeriodSeconds: {{ .Values.global.deployment.terminationGracePeriodSeconds }}
+      {{- if .Values.global.deployment.topologySpreadConstraints.enabled }}
+      topologySpreadConstraints:
+        - maxSkew: {{ .Values.global.deployment.topologySpreadConstraints.maxSkew }}
+          topologyKey: {{ .Values.global.deployment.topologySpreadConstraints.topologyKey }}
+          whenUnsatisfiable: {{ .Values.global.deployment.topologySpreadConstraints.whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              app: payments
+      {{- end }}
+      {{- if .Values.global.deployment.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          {{- if eq .Values.global.deployment.podAntiAffinity.type "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: payments
+              topologyKey: {{ .Values.global.deployment.podAntiAffinity.topologyKey }}
+          {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: {{ .Values.global.deployment.podAntiAffinity.weight }}
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: payments
+                topologyKey: {{ .Values.global.deployment.podAntiAffinity.topologyKey }}
+          {{- end }}
+      {{- end }}
       containers:
         - name: payments
           image: "{{ .Values.payments.image.repository }}:{{ .Values.payments.image.tag }}"
@@ -28,17 +61,41 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: "cluster"
             # Add provider secrets here
+            - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
+              value: "true"
+            - name: SERVER_SHUTDOWN
+              value: "graceful"
+            - name: SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE
+              value: "30s"
+          {{- if gt (int .Values.global.deployment.preStopSleepSeconds) 0 }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - sleep {{ .Values.global.deployment.preStopSleepSeconds }}
+          {{- end }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.global.deployment.probes.startup.path }}
+              port: http
+            failureThreshold: {{ .Values.global.deployment.probes.startup.failureThreshold }}
+            periodSeconds: {{ .Values.global.deployment.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.global.deployment.probes.startup.timeoutSeconds }}
           livenessProbe:
             httpGet:
-              path: /actuator/health/liveness
+              path: {{ .Values.global.deployment.probes.liveness.path }}
               port: http
-            initialDelaySeconds: 15
-            periodSeconds: 10
+            periodSeconds: {{ .Values.global.deployment.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.global.deployment.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.global.deployment.probes.liveness.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: /actuator/health/readiness
+              path: {{ .Values.global.deployment.probes.readiness.path }}
               port: http
-            initialDelaySeconds: 15
-            periodSeconds: 10
+            periodSeconds: {{ .Values.global.deployment.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.global.deployment.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.global.deployment.probes.readiness.failureThreshold }}
           resources:
             {{- toYaml .Values.payments.resources | nindent 12 }}
