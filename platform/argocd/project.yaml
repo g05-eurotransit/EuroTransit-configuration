@@ -9,7 +9,6 @@ spec:
     - https://github.com/carmelo-gulino/EuroTransit-configuration
     - https://traefik.github.io/charts
     - https://charts.jetstack.io
-    - https://bitnami-labs.github.io/sealed-secrets
     - https://strimzi.io/charts/
     - https://cloudnative-pg.github.io/charts
     - https://prometheus-community.github.io/helm-charts

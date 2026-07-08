@@ -45,8 +45,7 @@ metrics:
     service:
       enabled: true
     serviceMonitor:
-      enabled: true
-      namespace: monitoring
+      enabled: false
 
 dashboard:
   enabled: true
