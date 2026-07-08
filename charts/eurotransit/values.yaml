@@ -1,9 +1,13 @@
 global:
   domain: eurotransit.local
   database:
-    host: eurotransit-db-rw
+    host: eurotransit-postgres-rw
     port: 5432
     secretName: db-credentials
+  oidc:
+    issuerUri: https://keycloak.eurotransit.local/realms/eurotransit
+    jwkSetUri: http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs
+    audience: eurotransit-api
   deployment:
     minReadySeconds: 10
     revisionHistoryLimit: 3
@@ -44,6 +48,28 @@ global:
     enabled: true
     minAvailable: 1
 
+ingress:
+  enabled: true
+  entryPoints:
+    - websecure
+  tls:
+    secretName: eurotransit-local-tls
+  forwardAuth:
+    enabled: false
+    address: http://keycloak-forward-auth.eurotransit.svc.cluster.local:4181
+
+monitoring:
+  serviceMonitors:
+    enabled: true
+    releaseLabel: kube-prometheus-stack
+    path: /actuator/prometheus
+    interval: 30s
+
+networkPolicies:
+  enabled: true
+  traefikNamespace: traefik
+  monitoringNamespace: monitoring
+
 catalog:
   image:
     repository: eurotransit/catalog
@@ -78,3 +104,5 @@ notifications:
     tag: "latest"
   replicaCount: 2
   resources: {}
+  publicApi:
+    enabled: true

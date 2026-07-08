@@ -1,0 +1,15 @@
+chaosDaemon:
+  runtime: containerd
+  socketPath: /run/containerd/containerd.sock
+
+dashboard:
+  create: true
+  securityMode: true
+
+controllerManager:
+  replicaCount: 2
+
+prometheus:
+  create: false
+  address: http://kube-prometheus-stack-prometheus.monitoring:9090
+

@@ -1,0 +1,18 @@
+fullnameOverride: sealed-secrets-controller
+namespace: sealed-secrets
+
+rbac:
+  create: true
+
+serviceMonitor:
+  create: true
+  namespace: monitoring
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+

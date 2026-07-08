@@ -1,0 +1,25 @@
+{{- if .Values.monitoring.serviceMonitors.enabled }}
+{{- range $service := list "catalog" "orders" "inventory" "payments" "notifications" }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $service }}
+  labels:
+    app: {{ $service }}
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    release: {{ $.Values.monitoring.serviceMonitors.releaseLabel | quote }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}
+  selector:
+    matchLabels:
+      app: {{ $service }}
+  endpoints:
+    - port: http
+      path: {{ $.Values.monitoring.serviceMonitors.path | quote }}
+      interval: {{ $.Values.monitoring.serviceMonitors.interval | quote }}
+{{- end }}
+{{- end }}
+

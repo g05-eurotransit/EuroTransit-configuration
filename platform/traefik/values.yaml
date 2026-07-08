@@ -1,0 +1,69 @@
+deployment:
+  replicas: 2
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: false
+  kubernetesIngress:
+    enabled: false
+
+ports:
+  web:
+    expose:
+      default: true
+    exposedPort: 80
+    port: 8000
+    redirections:
+      entryPoint:
+        to: websecure
+        scheme: https
+  websecure:
+    expose:
+      default: true
+    exposedPort: 443
+    port: 8443
+    tls:
+      enabled: true
+
+service:
+  type: LoadBalancer
+
+logs:
+  general:
+    level: INFO
+  access:
+    enabled: true
+
+metrics:
+  prometheus:
+    enabled: true
+    service:
+      enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+
+dashboard:
+  enabled: true
+
+additionalArguments:
+  - --api.dashboard=true
+  - --ping=true
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+

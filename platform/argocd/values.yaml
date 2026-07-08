@@ -1,0 +1,40 @@
+configs:
+  params:
+    server.insecure: true
+
+server:
+  service:
+    type: ClusterIP
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+
+controller:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+
+repoServer:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+
+applicationSet:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: monitoring
+
+notifications:
+  enabled: false
+
+global:
+  domain: argocd.eurotransit.local
+

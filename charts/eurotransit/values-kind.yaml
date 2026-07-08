@@ -1,0 +1,10 @@
+global:
+  domain: eurotransit.local
+  oidc:
+    issuerUri: https://keycloak.eurotransit.local/realms/eurotransit
+    jwkSetUri: http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs
+    audience: eurotransit-api
+
+ingress:
+  tls:
+    secretName: eurotransit-local-tls

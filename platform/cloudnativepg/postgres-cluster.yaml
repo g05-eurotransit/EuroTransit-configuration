@@ -1,0 +1,43 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: eurotransit-postgres
+  namespace: eurotransit
+  labels:
+    app.kubernetes.io/name: eurotransit-postgres
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  storage:
+    size: 10Gi
+  monitoring:
+    enablePodMonitor: true
+  bootstrap:
+    initdb:
+      database: orders_db
+      owner: orders
+      secret:
+        name: orders-db-credentials
+      postInitSQL:
+        - CREATE ROLE inventory LOGIN;
+        - CREATE ROLE payments LOGIN;
+        - CREATE DATABASE inventory_db OWNER inventory;
+        - CREATE DATABASE payments_db OWNER payments;
+  managed:
+    roles:
+      - name: orders
+        ensure: present
+        login: true
+        passwordSecret:
+          name: orders-db-credentials
+      - name: inventory
+        ensure: present
+        login: true
+        passwordSecret:
+          name: inventory-db-credentials
+      - name: payments
+        ensure: present
+        login: true
+        passwordSecret:
+          name: payments-db-credentials

@@ -1,0 +1,290 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: eurotransit-platform
+  sources:
+    - repoURL: https://traefik.github.io/charts
+      chart: traefik
+      targetRevision: 36.3.0
+      helm:
+        valueFiles:
+          - $values/platform/traefik/values.yaml
+    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: eurotransit-platform
+  sources:
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: v1.18.2
+      helm:
+        valueFiles:
+          - $values/platform/cert-manager/values.yaml
+    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sealed-secrets
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: eurotransit-platform
+  sources:
+    - repoURL: https://bitnami-labs.github.io/sealed-secrets
+      chart: sealed-secrets
+      targetRevision: 2.17.7
+      helm:
+        valueFiles:
+          - $values/platform/sealed-secrets/values.yaml
+    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sealed-secrets
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: strimzi
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: eurotransit-platform
+  sources:
+    - repoURL: https://strimzi.io/charts/
+      chart: strimzi-kafka-operator
+      targetRevision: 0.46.1
+      helm:
+        valueFiles:
+          - $values/platform/strimzi/values.yaml
+    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: strimzi
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudnativepg
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: eurotransit-platform
+  sources:
+    - repoURL: https://cloudnative-pg.github.io/charts
+      chart: cloudnative-pg
+      targetRevision: 0.24.0
+      helm:
+        valueFiles:
+          - $values/platform/cloudnativepg/values.yaml
+    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cnpg-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: eurotransit-platform
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 75.15.1
+      helm:
+        valueFiles:
+          - $values/platform/kube-prometheus-stack/values.yaml
+    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: chaos-mesh
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: eurotransit-platform
+  sources:
+    - repoURL: https://charts.chaos-mesh.org
+      chart: chaos-mesh
+      targetRevision: 2.7.2
+      helm:
+        valueFiles:
+          - $values/platform/chaos-mesh/values.yaml
+    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: chaos-mesh
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keycloak
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "25"
+spec:
+  project: eurotransit-platform
+  sources:
+    - repoURL: https://charts.bitnami.com/bitnami
+      chart: keycloak
+      targetRevision: 25.2.0
+      helm:
+        valueFiles:
+          - $values/platform/keycloak/values.yaml
+          - $values/platform/keycloak/values-kind.yaml
+    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: keycloak
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: eurotransit-platform-runtime
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  project: eurotransit-platform
+  source:
+    repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    targetRevision: main
+    path: platform
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: eurotransit
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: eurotransit-marketplace
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
+spec:
+  project: eurotransit-platform
+  source:
+    repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    targetRevision: main
+    path: charts/eurotransit
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-kind.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: eurotransit
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+

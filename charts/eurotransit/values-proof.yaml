@@ -1,0 +1,10 @@
+global:
+  domain: eurotransit.gXX.cpo2026.it
+  oidc:
+    issuerUri: https://keycloak.gXX.cpo2026.it/realms/eurotransit
+    jwkSetUri: http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs
+    audience: eurotransit-api
+
+ingress:
+  tls:
+    secretName: eurotransit-proof-tls
