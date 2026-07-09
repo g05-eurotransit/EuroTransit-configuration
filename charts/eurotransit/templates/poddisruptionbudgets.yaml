@@ -1,0 +1,16 @@
+{{- if .Values.global.podDisruptionBudget.enabled }}
+{{- range $service := list "catalog" "orders" "inventory" "payments" "notifications" }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $service }}
+  labels:
+    app: {{ $service }}
+spec:
+  minAvailable: {{ $.Values.global.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      app: {{ $service }}
+{{- end }}
+{{- end }}
