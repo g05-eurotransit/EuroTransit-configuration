@@ -1,0 +1,30 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: orders-to-payments-latency
+  namespace: eurotransit
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    eurotransit.io/experiment: orders-to-payments-latency
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces:
+      - eurotransit
+    labelSelectors:
+      app: orders
+  direction: to
+  target:
+    mode: all
+    selector:
+      namespaces:
+        - eurotransit
+      labelSelectors:
+        app: payments
+  delay:
+    latency: 800ms
+    jitter: 100ms
+    correlation: "100"
+  duration: 5m
+

@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-local-tls
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: eurotransit-platform
+spec:
+  secretName: argocd-local-tls
+  issuerRef:
+    name: eurotransit-selfsigned
+    kind: ClusterIssuer
+  dnsNames:
+    - argocd.eurotransit.local
+

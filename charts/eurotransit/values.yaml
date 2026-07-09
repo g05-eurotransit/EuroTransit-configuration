@@ -1,9 +1,15 @@
 global:
   domain: eurotransit.local
   database:
-    host: eurotransit-db-rw
+    host: eurotransit-postgres-rw
     port: 5432
     secretName: db-credentials
+  kafka:
+    bootstrapServers: eurotransit-kafka-kafka-bootstrap:9092
+  oidc:
+    issuerUri: https://keycloak.eurotransit.local/realms/eurotransit
+    jwkSetUri: http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs
+    audience: eurotransit-api
   deployment:
     minReadySeconds: 10
     revisionHistoryLimit: 3
@@ -43,33 +49,76 @@ global:
   podDisruptionBudget:
     enabled: true
     minAvailable: 1
+ingress:
+  enabled: true
+  entryPoints:
+    - websecure
+  tls:
+    secretName: eurotransit-local-tls
+  forwardAuth:
+    enabled: false
+    address: http://keycloak-forward-auth.eurotransit.svc.cluster.local:4181
+
+monitoring:
+  serviceMonitors:
+    enabled: true
+    releaseLabel: kube-prometheus-stack
+    path: /actuator/prometheus
+    interval: 30s
+
+networkPolicies:
+  enabled: true
+  traefikNamespace: traefik
+  monitoringNamespace: monitoring
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
     tag: "fb5569d" # Will be overridden by CI
   replicaCount: 2
   resources: {}
+  
 orders:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/orders
     tag: "fb5569d"
   replicaCount: 2
   resources: {}
+  database:
+    name: orders_db
+    secretName: orders-db-credentials
+  services:
+    inventoryUrl: http://inventory:8080
+    paymentsUrl: http://payments:8080
+  
 inventory:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/inventory
     tag: "fb5569d"
   replicaCount: 2
   resources: {}
+  database:
+    name: inventory_db
+    secretName: inventory-db-credentials
+
 payments:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/payments
     tag: "fb5569d"
   replicaCount: 2
   resources: {}
+  database:
+    name: payments_db
+    secretName: payments-db-credentials
+  provider:
+    sandboxUrl: https://api.stripe.com/v1
+    secretName: payments-provider-credentials
+    secretKey: provider-api-key
+   
 notifications:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/notifications
     tag: "fb5569d"
   replicaCount: 2
   resources: {}
+  publicApi:
+    enabled: true

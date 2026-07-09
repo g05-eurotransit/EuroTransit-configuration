@@ -7,7 +7,7 @@ This document owns Kubernetes networking and ingress behavior for EuroTransit Ma
 - Traefik is the north-south gateway.
 - React frontend, Catalog, Orders, and authenticated customer notification read/stream endpoints are the only public service groups.
 - Inventory, Payments, and the Notifications Kafka consumer are internal-only.
-- Keycloak is the cluster/proof OIDC identity provider.
+- Keycloak is the cluster/proof OIDC identity provider and is exposed as a platform identity endpoint.
 - Protected external APIs must reject unauthenticated traffic before it reaches service pods.
 - Service-level authorization remains the responsibility of the application services.
 - Payments remains internal-only even though it calls an external provider sandbox/test API.
@@ -22,6 +22,7 @@ This document owns Kubernetes networking and ingress behavior for EuroTransit Ma
 | Catalog | Yes | Public catalog reads; personalized reads require auth if implemented |
 | Orders | Yes | Protected checkout and order status |
 | Notifications read/SSE | Yes, if implemented | Protected customer-owned notification access |
+| Keycloak/OIDC | Yes | Platform identity endpoint for login, token issuance, discovery, and JWKS |
 | Inventory | No | Internal service only |
 | Payments | No | Internal service only; may call external provider sandbox |
 | Notifications consumer | No | Kafka consumer only |
@@ -31,6 +32,15 @@ This document owns Kubernetes networking and ingress behavior for EuroTransit Ma
 - Traefik or gateway middleware should preserve inbound `X-Correlation-Id`.
 - If a public request is missing `X-Correlation-Id`, the gateway should generate one when supported.
 - Ingress and middleware must not strip `X-Correlation-Id` before forwarding to application services.
+
+## Current Manifests
+
+- Traefik controller values live in `platform/traefik/values.yaml`.
+- Public API routing is rendered from `charts/eurotransit/templates/ingressroutes.yaml`.
+- Gateway middleware is rendered from `charts/eurotransit/templates/traefik-middlewares.yaml`.
+- Inventory and Payments remain internal-only through the absence of IngressRoutes and the baseline `charts/eurotransit/templates/networkpolicies.yaml`.
+- Local TLS is provisioned by `platform/cert-manager/eurotransit-local-certificate.yaml`, `platform/cert-manager/argocd-local-certificate.yaml`, and Keycloak ingress cert-manager annotations.
+- Argo CD UI routing through Traefik lives in `platform/traefik/argocd-ingressroute.yaml`.
 
 ## To Document
 

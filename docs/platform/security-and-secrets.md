@@ -43,11 +43,22 @@ Configuration must provision:
 
 One PostgreSQL cluster may host the three logical databases in local/proof environments, but service users must not receive cross-database read/write access.
 
+## Current Manifests
+
+- Sealed Secrets controller values live in `platform/sealed-secrets/values.yaml`.
+- Database credential templates live in `platform/cloudnativepg/templates/`.
+- Payment provider and Keycloak client secret templates live in `platform/sealed-secrets/templates/`.
+- Argo CD private configuration repository credential templates live in `platform/argocd/templates/`.
+- Keycloak admin and database credential templates live in `platform/keycloak/templates/`.
+- Keycloak multi-environment OIDC configuration lives in `platform/keycloak/` and is documented in `docs/platform/keycloak-oidc.md`.
+- CloudNativePG database and role references live in `platform/cloudnativepg/postgres-cluster.yaml`.
+- The sealing workflow is documented in `docs/platform/cluster-bootstrap-runbook.md`.
+
 ## To Document
 
 - local development secrets;
 - CI secrets;
-- Keycloak realm, clients, roles/scopes, issuer URL, and JWKS configuration;
+- Keycloak realm, clients, roles/scopes, issuer URL, and JWKS configuration for proof/production hostnames;
 - payment provider sandbox secret names and rotation expectations;
 - Kubernetes Secret or external secret strategy;
 - rotation expectations;

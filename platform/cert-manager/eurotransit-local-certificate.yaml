@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: eurotransit-local-tls
+  namespace: eurotransit
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  secretName: eurotransit-local-tls
+  issuerRef:
+    name: eurotransit-selfsigned
+    kind: ClusterIssuer
+  dnsNames:
+    - eurotransit.local
+

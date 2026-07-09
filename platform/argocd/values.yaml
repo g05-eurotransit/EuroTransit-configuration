@@ -1,0 +1,36 @@
+configs:
+  params:
+    server.insecure: true
+
+server:
+  service:
+    type: ClusterIP
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+controller:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+repoServer:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+applicationSet:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: false
+
+notifications:
+  enabled: false
+
+global:
+  domain: argocd.eurotransit.local
+

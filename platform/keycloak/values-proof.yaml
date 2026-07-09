@@ -1,0 +1,24 @@
+ingress:
+  enabled: true
+  hostname: keycloak.gXX.cpo2026.it
+  ingressClassName: traefik
+  path: /
+  pathType: Prefix
+  tls: true
+  annotations:
+    cert-manager.io/cluster-issuer: eurotransit-letsencrypt
+
+replicaCount: 2
+
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: keycloak-postgres-rw.keycloak.svc.cluster.local
+  port: 5432
+  database: keycloak_db
+  user: keycloak
+  existingSecret: keycloak-external-db-credentials
+  existingSecretUserKey: username
+  existingSecretPasswordKey: password
+

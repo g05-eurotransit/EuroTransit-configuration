@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-ui
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: eurotransit-platform
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`argocd.eurotransit.local`)
+      kind: Rule
+      services:
+        - name: argocd-server
+          namespace: argocd
+          port: 80
+  tls:
+    secretName: argocd-local-tls
+

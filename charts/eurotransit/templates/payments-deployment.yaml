@@ -60,7 +60,35 @@ spec:
               value: "8080"
             - name: SPRING_PROFILES_ACTIVE
               value: "cluster"
-            # Add provider secrets here
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
+              value: {{ .Values.global.oidc.issuerUri | quote }}
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
+              value: {{ .Values.global.oidc.jwkSetUri | quote }}
+            - name: EUROTRANSIT_SECURITY_OIDC_AUDIENCE
+              value: {{ .Values.global.oidc.audience | quote }}
+            - name: DB_HOST
+              value: {{ .Values.global.database.host | quote }}
+            - name: DB_PORT
+              value: {{ .Values.global.database.port | quote }}
+            - name: DB_NAME
+              value: {{ .Values.payments.database.name | quote }}
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.payments.database.secretName | quote }}
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.payments.database.secretName | quote }}
+                  key: password
+            - name: STRIPE_SANDBOX_URL
+              value: {{ .Values.payments.provider.sandboxUrl | quote }}
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.payments.provider.secretName | quote }}
+                  key: {{ .Values.payments.provider.secretKey | quote }}
             - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
               value: "true"
             - name: SERVER_SHUTDOWN

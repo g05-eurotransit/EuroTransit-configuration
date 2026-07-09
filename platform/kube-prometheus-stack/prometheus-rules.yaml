@@ -1,0 +1,47 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: eurotransit-money-path
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: eurotransit.checkout
+      rules:
+        - alert: CheckoutFastBurn
+          expr: |
+            (
+              sum(rate(http_server_requests_seconds_count{namespace="eurotransit",app="orders",status=~"5.."}[10m]))
+              /
+              sum(rate(http_server_requests_seconds_count{namespace="eurotransit",app="orders"}[10m]))
+            ) > 0.02
+          for: 10m
+          labels:
+            severity: page
+          annotations:
+            summary: Checkout success-rate SLO is burning fast
+            description: Orders is returning elevated 5xx errors on the checkout path.
+        - alert: CheckoutLatencyHigh
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum by (le) (rate(http_server_requests_seconds_bucket{namespace="eurotransit",app="orders",uri=~"/api/orders.*"}[15m]))
+            ) > 2
+          for: 15m
+          labels:
+            severity: ticket
+          annotations:
+            summary: Checkout p95 latency is above 2 seconds
+            description: The money-path latency target is breached for Orders checkout endpoints.
+        - alert: KafkaPipelineStalled
+          expr: |
+            sum(kafka_consumergroup_lag{namespace="eurotransit"}) by (consumergroup) > 100
+          for: 15m
+          labels:
+            severity: ticket
+          annotations:
+            summary: Kafka consumer lag is growing
+            description: The async checkout or notification pipeline is not converging.
+

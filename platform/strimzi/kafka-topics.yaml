@@ -1,0 +1,136 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: order-events
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    cleanup.policy: delete
+    retention.ms: 604800000
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: inventory-events
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    cleanup.policy: delete
+    retention.ms: 604800000
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: payment-events
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    cleanup.policy: delete
+    retention.ms: 604800000
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: notification-events
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    cleanup.policy: delete
+    retention.ms: 604800000
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: inventory-reserved
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    cleanup.policy: delete
+    retention.ms: 604800000
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: inventory-failed
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    cleanup.policy: delete
+    retention.ms: 604800000
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: inventory-outbox-connect-configs
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 1
+  replicas: 3
+  config:
+    cleanup.policy: compact
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: inventory-outbox-connect-offsets
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 25
+  replicas: 3
+  config:
+    cleanup.policy: compact
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: inventory-outbox-connect-status
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 5
+  replicas: 3
+  config:
+    cleanup.policy: compact
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: eurotransit-dead-letter
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    cleanup.policy: delete
+    retention.ms: 1209600000

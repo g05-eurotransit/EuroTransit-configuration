@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: eurotransit-platform
+  namespace: argocd
+spec:
+  description: Platform and runtime bootstrap for EuroTransit Marketplace
+  sourceRepos:
+    - https://github.com/carmelo-gulino/EuroTransit-configuration
+    - https://traefik.github.io/charts
+    - https://charts.jetstack.io
+    - https://strimzi.io/charts/
+    - https://cloudnative-pg.github.io/charts
+    - https://prometheus-community.github.io/helm-charts
+    - https://charts.chaos-mesh.org
+    - https://charts.bitnami.com/bitnami
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
