@@ -13,6 +13,6 @@ Application behavior, API contracts, service design, authentication model, idemp
 
 Keep this repository focused on how EuroTransit is deployed, operated, observed, and validated on Kubernetes. Do not duplicate service API or domain design documents here; link to the application repository instead.
 
-The cluster bootstrap sequence is documented in [platform/cluster-bootstrap-runbook.md](platform/cluster-bootstrap-runbook.md). Keycloak/OIDC environment configuration is documented in [platform/keycloak-oidc.md](platform/keycloak-oidc.md). Remaining Kubernetes/GitOps artifact gaps are tracked in [delivery/configuration-artifact-backlog.md](delivery/configuration-artifact-backlog.md).
+The cluster bootstrap sequence is documented in [platform/cluster-bootstrap-runbook.md](platform/cluster-bootstrap-runbook.md). The local kind GitOps and Sealed Secrets workflow is documented in [platform/kind-gitops-secrets-runbook.md](platform/kind-gitops-secrets-runbook.md). Keycloak/OIDC environment configuration is documented in [platform/keycloak-oidc.md](platform/keycloak-oidc.md). Remaining Kubernetes/GitOps artifact gaps are tracked in [delivery/configuration-artifact-backlog.md](delivery/configuration-artifact-backlog.md).
 
 Agent skill drafts are canonical in the sibling application repository under `../EuroTransit-application/docs/agent-skills`; this repository keeps only the configuration-side routing note in [governance/agent-skill-recommendations.md](governance/agent-skill-recommendations.md).
