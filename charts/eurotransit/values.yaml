@@ -43,38 +43,33 @@ global:
   podDisruptionBudget:
     enabled: true
     minAvailable: 1
-
 catalog:
   image:
-    repository: eurotransit/catalog
-    tag: "latest" # Will be overridden by CI
+    repository: eurotransitregistry.azurecr.io/eurotransit/catalog
+    tag: "fb5569d" # Will be overridden by CI
   replicaCount: 2
   resources: {}
-
 orders:
   image:
-    repository: eurotransit/orders
-    tag: "latest"
+    repository: eurotransitregistry.azurecr.io/eurotransit/orders
+    tag: "fb5569d"
   replicaCount: 2
   resources: {}
-
 inventory:
   image:
-    repository: eurotransit/inventory
-    tag: "latest"
+    repository: eurotransitregistry.azurecr.io/eurotransit/inventory
+    tag: "fb5569d"
   replicaCount: 2
   resources: {}
-
 payments:
   image:
-    repository: eurotransit/payments
-    tag: "latest"
+    repository: eurotransitregistry.azurecr.io/eurotransit/payments
+    tag: "fb5569d"
   replicaCount: 2
   resources: {}
-
 notifications:
   image:
-    repository: eurotransit/notifications
-    tag: "latest"
+    repository: eurotransitregistry.azurecr.io/eurotransit/notifications
+    tag: "fb5569d"
   replicaCount: 2
   resources: {}
