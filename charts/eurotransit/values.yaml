@@ -53,6 +53,8 @@ ingress:
   enabled: true
   entryPoints:
     - websecure
+  localhost:
+    enabled: true
   tls:
     secretName: eurotransit-local-tls
   forwardAuth:

@@ -8,7 +8,7 @@ This document owns configuration-side security controls. Application-side authen
 - Environment-specific values are externalized through Kubernetes-native mechanisms or the chosen secret management approach.
 - CI must not hold broad cluster credentials.
 - Public ingress must enforce the configured authentication boundary.
-- The cluster/proof target uses Keycloak as the OIDC identity provider. Mock OIDC issuers and fixed JWTs are local-development substitutes only.
+- Target clusters use Keycloak as the OIDC identity provider. Mock OIDC issuers and fixed JWTs are local-development substitutes only.
 - Internal services must not be publicly routable.
 - Final cluster/demo proof must not depend on mocked services or fake in-memory substitutes for core infrastructure.
 - Payments must use sandbox/test provider credentials, such as Stripe test mode or PayPal Sandbox, stored through the chosen Kubernetes secret mechanism.
@@ -18,7 +18,7 @@ This document owns configuration-side security controls. Application-side authen
 
 ## Keycloak Configuration
 
-The cluster/proof Keycloak configuration must define:
+Cluster Keycloak configuration must define:
 
 - realm name;
 - public frontend client;
@@ -41,7 +41,7 @@ Configuration must provision:
 - payment provider sandbox credentials exposed only to Payments;
 - Kafka credentials only where the selected Kafka setup requires them.
 
-One PostgreSQL cluster may host the three logical databases in local/proof environments, but service users must not receive cross-database read/write access.
+One PostgreSQL cluster may host the three logical databases in local environments, but service users must not receive cross-database read/write access.
 
 ## Current Manifests
 
@@ -58,7 +58,7 @@ One PostgreSQL cluster may host the three logical databases in local/proof envir
 
 - local development secrets;
 - CI secrets;
-- Keycloak realm, clients, roles/scopes, issuer URL, and JWKS configuration for proof/production hostnames;
+- Keycloak realm, clients, roles/scopes, issuer URL, and JWKS configuration for production hostnames;
 - payment provider sandbox secret names and rotation expectations;
 - Kubernetes Secret or external secret strategy;
 - rotation expectations;
