@@ -4,9 +4,9 @@ resources:
   - namespaces.yaml
   - cert-manager
   - traefik
+  - sealed-secrets
   - cloudnativepg
   - strimzi
   - kube-prometheus-stack
   - chaos-mesh
   - keycloak
-
