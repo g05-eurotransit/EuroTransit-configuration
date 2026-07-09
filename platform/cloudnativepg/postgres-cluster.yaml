@@ -9,6 +9,11 @@ metadata:
 spec:
   instances: 3
   imageName: ghcr.io/cloudnative-pg/postgresql:16
+  postgresql:
+    parameters:
+      wal_level: logical
+      max_replication_slots: "10"
+      max_wal_senders: "10"
   storage:
     size: 10Gi
   monitoring:
@@ -34,6 +39,7 @@ spec:
       - name: inventory
         ensure: present
         login: true
+        replication: true
         passwordSecret:
           name: inventory-db-credentials
       - name: payments

@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
   - kafka-cluster.yaml
   - kafka-topics.yaml
+  - inventory-outbox-connect.yaml
 

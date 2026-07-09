@@ -177,6 +177,8 @@ kubectl -n eurotransit get certificate
 kubectl -n argocd get certificate
 kubectl -n eurotransit get cluster.postgresql.cnpg.io
 kubectl -n eurotransit get kafka,kafkatopic
+kubectl -n eurotransit get deploy inventory-outbox-connect
+kubectl -n eurotransit get job inventory-outbox-connector-register
 kubectl -n keycloak get pods,svc,ingress
 ```
 
@@ -187,7 +189,8 @@ Expected runtime resources:
 - `orders_db`, `inventory_db`, and `payments_db` logical databases with separate service credentials;
 - `eurotransit-kafka` Strimzi cluster;
 - `keycloak` deployment, service, ingress, and imported `eurotransit` realm;
-- money-path Kafka topics and dead-letter topic;
+- money-path Kafka topics, Inventory outbox topics, Kafka Connect internal topics, and dead-letter topic;
+- `inventory-outbox-connect` Debezium Connect deployment and connector registration job for `inventory.outbox_events`;
 - Prometheus rules for checkout symptoms.
 
 ## 6. Sync EuroTransit Application
@@ -303,7 +306,7 @@ Run and capture evidence for:
 - Inventory and Payments have no IngressRoute and no external Service.
 - SealedSecrets produce Kubernetes Secrets and no plaintext secret is committed.
 - CloudNativePG exposes separate credentials for Orders, Inventory, and Payments.
-- Strimzi topics exist for order, inventory, payment, notification, and dead-letter events.
+- Strimzi topics exist for order, inventory, payment, notification, Inventory outbox routed events, Kafka Connect internal state, and dead-letter events.
 - Prometheus discovers EuroTransit ServiceMonitors.
 - Checkout alerts are loaded as PrometheusRule objects.
 - Chaos Mesh is installed and the optional Orders-to-Payments latency experiment can be applied and removed cleanly.

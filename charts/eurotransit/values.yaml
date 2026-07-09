@@ -4,6 +4,8 @@ global:
     host: eurotransit-postgres-rw
     port: 5432
     secretName: db-credentials
+  kafka:
+    bootstrapServers: eurotransit-kafka-kafka-bootstrap:9092
   oidc:
     issuerUri: https://keycloak.eurotransit.local/realms/eurotransit
     jwkSetUri: http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs
@@ -83,6 +85,12 @@ orders:
     tag: "latest"
   replicaCount: 2
   resources: {}
+  database:
+    name: orders_db
+    secretName: orders-db-credentials
+  services:
+    inventoryUrl: http://inventory:8080
+    paymentsUrl: http://payments:8080
 
 inventory:
   image:
@@ -90,6 +98,9 @@ inventory:
     tag: "latest"
   replicaCount: 2
   resources: {}
+  database:
+    name: inventory_db
+    secretName: inventory-db-credentials
 
 payments:
   image:
@@ -97,6 +108,13 @@ payments:
     tag: "latest"
   replicaCount: 2
   resources: {}
+  database:
+    name: payments_db
+    secretName: payments-db-credentials
+  provider:
+    sandboxUrl: https://api.stripe.com/v1
+    secretName: payments-provider-credentials
+    secretKey: provider-api-key
 
 notifications:
   image:
