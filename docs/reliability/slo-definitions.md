@@ -9,7 +9,7 @@ This repository owns the Kubernetes/GitOps artifacts that make those SLOs observ
 - Provision or reference Prometheus scrape configuration for gateway, Orders, Inventory, Payments, Kafka, and infrastructure metrics.
 - Provide Grafana dashboard definitions or provisioning references for checkout latency, checkout success rate, RED metrics, USE/Golden Signals, Kafka lag, inventory correctness, and payment safety.
 - Provide PrometheusRule or equivalent alert definitions for the symptom-based alerts defined by the application repository.
-- Wire Alertmanager routing for the demo/proof environment.
+- Wire Alertmanager routing for the demo environment.
 - Preserve evidence links or screenshots after target-cluster validation.
 
 ## SLO-to-Artifact Map

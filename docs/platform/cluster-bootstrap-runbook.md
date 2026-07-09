@@ -41,7 +41,7 @@ kubeseal --version
 
 Required cluster assumptions:
 
-- Kubernetes context points to the local/proof cluster.
+- Kubernetes context points to the target cluster.
 - The configuration repository branch is pushed before Argo CD syncs from Git.
 - The application images referenced by `charts/eurotransit/values.yaml` are available in the selected registry or loaded into kind.
 - No plaintext production or sandbox credentials are committed.
@@ -49,10 +49,8 @@ Required cluster assumptions:
 Environment selection:
 
 - Keycloak kind/local uses `platform/keycloak/values.yaml` plus `platform/keycloak/values-kind.yaml`.
-- Keycloak proof/demo uses `platform/keycloak/values.yaml` plus `platform/keycloak/values-proof.yaml`.
 - Keycloak production-style uses `platform/keycloak/values.yaml` plus `platform/keycloak/values-production.yaml`.
 - EuroTransit application kind/local uses `charts/eurotransit/values.yaml` plus `charts/eurotransit/values-kind.yaml`.
-- EuroTransit application proof/demo uses `charts/eurotransit/values.yaml` plus `charts/eurotransit/values-proof.yaml`.
 - EuroTransit application production-style uses `charts/eurotransit/values.yaml` plus `charts/eurotransit/values-production.yaml`.
 - Change the second Keycloak and EuroTransit application value files in `platform/argocd/platform-applications.yaml` when moving environments.
 
@@ -151,7 +149,7 @@ Repeat for:
 - `payments-provider-credentials`;
 - `keycloak-admin-credentials` in namespace `keycloak`;
 - `keycloak-postgresql-credentials` in namespace `keycloak` for kind/local;
-- `keycloak-external-db-credentials` in namespace `keycloak` for proof/production;
+- `keycloak-external-db-credentials` in namespace `keycloak` for production-style deployments;
 - `keycloak-client-settings`;
 - `grafana-admin-credentials` in namespace `monitoring`;
 - `eurotransit-configuration-repo` in namespace `argocd` if the configuration repository is private.
@@ -314,10 +312,9 @@ Run and capture evidence for:
 ## 10. Known Follow-Ups
 
 - Compare `platform/kind/kind-config.yaml` with lab-specific cluster notes if port mappings or node counts need to differ.
-- Switch Keycloak from `values-kind.yaml` to `values-proof.yaml` or `values-production.yaml` after hostnames, TLS issuer, and sealed external DB credentials are ready.
-- Switch EuroTransit from `charts/eurotransit/values-kind.yaml` to `charts/eurotransit/values-proof.yaml` or `charts/eurotransit/values-production.yaml` at the same time as Keycloak.
+- Switch Keycloak from `values-kind.yaml` to `values-production.yaml` after hostnames, TLS issuer, and sealed external DB credentials are ready.
+- Switch EuroTransit from `charts/eurotransit/values-kind.yaml` to `charts/eurotransit/values-production.yaml` at the same time as Keycloak.
 - Replace `forwardAuth.enabled=false` with the selected gateway auth component when it exists.
 - Pin chart versions again immediately before first cluster sync.
 - Add Grafana dashboards for checkout RED, Kafka lag, inventory correctness, and payment safety.
 - Add incident notes and reliability reports for each executed Chaos Mesh experiment.
-

@@ -26,6 +26,18 @@ spec:
       services:
         - name: orders
           port: 8080
+    {{- if .Values.ingress.localhost.enabled }}
+    - match: Host(`localhost`) && PathPrefix(`/api/orders`)
+      kind: Rule
+      middlewares:
+        - name: eurotransit-secure-headers
+        {{- if .Values.ingress.forwardAuth.enabled }}
+        - name: eurotransit-forward-auth
+        {{- end }}
+      services:
+        - name: orders
+          port: 8080
+    {{- end }}
     {{- if .Values.notifications.publicApi.enabled }}
     - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/api/notifications`)
       kind: Rule
@@ -41,4 +53,3 @@ spec:
   tls:
     secretName: {{ .Values.ingress.tls.secretName | quote }}
 {{- end }}
-

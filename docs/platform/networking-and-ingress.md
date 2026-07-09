@@ -7,7 +7,7 @@ This document owns Kubernetes networking and ingress behavior for EuroTransit Ma
 - Traefik is the north-south gateway.
 - React frontend, Catalog, Orders, and authenticated customer notification read/stream endpoints are the only public service groups.
 - Inventory, Payments, and the Notifications Kafka consumer are internal-only.
-- Keycloak is the cluster/proof OIDC identity provider and is exposed as a platform identity endpoint.
+- Keycloak is the cluster OIDC identity provider and is exposed as a platform identity endpoint.
 - Protected external APIs must reject unauthenticated traffic before it reaches service pods.
 - Service-level authorization remains the responsibility of the application services.
 - Payments remains internal-only even though it calls an external provider sandbox/test API.

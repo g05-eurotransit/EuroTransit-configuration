@@ -6,5 +6,7 @@ global:
     audience: eurotransit-api
 
 ingress:
+  localhost:
+    enabled: false
   tls:
     secretName: eurotransit-production-tls

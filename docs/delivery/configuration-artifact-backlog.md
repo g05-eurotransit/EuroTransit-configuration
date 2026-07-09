@@ -14,7 +14,7 @@ Application behavior and service contracts remain canonical in the sibling appli
 ## Platform Components
 
 - [x] Traefik ingress and middleware configuration (public Catalog/Orders/Notifications routes; forward-auth integration pending).
-- [x] Keycloak/OIDC configuration references and Helm values for kind, proof, and production overlays.
+- [x] Keycloak/OIDC configuration references and Helm values for kind and production overlays.
 - [x] SealedSecrets controller configuration and templates (real sealed values pending).
 - [x] Strimzi Kafka cluster and topic manifests (Kafka users pending if TLS/SASL is enabled).
 - [x] CloudNativePG cluster/database configuration for `orders_db`, `inventory_db`, and `payments_db` with separate service credential references.

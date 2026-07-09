@@ -69,7 +69,7 @@ password
 
 CloudNativePG references these names from `platform/cloudnativepg/postgres-cluster.yaml`.
 
-For the local kind environment, it is acceptable to use a shared disposable password while validating the platform. For proof or production-style environments, use distinct generated passwords and follow rotation expectations.
+For the local kind environment, it is acceptable to use a shared disposable password while validating the platform. For production-style environments, use distinct generated passwords and follow rotation expectations.
 
 ## Generate Sealed Database Credentials
 
