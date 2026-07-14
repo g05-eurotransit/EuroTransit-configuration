@@ -107,6 +107,10 @@ kubectl -n keycloak create secret generic keycloak-db-credentials \
   --from-literal=username=keycloak --from-literal=password=password \
   --dry-run=client -o yaml | kubectl apply -f -
 
+# Connector registration Jobs have immutable pod templates. Recreate them on
+# every bootstrap so configuration changes are applied and failed Jobs retry.
+kubectl -n eurotransit delete job inventory-outbox-connector-register \
+  orders-outbox-connector-register --ignore-not-found
 kubectl apply -k "$ROOT_DIR/platform/environments/kind"
 kubectl -n eurotransit wait cluster/eurotransit-postgres --for=condition=Ready --timeout=8m
 kubectl -n eurotransit wait kafka/eurotransit-kafka --for=condition=Ready --timeout=10m
