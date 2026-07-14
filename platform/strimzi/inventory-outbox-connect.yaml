@@ -131,29 +131,29 @@ spec:
 
               cat > /tmp/inventory-outbox-connector.json <<EOF
               {
-                "name": "inventory-outbox-connector",
-                "config": {
-                  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
-                  "tasks.max": "1",
-                  "database.hostname": "eurotransit-postgres-rw",
-                  "database.port": "5432",
-                  "database.user": "inventory",
-                  "database.password": "${INVENTORY_DB_PASSWORD}",
-                  "database.dbname": "inventory_db",
-                  "topic.prefix": "inventory",
-                  "plugin.name": "pgoutput",
-                  "slot.name": "inventory_outbox",
-                  "publication.name": "inventory_outbox_publication",
-                  "publication.autocreate.mode": "filtered",
-                  "table.include.list": "public.outbox_events",
-                  "tombstones.on.delete": "false",
-                  "transforms": "outbox",
-                  "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
-                  "transforms.outbox.table.field.event.key": "aggregate_id",
-                  "transforms.outbox.table.field.event.payload": "payload",
-                  "transforms.outbox.route.by.field": "type",
-                  "transforms.outbox.route.topic.replacement": "\${routedByValue}"
-                }
+                "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+                "tasks.max": "1",
+                "database.hostname": "eurotransit-postgres-rw",
+                "database.port": "5432",
+                "database.user": "inventory",
+                "database.password": "${INVENTORY_DB_PASSWORD}",
+                "database.dbname": "inventory_db",
+                "topic.prefix": "inventory",
+                "plugin.name": "pgoutput",
+                "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+                "value.converter.schemas.enable": "false",
+                "slot.name": "inventory_outbox",
+                "publication.name": "inventory_outbox_publication",
+                "publication.autocreate.mode": "filtered",
+                "table.include.list": "public.outbox_events",
+                "tombstones.on.delete": "false",
+                "transforms": "outbox",
+                "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+                "transforms.outbox.table.field.event.key": "aggregate_id",
+                "transforms.outbox.table.field.event.payload": "payload",
+                "transforms.outbox.table.expand.json.payload": "true",
+                "transforms.outbox.route.by.field": "type",
+                "transforms.outbox.route.topic.replacement": "\${routedByValue}"
               }
               EOF
 

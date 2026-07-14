@@ -4,4 +4,5 @@ resources:
   - kafka-cluster.yaml
   - kafka-topics.yaml
   - inventory-outbox-connect.yaml
+  - orders-outbox-connect.yaml
 
