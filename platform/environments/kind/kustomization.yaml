@@ -11,6 +11,12 @@ patches:
   - path: postgres-patch.yaml
   - path: kafka-nodepool-patch.yaml
   - path: kafka-patch.yaml
+  - path: kafka-topics-kind-patch.yaml
+    target:
+      group: kafka.strimzi.io
+      version: v1beta2
+      kind: KafkaTopic
+      labelSelector: strimzi.io/cluster=eurotransit-kafka
   - path: connect-patch.yaml
   - path: remove-orders-sealedsecret.yaml
   - path: remove-inventory-sealedsecret.yaml

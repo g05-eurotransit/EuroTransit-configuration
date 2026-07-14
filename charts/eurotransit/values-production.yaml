@@ -2,7 +2,7 @@ global:
   domain: g05.cpo2026.it
   oidc:
     issuerUri: https://g05.cpo2026.it/realms/eurotransit
-    jwkSetUri: http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs
+    jwkSetUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/certs
     audience: eurotransit-api
 
 podDisruptionBudget:

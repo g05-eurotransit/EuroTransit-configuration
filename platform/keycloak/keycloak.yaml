@@ -25,7 +25,7 @@ spec:
     httpEnabled: true
     serviceName: keycloak-service
   hostname:
-    hostname: g05.cpo2026.it
+    hostname: https://g05.cpo2026.it
     strict: true
   proxy:
     headers: xforwarded

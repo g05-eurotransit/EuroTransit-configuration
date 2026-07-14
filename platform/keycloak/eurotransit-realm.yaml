@@ -24,6 +24,40 @@ spec:
           description: EuroTransit operational support role
         - name: admin
           description: EuroTransit administrative role
+        - name: service
+          description: EuroTransit internal service-to-service role
+    users:
+      - username: alice
+        enabled: true
+        email: alice@eurotransit.local
+        firstName: Alice
+        lastName: Customer
+        emailVerified: true
+        requiredActions: []
+        credentials:
+          - type: password
+            value: alice
+            temporary: false
+        realmRoles:
+          - customer
+      - username: admin
+        enabled: true
+        email: admin@eurotransit.local
+        firstName: Admin
+        lastName: Operations
+        emailVerified: true
+        requiredActions: []
+        credentials:
+          - type: password
+            value: admin
+            temporary: false
+        realmRoles:
+          - operations
+      - username: service-account-orders-service
+        enabled: true
+        serviceAccountClientId: orders-service
+        realmRoles:
+          - service
     clients:
       - clientId: eurotransit-frontend
         name: EuroTransit Frontend
@@ -35,8 +69,33 @@ spec:
         protocol: openid-connect
         redirectUris:
           - https://g05.cpo2026.it/*
+          - https://eurotransit.local/*
         webOrigins:
           - +
+        protocolMappers:
+          - name: subject
+            protocol: openid-connect
+            protocolMapper: oidc-usermodel-property-mapper
+            consentRequired: false
+            config:
+              user.attribute: id
+              claim.name: sub
+              jsonType.label: String
+              access.token.claim: "true"
+              id.token.claim: "true"
+              userinfo.token.claim: "true"
+          - name: realm roles
+            protocol: openid-connect
+            protocolMapper: oidc-usermodel-realm-role-mapper
+            consentRequired: false
+            config:
+              claim.name: realm_access.roles
+              jsonType.label: String
+              multivalued: "true"
+              access.token.claim: "true"
+              id.token.claim: "true"
+              userinfo.token.claim: "true"
+              full.path: "false"
       - clientId: eurotransit-api
         name: EuroTransit API Audience
         enabled: true
@@ -45,6 +104,28 @@ spec:
         directAccessGrantsEnabled: false
         serviceAccountsEnabled: false
         protocol: openid-connect
+      - clientId: orders-service
+        name: EuroTransit Orders Service
+        enabled: true
+        publicClient: false
+        standardFlowEnabled: false
+        directAccessGrantsEnabled: false
+        serviceAccountsEnabled: true
+        protocol: openid-connect
+        secret: orders-service-secret
+        protocolMappers:
+          - name: realm roles
+            protocol: openid-connect
+            protocolMapper: oidc-usermodel-realm-role-mapper
+            consentRequired: false
+            config:
+              claim.name: realm_access.roles
+              jsonType.label: String
+              multivalued: "true"
+              access.token.claim: "true"
+              id.token.claim: "true"
+              userinfo.token.claim: "true"
+              full.path: "false"
     clientScopes:
       - name: eurotransit-customer
         description: Customer-facing EuroTransit API scope

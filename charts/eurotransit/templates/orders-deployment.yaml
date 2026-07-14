@@ -66,6 +66,10 @@ spec:
               value: {{ .Values.global.oidc.jwkSetUri | quote }}
             - name: EUROTRANSIT_SECURITY_OIDC_AUDIENCE
               value: {{ .Values.global.oidc.audience | quote }}
+            - name: MANAGEMENT_TRACING_EXPORT_OTLP_ENABLED
+              value: {{ .Values.global.observability.tracing.enabled | quote }}
+            - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+              value: {{ .Values.global.observability.tracing.endpoint | quote }}
             - name: DB_HOST
               value: {{ .Values.global.database.host | quote }}
             - name: DB_PORT
@@ -88,6 +92,8 @@ spec:
               value: {{ .Values.orders.services.inventoryUrl | quote }}
             - name: EUROTRANSIT_SERVICES_PAYMENTS_URL
               value: {{ .Values.orders.services.paymentsUrl | quote }}
+            - name: ORDERS_SERVICE_TOKEN_URI
+              value: {{ .Values.orders.serviceAuth.tokenUri | quote }}
             - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
               value: "true"
             - name: SERVER_SHUTDOWN

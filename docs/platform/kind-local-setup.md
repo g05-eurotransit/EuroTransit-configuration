@@ -18,7 +18,7 @@ unresponsive while all workloads start.
 
 ```bash
 just render-kind
-just kind-up
+STRIPE_SECRET_KEY=sk_test_... just kind-up
 just kind-test
 ```
 
@@ -26,6 +26,11 @@ just kind-test
 images from the application repository, loads them into Kind, installs the
 controllers, creates development-only secrets in the cluster, and deploys the
 runtime and application chart. It is safe to run again.
+
+`STRIPE_SECRET_KEY` is required and must be a Stripe test-mode secret key.
+The bootstrap writes it directly to the `payments-provider-credentials`
+Kubernetes Secret; it is not stored in this repository. Live-mode keys are
+rejected in Kind.
 
 Kind intentionally uses one node to limit workstation disk and memory usage;
 the three-node topology is validated only on the assigned AKS cluster.
@@ -36,7 +41,7 @@ uses the application repository's `Dockerfile.ci` to create the runtime images.
 To reuse images already built on the workstation:
 
 ```bash
-SKIP_BUILD=1 just kind-up
+STRIPE_SECRET_KEY=sk_test_... SKIP_BUILD=1 just kind-up
 ```
 
 The default profile includes Traefik, cert-manager, CloudNativePG, Strimzi,
@@ -63,6 +68,7 @@ The smoke test uses curl `--resolve`, so editing `/etc/hosts` is not required.
 For manual browser access, map `eurotransit.local` and
 `keycloak.eurotransit.local` to `127.0.0.1`.
 
-Local secrets are fixed development values created directly in Kind and are
-never written to the repository. AKS uses SealedSecrets and must not reuse
-these values.
+Local database and identity secrets use fixed development values. The payment
+provider credential is supplied through `STRIPE_SECRET_KEY`. These values are
+created directly in Kind and are never written to the repository. AKS uses
+SealedSecrets and must not reuse them.

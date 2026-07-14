@@ -1,0 +1,6 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: ignored-by-target-selector
+spec:
+  replicas: 1

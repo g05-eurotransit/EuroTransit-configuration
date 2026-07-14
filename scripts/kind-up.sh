@@ -5,6 +5,17 @@ source "$(dirname "$0")/lib.sh"
 require_commands docker kind kubectl helm
 require_app_repo
 
+if [[ -z "${STRIPE_SECRET_KEY:-}" ]]; then
+  echo "STRIPE_SECRET_KEY must contain a Stripe test-mode secret key for the Kind payments service." >&2
+  echo "Example: STRIPE_SECRET_KEY=sk_test_... just kind-up" >&2
+  exit 1
+fi
+
+if [[ "$STRIPE_SECRET_KEY" == sk_live_* ]]; then
+  echo "Refusing to use a live Stripe key in the local Kind environment; use a test-mode key." >&2
+  exit 1
+fi
+
 docker_memory_bytes="$(docker info --format '{{.MemTotal}}')"
 # if [[ "$docker_memory_bytes" =~ ^[0-9]+$ ]] && (( docker_memory_bytes < 8589934592 )); then
 #   echo "The integral Kind profile requires Docker Desktop with at least 8 GiB RAM." >&2
@@ -36,6 +47,18 @@ for service in "${services[@]}"; do
   fi
   kind load docker-image --name "$KIND_CLUSTER_NAME" "eurotransit/$service:local"
 done
+
+if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
+  docker build -f "$APP_DIR/frontend/Dockerfile" \
+    --build-arg "VITE_KEYCLOAK_ISSUER=https://keycloak.eurotransit.local/realms/eurotransit" \
+    --build-arg "VITE_KEYCLOAK_CLIENT_ID=eurotransit-frontend" \
+    --build-arg "VITE_API_BASE=/api" \
+    -t eurotransit/frontend:local "$APP_DIR/frontend"
+elif ! docker image inspect "eurotransit/frontend:local" >/dev/null 2>&1; then
+  echo "Missing eurotransit/frontend:local while SKIP_BUILD=1" >&2
+  exit 1
+fi
+kind load docker-image --name "$KIND_CLUSTER_NAME" "eurotransit/frontend:local"
 
 helm repo add traefik https://traefik.github.io/charts --force-update
 helm repo add jetstack https://charts.jetstack.io --force-update
@@ -75,7 +98,7 @@ kubectl -n eurotransit create secret generic keycloak-db-credentials \
   --from-literal=username=keycloak --from-literal=password=password \
   --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n eurotransit create secret generic payments-provider-credentials \
-  --from-literal=provider-api-key=local-test-key \
+  --from-literal="provider-api-key=$STRIPE_SECRET_KEY" \
   --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n keycloak create secret generic keycloak-admin-credentials \
   --from-literal=username=eurotransit-admin --from-literal=password=admin \
@@ -111,6 +134,7 @@ kubectl -n keycloak wait keycloak/eurotransit-keycloak --for=condition=Ready --t
 helm upgrade --install eurotransit "$ROOT_DIR/charts/eurotransit" -n eurotransit \
   -f "$ROOT_DIR/charts/eurotransit/values.yaml" \
   -f "$ROOT_DIR/charts/eurotransit/values-kind.yaml"
+kubectl -n eurotransit rollout restart deployment/payments
 wait_for_deployments eurotransit
 
 echo "EuroTransit is ready. Run: just kind-test"

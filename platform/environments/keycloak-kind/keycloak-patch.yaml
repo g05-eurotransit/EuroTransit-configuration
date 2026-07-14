@@ -5,4 +5,4 @@ metadata:
   namespace: keycloak
 spec:
   hostname:
-    hostname: keycloak.eurotransit.local
+    hostname: https://keycloak.eurotransit.local

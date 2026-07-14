@@ -9,6 +9,14 @@ spec:
   entryPoints:
     {{- toYaml .Values.ingress.entryPoints | nindent 4 }}
   routes:
+    - match: Host(`{{ .Values.global.domain }}`)
+      kind: Rule
+      priority: 1
+      middlewares:
+        - name: eurotransit-secure-headers
+      services:
+        - name: frontend
+          port: 8080
     - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/api/catalog`)
       kind: Rule
       middlewares:
