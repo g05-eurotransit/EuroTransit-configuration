@@ -1,0 +1,4 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata: { name: dual-role, namespace: eurotransit }
+spec: { replicas: 1 }

@@ -1,0 +1,54 @@
+apiVersion: k8s.keycloak.org/v2beta1
+kind: KeycloakRealmImport
+metadata:
+  name: eurotransit
+  namespace: keycloak
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  keycloakCRName: eurotransit-keycloak
+  realm:
+    realm: eurotransit
+    enabled: true
+    displayName: EuroTransit
+    registrationAllowed: false
+    resetPasswordAllowed: true
+    loginWithEmailAllowed: true
+    duplicateEmailsAllowed: false
+    sslRequired: external
+    roles:
+      realm:
+        - name: customer
+          description: EuroTransit customer role for catalog, checkout, orders, and notifications
+        - name: operations
+          description: EuroTransit operational support role
+        - name: admin
+          description: EuroTransit administrative role
+    clients:
+      - clientId: eurotransit-frontend
+        name: EuroTransit Frontend
+        enabled: true
+        publicClient: true
+        standardFlowEnabled: true
+        directAccessGrantsEnabled: false
+        implicitFlowEnabled: false
+        protocol: openid-connect
+        redirectUris:
+          - https://g05.cpo2026.it/*
+        webOrigins:
+          - +
+      - clientId: eurotransit-api
+        name: EuroTransit API Audience
+        enabled: true
+        publicClient: false
+        standardFlowEnabled: false
+        directAccessGrantsEnabled: false
+        serviceAccountsEnabled: false
+        protocol: openid-connect
+    clientScopes:
+      - name: eurotransit-customer
+        description: Customer-facing EuroTransit API scope
+        protocol: openid-connect
+      - name: eurotransit-operations
+        description: Operations EuroTransit API scope
+        protocol: openid-connect

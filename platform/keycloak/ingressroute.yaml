@@ -1,0 +1,19 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: eurotransit-keycloak
+  namespace: keycloak
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`g05.cpo2026.it`)
+      priority: 1
+      services:
+        - name: keycloak-service
+          port: 8080
+  tls:
+    secretName: eurotransit-production-tls

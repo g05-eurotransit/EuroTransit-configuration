@@ -1,12 +1,25 @@
 global:
-  domain: eurotransit.example.com
+  domain: g05.cpo2026.it
   oidc:
-    issuerUri: https://keycloak.eurotransit.example.com/realms/eurotransit
+    issuerUri: https://g05.cpo2026.it/realms/eurotransit
     jwkSetUri: http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs
     audience: eurotransit-api
+
+podDisruptionBudget:
+  enabled: false
 
 ingress:
   localhost:
     enabled: false
   tls:
     secretName: eurotransit-production-tls
+
+catalog: &service
+  replicaCount: 1
+  resources:
+    requests: { cpu: 75m, memory: 192Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+orders: *service
+inventory: *service
+payments: *service
+notifications: *service

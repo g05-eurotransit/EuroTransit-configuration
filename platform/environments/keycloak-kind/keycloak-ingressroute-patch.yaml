@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: eurotransit-keycloak
+  namespace: keycloak
+spec:
+  routes:
+    - kind: Rule
+      match: Host(`keycloak.eurotransit.local`)
+      priority: 1
+      services:
+        - name: keycloak-service
+          port: 8080
+  tls:
+    secretName: keycloak-local-tls

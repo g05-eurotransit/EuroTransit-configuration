@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: keycloak-local-tls
+  namespace: keycloak
+spec:
+  secretName: keycloak-local-tls
+  issuerRef:
+    name: eurotransit-selfsigned
+    kind: ClusterIssuer
+  dnsNames:
+    - keycloak.eurotransit.local

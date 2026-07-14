@@ -14,6 +14,7 @@ spec:
     - https://prometheus-community.github.io/helm-charts
     - https://charts.chaos-mesh.org
     - https://charts.bitnami.com/bitnami
+    - https://github.com/keycloak/keycloak-k8s-resources.git
   destinations:
     - namespace: '*'
       server: https://kubernetes.default.svc
@@ -23,4 +24,3 @@ spec:
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
-

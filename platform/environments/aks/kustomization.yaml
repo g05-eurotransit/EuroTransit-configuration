@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespaces.yaml
+  - ../../cloudnativepg
+  - ../../strimzi
+  - ../../sealed-secrets
+  - ../../kube-prometheus-stack
+  - letsencrypt-cluster-issuer.yaml
+  - production-certificate.yaml
+patches:
+  - path: postgres-patch.yaml
+  - path: kafka-nodepool-patch.yaml
+  - path: kafka-patch.yaml
+  - path: connect-patch.yaml

@@ -1,0 +1,11 @@
+prometheus:
+  prometheusSpec:
+    retention: 2d
+    resources:
+      requests: { cpu: 100m, memory: 256Mi }
+      limits: { cpu: 500m, memory: 768Mi }
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests: { cpu: 25m, memory: 64Mi }
+      limits: { cpu: 150m, memory: 128Mi }

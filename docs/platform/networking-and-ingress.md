@@ -39,7 +39,7 @@ This document owns Kubernetes networking and ingress behavior for EuroTransit Ma
 - Public API routing is rendered from `charts/eurotransit/templates/ingressroutes.yaml`.
 - Gateway middleware is rendered from `charts/eurotransit/templates/traefik-middlewares.yaml`.
 - Inventory and Payments remain internal-only through the absence of IngressRoutes and the baseline `charts/eurotransit/templates/networkpolicies.yaml`.
-- Local TLS is provisioned by `platform/cert-manager/eurotransit-local-certificate.yaml`, `platform/cert-manager/argocd-local-certificate.yaml`, and Keycloak ingress cert-manager annotations.
+- Local TLS is provisioned by the Kind environment certificates for EuroTransit and Keycloak; the Keycloak Operator service is exposed through a Traefik IngressRoute.
 - Argo CD UI routing through Traefik lives in `platform/traefik/argocd-ingressroute.yaml`.
 
 ## To Document

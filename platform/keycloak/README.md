@@ -1,13 +1,25 @@
 # Keycloak Platform Configuration
 
-Keycloak is the EuroTransit Marketplace OIDC identity provider for cluster environments.
+EuroTransit uses the official Keycloak Operator `26.7.0`, installed by the
+`keycloak-operator` Argo CD Application. The instance and realm are managed by
+the `eurotransit-keycloak` Argo CD Application from this directory.
 
-The chart values are split by responsibility:
+- `keycloak.yaml`: one Keycloak instance using the dedicated `keycloak_db` in
+  CloudNativePG.
+- `eurotransit-realm.yaml`: realm, roles, clients and scopes.
+- `ingressroute.yaml`: low-priority Traefik fallback route for Keycloak.
 
-- `values.yaml`: shared realm, clients, metrics, probes, and secret references.
-- `values-kind.yaml`: local kind hostnames and lightweight resources.
-- `values-production.yaml`: production-style hostnames, replicas, and external database references.
+The production hostname is `g05.cpo2026.it`. The Kind overlay is under
+`platform/environments/keycloak-kind` and uses
+`keycloak.eurotransit.local`.
 
-Argo CD currently uses `values.yaml` plus `values-kind.yaml` so the local path is runnable. For production-style deployment, change the second Keycloak value file and the second `charts/eurotransit` value file in `platform/argocd/platform-applications.yaml` after the target hostnames, TLS issuer, and sealed database credentials are ready.
+Required secrets in namespace `keycloak` are:
 
-No admin passwords, database passwords, client secrets, or test-user passwords belong in these values files.
+- `keycloak-admin-credentials` with `username` and `password` keys;
+- `keycloak-db-credentials` with `username` and `password` keys.
+
+CloudNativePG also requires `keycloak-db-credentials` with the same keys in
+namespace `eurotransit`, where it manages the database role.
+
+For AKS commit only the corresponding SealedSecrets encrypted for the target
+controller. The Kind script creates fixed development-only values at runtime.

@@ -1,70 +1,34 @@
 # Keycloak OIDC
 
-Keycloak is the EuroTransit Marketplace OIDC provider for cluster environments. Local fixed JWTs or mock issuers are development substitutes only; they are not suitable for production-style deployments.
+Keycloak is operated by the official Keycloak Operator `26.7.0`. Argo CD first
+installs the operator, then syncs the EuroTransit Keycloak instance and realm
+from `platform/keycloak`.
 
-## Environment Values
+The Keycloak instance uses the dedicated `keycloak_db` database and
+`keycloak` role managed by CloudNativePG. It does not run an embedded chart
+database.
 
-The Keycloak Helm values live in `platform/keycloak/`:
+| Environment | Public hostname | Issuer |
+| --- | --- | --- |
+| Kind | `keycloak.eurotransit.local` | `https://keycloak.eurotransit.local/realms/eurotransit` |
+| AKS | `g05.cpo2026.it` | `https://g05.cpo2026.it/realms/eurotransit` |
 
-| Environment | Value Files | Hostname | Database Mode |
-| --- | --- | --- | --- |
-| kind/local | `values.yaml`, `values-kind.yaml` | `keycloak.eurotransit.local` | embedded chart PostgreSQL |
-| production-style | `values.yaml`, `values-production.yaml` | `keycloak.eurotransit.example.com` | external PostgreSQL secret reference |
+The realm import defines `eurotransit-frontend`, `eurotransit-api`, roles
+`customer`, `operations`, `admin`, and the customer and operations scopes.
 
-Argo CD currently uses the kind overlay for both Keycloak and the EuroTransit application chart. To target production-style deployment, change the second Keycloak value file and the second `charts/eurotransit` value file in `platform/argocd/platform-applications.yaml`, then update the hostnames, TLS issuer, and sealed database credentials first.
+Required `keycloak` namespace secrets are `keycloak-admin-credentials` and
+`keycloak-db-credentials`, each with `username` and `password` keys. For AKS
+they must be SealedSecrets; CloudNativePG also needs
+`keycloak-db-credentials` in namespace `eurotransit`. Kind creates all of
+these development values in-cluster.
 
-## Realm Contract
-
-The shared values import a realm named `eurotransit` with:
-
-- public frontend client: `eurotransit-frontend`;
-- API audience client: `eurotransit-api`;
-- realm roles: `customer`, `operations`, `admin`;
-- client scopes: `eurotransit-customer`, `eurotransit-operations`.
-
-Runtime URLs for kind:
-
-- issuer: `https://keycloak.eurotransit.local/realms/eurotransit`;
-- JWKS: `http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs`.
-
-The EuroTransit application chart passes these through:
-
-- `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI`;
-- `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI`;
-- `EUROTRANSIT_SECURITY_OIDC_AUDIENCE`.
-
-Application environment overlays live beside the chart:
-
-| Environment | Value Files | EuroTransit Hostname | Keycloak Issuer |
-| --- | --- | --- | --- |
-| kind/local | `values.yaml`, `values-kind.yaml` | `eurotransit.local` | `https://keycloak.eurotransit.local/realms/eurotransit` |
-| production-style | `values.yaml`, `values-production.yaml` | `eurotransit.example.com` | `https://keycloak.eurotransit.example.com/realms/eurotransit` |
-
-## Secrets
-
-Required sealed secrets:
-
-- `keycloak-admin-credentials` in namespace `keycloak`;
-- `keycloak-postgresql-credentials` in namespace `keycloak` for kind/local embedded PostgreSQL;
-- `keycloak-external-db-credentials` in namespace `keycloak` for production-style external PostgreSQL;
-- `keycloak-client-settings` in namespace `eurotransit` for application-side client metadata when needed.
-
-Templates live in:
-
-- `platform/keycloak/templates/`;
-- `platform/sealed-secrets/templates/`.
-
-No Keycloak admin passwords, database passwords, client secrets, or test-user passwords should be committed as plaintext.
-
-## Verification
-
-After sync:
+Verify the operator and instance:
 
 ```bash
-kubectl -n keycloak get pods,svc,ingress
-kubectl -n keycloak logs statefulset/keycloak --tail=100
-curl -k https://keycloak.eurotransit.local/realms/eurotransit/.well-known/openid-configuration
-curl -k https://keycloak.eurotransit.local/realms/eurotransit/protocol/openid-connect/certs
+kubectl -n keycloak get deployment/keycloak-operator
+kubectl -n keycloak get keycloak,keycloakrealmimport
+curl -k https://g05.cpo2026.it/realms/eurotransit/.well-known/openid-configuration
 ```
 
-The well-known issuer must match the issuer configured in the application chart for that environment.
+The returned issuer must equal the value configured in the EuroTransit Helm
+overlay for the selected environment.
