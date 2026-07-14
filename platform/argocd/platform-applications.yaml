@@ -14,6 +14,7 @@ spec:
       helm:
         valueFiles:
           - $values/platform/traefik/values.yaml
+          - $values/platform/traefik/values-aks.yaml
     - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
       targetRevision: main
       ref: values
@@ -43,6 +44,7 @@ spec:
       helm:
         valueFiles:
           - $values/platform/cert-manager/values.yaml
+          - $values/platform/cert-manager/values-aks.yaml
     - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
       targetRevision: main
       ref: values
@@ -102,6 +104,7 @@ spec:
       helm:
         valueFiles:
           - $values/platform/strimzi/values.yaml
+          - $values/platform/strimzi/values-aks.yaml
     - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
       targetRevision: main
       ref: values
@@ -132,6 +135,7 @@ spec:
       helm:
         valueFiles:
           - $values/platform/cloudnativepg/values.yaml
+          - $values/platform/cloudnativepg/values-aks.yaml
     - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
       targetRevision: main
       ref: values
@@ -162,6 +166,7 @@ spec:
       helm:
         valueFiles:
           - $values/platform/kube-prometheus-stack/values.yaml
+          - $values/platform/kube-prometheus-stack/values-aks.yaml
     - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
       targetRevision: main
       ref: values
@@ -179,25 +184,22 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: chaos-mesh
+  name: keycloak-operator
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "10"
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   project: eurotransit-platform
-  sources:
-    - repoURL: https://charts.chaos-mesh.org
-      chart: chaos-mesh
-      targetRevision: 2.7.2
-      helm:
-        valueFiles:
-          - $values/platform/chaos-mesh/values.yaml
-    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
-      targetRevision: main
-      ref: values
+  source:
+    repoURL: https://github.com/keycloak/keycloak-k8s-resources.git
+    targetRevision: 26.7.0
+    path: kubernetes
+    directory:
+      recurse: false
+      include: '{keycloaks.k8s.keycloak.org-v1.yml,keycloakrealmimports.k8s.keycloak.org-v1.yml,keycloakoidcclients.k8s.keycloak.org-v1.yml,keycloaksamlclients.k8s.keycloak.org-v1.yml,kubernetes.yml}'
   destination:
     server: https://kubernetes.default.svc
-    namespace: chaos-mesh
+    namespace: keycloak
   syncPolicy:
     automated:
       prune: true
@@ -209,23 +211,16 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: keycloak
+  name: eurotransit-keycloak
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "25"
 spec:
   project: eurotransit-platform
-  sources:
-    - repoURL: https://charts.bitnami.com/bitnami
-      chart: keycloak
-      targetRevision: 25.2.0
-      helm:
-        valueFiles:
-          - $values/platform/keycloak/values.yaml
-          - $values/platform/keycloak/values-kind.yaml
-    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
-      targetRevision: main
-      ref: values
+  source:
+    repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    targetRevision: main
+    path: platform/keycloak
   destination:
     server: https://kubernetes.default.svc
     namespace: keycloak
@@ -249,7 +244,7 @@ spec:
   source:
     repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
     targetRevision: main
-    path: platform
+    path: platform/environments/aks
   destination:
     server: https://kubernetes.default.svc
     namespace: eurotransit
@@ -277,7 +272,7 @@ spec:
     helm:
       valueFiles:
         - values.yaml
-        - values-kind.yaml
+        - values-production.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: eurotransit
@@ -287,4 +282,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-

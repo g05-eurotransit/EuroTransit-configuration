@@ -2,9 +2,43 @@ global:
   domain: eurotransit.local
   oidc:
     issuerUri: https://keycloak.eurotransit.local/realms/eurotransit
-    jwkSetUri: http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs
+    jwkSetUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/certs
     audience: eurotransit-api
+  observability:
+    tracing:
+      enabled: false
+
+podDisruptionBudget:
+  enabled: false
 
 ingress:
   tls:
     secretName: eurotransit-local-tls
+
+monitoring:
+  serviceMonitors:
+    enabled: false
+
+catalog: &service
+  image: { repository: eurotransit/catalog, tag: local }
+  replicaCount: 1
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+orders:
+  <<: *service
+  image: { repository: eurotransit/orders, tag: local }
+inventory:
+  <<: *service
+  image: { repository: eurotransit/inventory, tag: local }
+  seed:
+    enabled: true
+payments:
+  <<: *service
+  image: { repository: eurotransit/payments, tag: local }
+notifications:
+  <<: *service
+  image: { repository: eurotransit/notifications, tag: local }
+frontend:
+  image: { repository: eurotransit/frontend, tag: local }
+  replicaCount: 1

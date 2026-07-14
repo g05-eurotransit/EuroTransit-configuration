@@ -1,0 +1,11 @@
+deployment:
+  replicas: 1
+service:
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/azure-dns-label-name: g05-eurotransit
+podDisruptionBudget:
+  enabled: false
+resources:
+  requests: { cpu: 50m, memory: 64Mi }
+  limits: { cpu: 300m, memory: 256Mi }

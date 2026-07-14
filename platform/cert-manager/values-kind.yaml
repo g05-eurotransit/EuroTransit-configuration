@@ -1,0 +1,7 @@
+prometheus:
+  enabled: false
+  servicemonitor:
+    enabled: false
+replicaCount: 1
+webhook: { replicaCount: 1 }
+cainjector: { replicaCount: 1 }

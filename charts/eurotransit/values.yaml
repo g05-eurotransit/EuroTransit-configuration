@@ -8,8 +8,12 @@ global:
     bootstrapServers: eurotransit-kafka-kafka-bootstrap:9092
   oidc:
     issuerUri: https://keycloak.eurotransit.local/realms/eurotransit
-    jwkSetUri: http://keycloak.keycloak.svc.cluster.local/realms/eurotransit/protocol/openid-connect/certs
+    jwkSetUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/certs
     audience: eurotransit-api
+  observability:
+    tracing:
+      enabled: false
+      endpoint: http://otel-collector.monitoring.svc.cluster.local:4318/v1/traces
   deployment:
     minReadySeconds: 10
     revisionHistoryLimit: 3
@@ -91,6 +95,8 @@ orders:
   services:
     inventoryUrl: http://inventory:8080
     paymentsUrl: http://payments:8080
+  serviceAuth:
+    tokenUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/token
   
 inventory:
   image:
@@ -101,6 +107,8 @@ inventory:
   database:
     name: inventory_db
     secretName: inventory-db-credentials
+  seed:
+    enabled: false
 
 payments:
   image:
@@ -124,3 +132,10 @@ notifications:
   resources: {}
   publicApi:
     enabled: true
+
+frontend:
+  image:
+    repository: eurotransitregistry.azurecr.io/eurotransit/frontend
+    tag: "fb5569d"
+  replicaCount: 2
+  resources: {}

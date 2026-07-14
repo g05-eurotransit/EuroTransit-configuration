@@ -1,0 +1,38 @@
+apiVersion: k8s.keycloak.org/v2beta1
+kind: Keycloak
+metadata:
+  name: eurotransit-keycloak
+  namespace: keycloak
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  instances: 1
+  db:
+    vendor: postgres
+    host: eurotransit-postgres-rw.eurotransit.svc.cluster.local
+    port: 5432
+    database: keycloak_db
+    usernameSecret:
+      name: keycloak-db-credentials
+      key: username
+    passwordSecret:
+      name: keycloak-db-credentials
+      key: password
+  bootstrapAdmin:
+    user:
+      secret: keycloak-admin-credentials
+  http:
+    httpEnabled: true
+    serviceName: keycloak-service
+  hostname:
+    hostname: https://g05.cpo2026.it
+    strict: true
+  proxy:
+    headers: xforwarded
+  resources:
+    requests:
+      cpu: 150m
+      memory: 512Mi
+    limits:
+      cpu: 750m
+      memory: 1024Mi

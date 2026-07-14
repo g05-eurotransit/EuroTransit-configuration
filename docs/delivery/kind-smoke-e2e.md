@@ -1,5 +1,9 @@
 # kind Smoke and E2E Workflow
 
+The executable local workflow is documented in
+[`../platform/kind-local-setup.md`](../platform/kind-local-setup.md) and exposed
+through `just kind-up`, `just kind-test`, and `just kind-down`.
+
 Docker Compose remains the fast developer loop. kind is the Kubernetes acceptance gate used by CI to prove that manifests, routing, authentication boundaries, readiness probes, and core e2e behavior work on Kubernetes.
 
 **Owner:** Technical Coordinator + Gateway/Security Slice Owner.

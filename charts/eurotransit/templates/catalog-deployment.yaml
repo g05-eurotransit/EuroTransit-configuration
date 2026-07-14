@@ -66,6 +66,10 @@ spec:
               value: {{ .Values.global.oidc.jwkSetUri | quote }}
             - name: EUROTRANSIT_SECURITY_OIDC_AUDIENCE
               value: {{ .Values.global.oidc.audience | quote }}
+            - name: MANAGEMENT_TRACING_EXPORT_OTLP_ENABLED
+              value: {{ .Values.global.observability.tracing.enabled | quote }}
+            - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+              value: {{ .Values.global.observability.tracing.endpoint | quote }}
             - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
               value: "true"
             - name: SERVER_SHUTDOWN

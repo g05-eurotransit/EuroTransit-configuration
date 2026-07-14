@@ -27,8 +27,10 @@ spec:
       postInitSQL:
         - CREATE ROLE inventory LOGIN;
         - CREATE ROLE payments LOGIN;
+        - CREATE ROLE keycloak LOGIN;
         - CREATE DATABASE inventory_db OWNER inventory;
         - CREATE DATABASE payments_db OWNER payments;
+        - CREATE DATABASE keycloak_db OWNER keycloak;
   managed:
     roles:
       - name: orders
@@ -47,3 +49,8 @@ spec:
         login: true
         passwordSecret:
           name: payments-db-credentials
+      - name: keycloak
+        ensure: present
+        login: true
+        passwordSecret:
+          name: keycloak-db-credentials
