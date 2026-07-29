@@ -15,7 +15,9 @@ This document owns the delivery topology for EuroTransit Marketplace.
 ## Required Inputs from Service Owners
 
 - Service build and test commands remain valid.
-- Dockerfile or Jib configuration is maintained per service.
+- The application repository maintains one parameterized Dockerfile for all
+  backend services; service-specific builds select the target with the
+  `SERVICE` build argument.
 - Runtime environment variables are documented.
 - Health/readiness behavior is implemented and stable.
 

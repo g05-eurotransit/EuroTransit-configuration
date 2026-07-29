@@ -29,17 +29,9 @@ fi
 kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
 
 services=(catalog orders inventory payments notifications)
-if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
-  gradle_tasks=()
-  for service in "${services[@]}"; do
-    gradle_tasks+=(":$service:bootJar")
-  done
-  "$APP_DIR/gradlew" --no-daemon -p "$APP_DIR" "${gradle_tasks[@]}"
-fi
-
 for service in "${services[@]}"; do
   if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
-    docker build -f "$APP_DIR/Dockerfile.ci" --build-arg "SERVICE=$service" \
+    docker build -f "$APP_DIR/Dockerfile" --build-arg "SERVICE=$service" \
       -t "eurotransit/$service:local" "$APP_DIR"
   elif ! docker image inspect "eurotransit/$service:local" >/dev/null 2>&1; then
     echo "Missing eurotransit/$service:local while SKIP_BUILD=1" >&2

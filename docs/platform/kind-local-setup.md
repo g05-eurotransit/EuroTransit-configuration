@@ -35,8 +35,9 @@ rejected in Kind.
 Kind intentionally uses one node to limit workstation disk and memory usage;
 the three-node topology is validated only on the assigned AKS cluster.
 
-The build compiles all five Spring Boot JARs in one Gradle invocation and then
-uses the application repository's `Dockerfile.ci` to create the runtime images.
+The build uses the application repository's unified `Dockerfile` for all five
+Spring Boot services. Gradle compilation runs inside the builder stage, while
+Docker reuses the cached bootstrap and production dependency layers.
 
 To reuse images already built on the workstation:
 
