@@ -52,6 +52,15 @@ elif ! docker image inspect "eurotransit/frontend:local" >/dev/null 2>&1; then
 fi
 kind load docker-image --name "$KIND_CLUSTER_NAME" "eurotransit/frontend:local"
 
+if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
+  docker build -f "$APP_DIR/connect/Dockerfile" \
+    -t eurotransit/debezium-connect:local "$APP_DIR"
+elif ! docker image inspect eurotransit/debezium-connect:local >/dev/null 2>&1; then
+  echo "Missing eurotransit/debezium-connect:local while SKIP_BUILD=1" >&2
+  exit 1
+fi
+kind load docker-image --name "$KIND_CLUSTER_NAME" eurotransit/debezium-connect:local
+
 helm repo add traefik https://traefik.github.io/charts --force-update
 helm repo add jetstack https://charts.jetstack.io --force-update
 helm repo add cnpg https://cloudnative-pg.github.io/charts --force-update
@@ -99,10 +108,6 @@ kubectl -n keycloak create secret generic keycloak-db-credentials \
   --from-literal=username=keycloak --from-literal=password=password \
   --dry-run=client -o yaml | kubectl apply -f -
 
-# Connector registration Jobs have immutable pod templates. Recreate them on
-# every bootstrap so configuration changes are applied and failed Jobs retry.
-kubectl -n eurotransit delete job inventory-outbox-connector-register \
-  orders-outbox-connector-register --ignore-not-found
 kubectl apply -k "$ROOT_DIR/platform/environments/kind"
 kubectl -n eurotransit wait cluster/eurotransit-postgres --for=condition=Ready --timeout=8m
 kubectl -n eurotransit wait kafka/eurotransit-kafka --for=condition=Ready --timeout=10m
@@ -129,8 +134,26 @@ fi
 kubectl -n keycloak wait keycloak/eurotransit-keycloak --for=condition=Ready --timeout=8m
 helm upgrade --install eurotransit "$ROOT_DIR/charts/eurotransit" -n eurotransit \
   -f "$ROOT_DIR/charts/eurotransit/values.yaml" \
-  -f "$ROOT_DIR/charts/eurotransit/values-kind.yaml"
+  -f "$ROOT_DIR/charts/eurotransit/values-kind.yaml" \
+  --wait --timeout 8m
 kubectl -n eurotransit rollout restart deployment/payments
 wait_for_deployments eurotransit
+
+# Remove only the previous unmanaged Kafka Connect resources during upgrades.
+kubectl -n eurotransit delete \
+  deployment/orders-outbox-connect deployment/inventory-outbox-connect \
+  service/orders-outbox-connect service/inventory-outbox-connect \
+  job/orders-outbox-connector-register job/inventory-outbox-connector-register \
+  --ignore-not-found
+
+kubectl apply -k "$ROOT_DIR/platform/connectors/environments/kind"
+for connect in orders-outbox-connect inventory-outbox-connect; do
+  kubectl -n eurotransit wait "kafkaconnect/$connect" \
+    --for=condition=Ready --timeout=8m
+done
+for connector in orders-outbox-connector inventory-outbox-connector; do
+  kubectl -n eurotransit wait "kafkaconnector/$connector" \
+    --for=condition=Ready --timeout=8m
+done
 
 echo "EuroTransit is ready. Run: just kind-test"

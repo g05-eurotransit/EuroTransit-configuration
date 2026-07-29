@@ -15,6 +15,7 @@ helm template eurotransit "$ROOT_DIR/charts/eurotransit" \
   -f "$ROOT_DIR/charts/eurotransit/values.yaml" \
   -f "$values_file" >/dev/null
 kubectl kustomize "$ROOT_DIR/platform/environments/$environment" >/dev/null
+kubectl kustomize "$ROOT_DIR/platform/connectors/environments/$environment" >/dev/null
 
 if [[ "$environment" == "kind" ]]; then
   kubectl kustomize "$ROOT_DIR/platform/environments/keycloak-kind" >/dev/null

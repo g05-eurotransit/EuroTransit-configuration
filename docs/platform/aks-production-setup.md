@@ -97,7 +97,15 @@ argocd app sync traefik cert-manager sealed-secrets strimzi cloudnativepg
 argocd app sync kube-prometheus-stack keycloak
 argocd app sync eurotransit-platform-runtime
 argocd app sync eurotransit-marketplace
+argocd app wait eurotransit-marketplace --health
+argocd app sync eurotransit-connectors
 ```
+
+The connector Application must remain after the marketplace: its
+`KafkaConnect` and `KafkaConnector` resources assume that Orders and Inventory
+have already completed Flyway. Before the first connector sync, confirm that
+`eurotransitregistry.azurecr.io/eurotransit/debezium-connect` contains the tag
+or digest referenced by the AKS overlay.
 
 After each group, inspect memory before continuing:
 

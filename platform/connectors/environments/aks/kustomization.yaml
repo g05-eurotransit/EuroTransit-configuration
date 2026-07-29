@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+patches:
+  - path: connect-patch.yaml
+    target:
+      group: kafka.strimzi.io
+      version: v1beta2
+      kind: KafkaConnect
+      labelSelector: app.kubernetes.io/part-of=eurotransit-marketplace
+images:
+  - name: eurotransit/debezium-connect
+    newName: eurotransitregistry.azurecr.io/eurotransit/debezium-connect
+    newTag: strimzi-0.46.1-kafka-3.9.0-debezium-2.7.0

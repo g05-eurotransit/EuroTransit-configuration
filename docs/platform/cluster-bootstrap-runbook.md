@@ -16,6 +16,11 @@ AKS is reconciled by Argo CD. Kind installs the same controller families
 directly to keep the developer loop short; `just render-kind` also validates
 the declarative runtime overlay.
 
+The deployment order is PostgreSQL and Kafka, then the marketplace workloads
+and Flyway migrations, then the dedicated Debezium connector overlay. Argo CD
+uses sync waves `20`, `30`, and `40`; Kind reproduces the sequence with a Helm
+`--wait` followed by waits on the Strimzi custom resources.
+
 ## Validation Commands
 
 ```bash

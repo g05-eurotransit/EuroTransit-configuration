@@ -6,6 +6,14 @@ require_commands curl kubectl kind
 kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
 wait_for_deployments eurotransit
 wait_for_deployments keycloak
+for connect in orders-outbox-connect inventory-outbox-connect; do
+  kubectl -n eurotransit wait "kafkaconnect/$connect" \
+    --for=condition=Ready --timeout=2m
+done
+for connector in orders-outbox-connector inventory-outbox-connector; do
+  kubectl -n eurotransit wait "kafkaconnector/$connector" \
+    --for=condition=Ready --timeout=2m
+done
 
 curl -ksSf --resolve eurotransit.local:443:127.0.0.1 \
   https://eurotransit.local/api/catalog/routes >/dev/null

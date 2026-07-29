@@ -17,7 +17,9 @@ Service instrumentation conventions are coordinated with the application reposit
 - kube-prometheus-stack values live in `platform/kube-prometheus-stack/values.yaml`.
 - Checkout symptom alerts live in `platform/kube-prometheus-stack/prometheus-rules.yaml`.
 - Application ServiceMonitors are rendered from `charts/eurotransit/templates/servicemonitors.yaml`.
-- Inventory outbox relay manifests live in `platform/strimzi/inventory-outbox-connect.yaml` and publish `inventory-reserved`/`inventory-failed` through Debezium EventRouter.
+- Orders and Inventory outbox relays live in `platform/connectors`; their
+  `KafkaConnect` and `KafkaConnector` status exposes worker, connector, task,
+  and automatic-restart health through Strimzi.
 - Chaos Mesh installation values live in `platform/chaos-mesh/values.yaml`; experiment manifests are still pending.
 
 ## Money-Path Proof Checklist

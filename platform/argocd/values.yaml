@@ -1,6 +1,52 @@
 configs:
   params:
     server.insecure: true
+  cm:
+    resource.customizations.health.argoproj.io_Application: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = "Waiting for Application status"
+      if obj.status ~= nil and obj.status.health ~= nil then
+        hs.status = obj.status.health.status
+        hs.message = obj.status.health.message or ""
+      end
+      return hs
+    resource.customizations.health.kafka.strimzi.io_KafkaConnect: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = "Waiting for KafkaConnect readiness"
+      if obj.status ~= nil and obj.status.conditions ~= nil then
+        for _, condition in ipairs(obj.status.conditions) do
+          if condition.type == "Ready" then
+            hs.message = condition.message or condition.reason or ""
+            if condition.status == "True" then
+              hs.status = "Healthy"
+            else
+              hs.status = "Degraded"
+            end
+            return hs
+          end
+        end
+      end
+      return hs
+    resource.customizations.health.kafka.strimzi.io_KafkaConnector: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = "Waiting for KafkaConnector readiness"
+      if obj.status ~= nil and obj.status.conditions ~= nil then
+        for _, condition in ipairs(obj.status.conditions) do
+          if condition.type == "Ready" then
+            hs.message = condition.message or condition.reason or ""
+            if condition.status == "True" then
+              hs.status = "Healthy"
+            else
+              hs.status = "Degraded"
+            end
+            return hs
+          end
+        end
+      end
+      return hs
 
 server:
   service:
@@ -33,4 +79,3 @@ notifications:
 
 global:
   domain: argocd.eurotransit.local
-
