@@ -282,3 +282,27 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: eurotransit-connectors
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "40"
+spec:
+  project: eurotransit-platform
+  source:
+    repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    targetRevision: main
+    path: platform/connectors/environments/aks
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: eurotransit
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

@@ -12,4 +12,3 @@ patches:
   - path: postgres-patch.yaml
   - path: kafka-nodepool-patch.yaml
   - path: kafka-patch.yaml
-  - path: connect-patch.yaml

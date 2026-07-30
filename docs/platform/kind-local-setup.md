@@ -22,10 +22,11 @@ STRIPE_SECRET_KEY=sk_test_... just kind-up
 just kind-test
 ```
 
-`kind-up` creates a single-node cluster when absent, builds the five backend
-images from the application repository, loads them into Kind, installs the
-controllers, creates development-only secrets in the cluster, and deploys the
-runtime and application chart. It is safe to run again.
+`kind-up` creates a single-node cluster when absent, builds the application
+images and the custom Debezium Kafka Connect image from the application
+repository, loads them into Kind, installs the controllers, creates
+development-only secrets, and deploys the runtime and application chart. It is
+safe to run again.
 
 `STRIPE_SECRET_KEY` is required and must be a Stripe test-mode secret key.
 The bootstrap writes it directly to the `payments-provider-credentials`
@@ -35,8 +36,11 @@ rejected in Kind.
 Kind intentionally uses one node to limit workstation disk and memory usage;
 the three-node topology is validated only on the assigned AKS cluster.
 
-The build compiles all five Spring Boot JARs in one Gradle invocation and then
-uses the application repository's `Dockerfile.ci` to create the runtime images.
+The build uses the application repository's unified `Dockerfile` for all five
+Spring Boot services. Gradle compilation runs inside the builder stage, while
+Docker reuses the cached bootstrap and production dependency layers.
+`connect/Dockerfile` separately builds the Strimzi-compatible Kafka Connect
+runtime with the pinned Debezium PostgreSQL plugin.
 
 To reuse images already built on the workstation:
 
@@ -49,6 +53,15 @@ Keycloak, Debezium and the five backend services. It excludes Prometheus,
 Grafana, Argo CD and Chaos Mesh to keep startup and memory use reasonable.
 Keycloak runs through the official Keycloak Operator `26.7.0` and uses the
 same CloudNativePG cluster with its own database and credentials.
+
+The bootstrap applies `KafkaConnect` and `KafkaConnector` resources only after
+the application Helm release is ready. This ensures that Orders and Inventory
+have completed their Flyway migrations before Debezium inspects
+`public.outbox_events`. `kind-up` and `kind-test` both require the two workers
+and the two connectors to report `Ready=True`.
+The connector overlays set an explicit JVM heap below the container memory
+limit so local Docker/Kind host-memory detection cannot over-allocate the
+worker.
 
 To include Prometheus and Grafana:
 

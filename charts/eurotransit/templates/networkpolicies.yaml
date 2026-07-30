@@ -75,6 +75,30 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
+  name: allow-cloudnative-pg-operator
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: eurotransit-postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.networkPolicies.cloudNativePGNamespace | quote }}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudnative-pg
+      ports:
+        - protocol: TCP
+          port: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
   name: allow-monitoring-scrapes
   labels:
     app.kubernetes.io/part-of: eurotransit-marketplace

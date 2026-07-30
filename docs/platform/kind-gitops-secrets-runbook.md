@@ -234,12 +234,12 @@ eurotransit/notifications:latest
 For kind, build and load them into the cluster from the sibling application repository:
 
 ```bash
-cd /Users/matteo/IdeaProjects/EuroTransit-application
-
-./gradlew --no-daemon build
+cd ../EuroTransit-application
 
 for service in catalog orders inventory payments notifications; do
-  docker build --build-arg "SERVICE=$service" -t "eurotransit/$service:latest" .
+  docker build --file Dockerfile \
+    --build-arg "SERVICE=$service" \
+    --tag "eurotransit/$service:latest" .
   kind load docker-image "eurotransit/$service:latest" --name eurotransit
 done
 
@@ -250,6 +250,9 @@ kubectl -n eurotransit rollout restart \
   deploy/payments \
   deploy/notifications
 ```
+
+The unified Dockerfile compiles each Spring Boot JAR inside its builder stage;
+no separate host-side Gradle build is required.
 
 Then check:
 

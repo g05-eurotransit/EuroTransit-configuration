@@ -76,6 +76,7 @@ networkPolicies:
   enabled: true
   traefikNamespace: traefik
   monitoringNamespace: monitoring
+  cloudNativePGNamespace: cnpg-system
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog

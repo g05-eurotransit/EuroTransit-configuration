@@ -10,18 +10,20 @@ Docker Compose remains the fast developer loop. kind is the Kubernetes acceptanc
 
 ## Expected Workflow
 
-1. Check out the repository.
-2. Set up Java 17.
+1. Check out the configuration and sibling application repositories.
+2. Set up Docker, kind, kubectl, and Helm.
 3. Create a kind cluster.
-4. Build Gradle modules.
-5. Build Docker images for all services.
-6. Load images into kind.
+4. Build each backend image from the application's unified `Dockerfile`, using
+   the `SERVICE` build argument. Gradle runs inside the builder stage and Docker
+   reuses its cached bootstrap and production dependency layers.
+5. Build the frontend image from `frontend/Dockerfile`.
+6. Load the images into kind.
 7. Apply Kubernetes manifests or Helm/Kustomize output.
 8. Wait for Deployments and readiness probes.
-9. Port-forward Traefik or the gateway service to `localhost:8080`.
-10. Run `sh gradlew :e2e:test -DbaseUrl=http://localhost:8080` from the application repository.
-11. On failure, collect pod descriptions, events, and logs.
-12. Delete the kind cluster.
+9. Run `just kind-test` to validate routing, authentication boundaries, and
+   public/internal route separation.
+10. On failure, collect pod descriptions, events, and logs.
+11. Delete the kind cluster.
 
 ## PR Gate Scope
 
