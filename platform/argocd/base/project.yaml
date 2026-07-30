@@ -6,7 +6,7 @@ metadata:
 spec:
   description: Platform and runtime bootstrap for EuroTransit Marketplace
   sourceRepos:
-    - https://github.com/carmelo-gulino/EuroTransit-configuration
+    - https://github.com/g05-eurotransit/EuroTransit-configuration.git
     - https://traefik.github.io/charts
     - https://charts.jetstack.io
     - https://strimzi.io/charts/

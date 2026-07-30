@@ -1,0 +1,72 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Application
+      name: traefik
+    patch: |-
+      - op: replace
+        path: /spec/sources/0/helm/valueFiles/1
+        value: $values/platform/traefik/values-kind.yaml
+  - target:
+      kind: Application
+      name: cert-manager
+    patch: |-
+      - op: replace
+        path: /spec/sources/0/helm/valueFiles/1
+        value: $values/platform/cert-manager/values-kind.yaml
+  - target:
+      kind: Application
+      name: strimzi
+    patch: |-
+      - op: replace
+        path: /spec/sources/0/helm/valueFiles/1
+        value: $values/platform/strimzi/values-kind.yaml
+  - target:
+      kind: Application
+      name: cloudnativepg
+    patch: |-
+      - op: replace
+        path: /spec/sources/0/helm/valueFiles/1
+        value: $values/platform/cloudnativepg/values-kind.yaml
+  - target:
+      kind: Application
+      name: kube-prometheus-stack
+    patch: |-
+      $patch: delete
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: kube-prometheus-stack
+        namespace: argocd
+  - target:
+      kind: Application
+      name: eurotransit-keycloak
+    patch: |-
+      - op: replace
+        path: /spec/source/path
+        value: platform/environments/keycloak-kind
+  - target:
+      kind: Application
+      name: eurotransit-platform-runtime
+    patch: |-
+      - op: replace
+        path: /spec/source/path
+        value: platform/environments/kind
+  - target:
+      kind: Application
+      name: eurotransit-marketplace
+    patch: |-
+      - op: replace
+        path: /spec/source/helm/valueFiles/1
+        value: values-kind.yaml
+  - target:
+      kind: Application
+      name: eurotransit-connectors
+    patch: |-
+      - op: replace
+        path: /spec/source/path
+        value: platform/connectors/environments/kind

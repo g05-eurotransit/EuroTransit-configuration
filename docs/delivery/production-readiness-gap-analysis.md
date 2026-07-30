@@ -11,6 +11,8 @@ capacity measurements require the real AKS cluster.
 
 - [x] AKS-specific Helm values and Kustomize runtime overlay.
 - [x] Argo CD points to AKS production values rather than Kind values.
+- [x] Argo CD has a root app-of-apps with child health and ordered sync waves.
+- [x] Argo CD repository references use the private organization repository.
 - [x] Public hostname is `g05.cpo2026.it`; placeholder production domains are removed.
 - [x] Keycloak and APIs share one public hostname with a consistent OIDC issuer.
 - [x] Keycloak uses the official Keycloak Operator `26.7.0`, not an abandoned
@@ -30,7 +32,10 @@ capacity measurements require the real AKS cluster.
 - [ ] Confirm AKS can pull from ACR.
 - [ ] Replace example SealedSecrets with values encrypted for the AKS controller.
 - [ ] Confirm the Let's Encrypt account email is monitored.
-- [ ] Push the configuration branch and select the correct Argo CD revision.
+- [ ] Provision Argo CD with a read-only credential for the private
+  `g05-eurotransit/EuroTransit-configuration` repository.
+- [ ] Merge and push the validated configuration revision before applying the
+  AKS root Application.
 - [ ] Create `keycloak-admin-credentials` and `keycloak-db-credentials` as
   SealedSecrets in namespace `keycloak`, plus `keycloak-db-credentials` in
   namespace `eurotransit`, all with `username` and `password` keys.

@@ -19,8 +19,12 @@ kubectl kustomize "$ROOT_DIR/platform/connectors/environments/$environment" >/de
 
 if [[ "$environment" == "kind" ]]; then
   kubectl kustomize "$ROOT_DIR/platform/environments/keycloak-kind" >/dev/null
+  kubectl kustomize "$ROOT_DIR/platform/argocd/environments/kind" >/dev/null
+  kubectl kustomize "$ROOT_DIR/apps/argocd-apps/environments/kind" >/dev/null
 else
   kubectl kustomize "$ROOT_DIR/platform/keycloak" >/dev/null
+  kubectl kustomize "$ROOT_DIR/platform/argocd/environments/aks" >/dev/null
+  kubectl kustomize "$ROOT_DIR/apps/argocd-apps/environments/aks" >/dev/null
 fi
 
 if rg -n 'eurotransit\.example\.com|resources: \{\}' "$values_file" "$ROOT_DIR/platform/environments/$environment"; then

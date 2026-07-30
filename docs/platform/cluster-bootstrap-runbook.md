@@ -12,14 +12,17 @@ The application is packaged by `charts/eurotransit`. Stateful runtime objects
 are composed by `platform/environments/<environment>`. Platform controllers
 are installed with pinned upstream Helm charts.
 
-AKS is reconciled by Argo CD. Kind installs the same controller families
-directly to keep the developer loop short; `just render-kind` also validates
-the declarative runtime overlay.
+AKS is reconciled by the `eurotransit-platform-root` Argo CD Application after
+the private configuration-repository credential is bootstrapped. Kind installs
+the same controller families directly to keep the developer loop short;
+`just render-kind` also validates the declarative runtime overlay. The separate
+Argo-on-Kind acceptance procedure is documented in `argocd-bootstrap.md`.
 
-The deployment order is PostgreSQL and Kafka, then the marketplace workloads
-and Flyway migrations, then the dedicated Debezium connector overlay. Argo CD
-uses sync waves `20`, `30`, and `40`; Kind reproduces the sequence with a Helm
-`--wait` followed by waits on the Strimzi custom resources.
+The deployment order is platform operators, PostgreSQL and Kafka, Keycloak,
+the marketplace workloads and Flyway migrations, then the dedicated Debezium
+connector overlay. The Argo CD root uses child health and sync waves `10`
+through `40`; Kind reproduces the runtime portion with explicit waits and a
+Helm `--wait` followed by waits on the Strimzi custom resources.
 
 ## Validation Commands
 

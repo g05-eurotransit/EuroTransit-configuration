@@ -54,6 +54,10 @@ Grafana, Argo CD and Chaos Mesh to keep startup and memory use reasonable.
 Keycloak runs through the official Keycloak Operator `26.7.0` and uses the
 same CloudNativePG cluster with its own database and credentials.
 
+This direct bootstrap validates the workloads but not Argo CD reconciliation.
+Use `docs/platform/argocd-bootstrap.md` for the separate root app-of-apps
+acceptance procedure before AKS rollout.
+
 The bootstrap applies `KafkaConnect` and `KafkaConnector` resources only after
 the application Helm release is ready. This ensures that Orders and Inventory
 have completed their Flyway migrations before Debezium inspects
