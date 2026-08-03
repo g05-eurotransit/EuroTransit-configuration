@@ -1,47 +1,58 @@
 # kind GitOps And Sealed Secrets Runbook
 
-This runbook describes the current local kind GitOps path for EuroTransit Marketplace runtime secrets. It complements `docs/platform/cluster-bootstrap-runbook.md` with the concrete steps used for the database credentials on the `feature/cluster-platform-bootstrap` branch.
+This runbook describes the optional Kind GitOps path for EuroTransit Marketplace
+runtime secrets. The standard `kind-up` workflow creates disposable Secrets
+imperatively and does not install Argo CD. Complete the private-repository root
+bootstrap in `docs/platform/argocd-bootstrap.md` before using this runbook.
 
 ## Scope
 
 Use this document when:
 
-- Argo CD is already installed in the kind cluster.
+- Argo CD is already installed in the Kind cluster and can read the private
+  organization configuration repository.
 - The Sealed Secrets controller is installed and healthy.
-- The `eurotransit-platform-runtime` Argo CD Application reconciles `platform/`.
+- The `eurotransit-platform-root` Application reconciles
+  `platform/argocd/environments/kind`.
+- The `eurotransit-platform-runtime` child reconciles
+  `platform/environments/kind`.
 - Runtime database credentials must be managed by GitOps, not by manual `kubectl create secret`.
 
 Do not commit unsealed Kubernetes `Secret` manifests. Commit only `SealedSecret` manifests.
 
 ## Repositories
 
-The active worktree for this branch is:
+Use the active configuration worktree:
 
 ```bash
-cd /Users/matteo/IdeaProjects/EuroTransit-configuration-cluster-setup
+cd EuroTransit-configuration
 ```
 
 The remote is the same EuroTransit configuration repository:
 
 ```text
-git@github.com:carmelo-gulino/EuroTransit-configuration.git
+git@github.com:g05-eurotransit/EuroTransit-configuration.git
 ```
 
-The sibling `EuroTransit-configuration` worktree may be on a different branch and may not contain the platform manifests. Before editing, check the branch and the Argo CD live source:
+Before editing, check the branch plus the root and runtime live sources:
 
 ```bash
 git status --short --branch
+
+kubectl -n argocd get application eurotransit-platform-root \
+  -o jsonpath='{.spec.source.repoURL}{"\n"}{.spec.source.targetRevision}{"\n"}{.spec.source.path}{"\n"}'
 
 kubectl -n argocd get application eurotransit-platform-runtime \
   -o jsonpath='{.spec.source.repoURL}{"\n"}{.spec.source.targetRevision}{"\n"}{.spec.source.path}{"\n"}'
 ```
 
-For the current kind setup, the live Argo CD Application has been reconciled from:
+The expected Kind sources are:
 
 ```text
-repo: https://github.com/carmelo-gulino/EuroTransit-configuration
-branch: feature/cluster-platform-bootstrap
-path: platform
+root repo: https://github.com/g05-eurotransit/EuroTransit-configuration.git
+root revision: main
+root path: platform/argocd/environments/kind
+runtime path: platform/environments/kind
 ```
 
 ## Secret Strategy
@@ -85,7 +96,7 @@ kubeseal \
 Generate the database credential SealedSecrets. Set the password in the shell instead of writing it into a plain YAML file:
 
 ```bash
-cd /Users/matteo/IdeaProjects/EuroTransit-configuration-cluster-setup
+cd EuroTransit-configuration
 
 KIND_DB_PASSWORD='changeme-kind'
 
@@ -150,13 +161,7 @@ git add platform/cloudnativepg/kustomization.yaml \
   platform/cloudnativepg/payments-db-credentials.sealedsecret.yaml
 
 git commit -m "Add sealed database credentials for kind"
-git push origin feature/cluster-platform-bootstrap
-```
-
-The current branch contains commit:
-
-```text
-44f093d Add sealed database credentials for kind
+git push
 ```
 
 ## Let Argo CD Reconcile

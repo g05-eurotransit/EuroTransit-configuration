@@ -15,7 +15,7 @@ spec:
         valueFiles:
           - $values/platform/traefik/values.yaml
           - $values/platform/traefik/values-aks.yaml
-    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    - repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
       targetRevision: main
       ref: values
   destination:
@@ -45,7 +45,7 @@ spec:
         valueFiles:
           - $values/platform/cert-manager/values.yaml
           - $values/platform/cert-manager/values-aks.yaml
-    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    - repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
       targetRevision: main
       ref: values
   destination:
@@ -75,7 +75,7 @@ spec:
       helm:
         valueFiles:
           - $values/platform/sealed-secrets/values.yaml
-    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    - repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
       targetRevision: main
       ref: values
   destination:
@@ -105,7 +105,7 @@ spec:
         valueFiles:
           - $values/platform/strimzi/values.yaml
           - $values/platform/strimzi/values-aks.yaml
-    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    - repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
       targetRevision: main
       ref: values
   destination:
@@ -136,7 +136,7 @@ spec:
         valueFiles:
           - $values/platform/cloudnativepg/values.yaml
           - $values/platform/cloudnativepg/values-aks.yaml
-    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    - repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
       targetRevision: main
       ref: values
   destination:
@@ -167,7 +167,7 @@ spec:
         valueFiles:
           - $values/platform/kube-prometheus-stack/values.yaml
           - $values/platform/kube-prometheus-stack/values-aks.yaml
-    - repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    - repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
       targetRevision: main
       ref: values
   destination:
@@ -218,7 +218,7 @@ metadata:
 spec:
   project: eurotransit-platform
   source:
-    repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
     targetRevision: main
     path: platform/keycloak
   destination:
@@ -239,10 +239,11 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "20"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
   project: eurotransit-platform
   source:
-    repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
     targetRevision: main
     path: platform/environments/aks
   destination:
@@ -266,7 +267,7 @@ metadata:
 spec:
   project: eurotransit-platform
   source:
-    repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
     targetRevision: main
     path: charts/eurotransit
     helm:
@@ -293,7 +294,7 @@ metadata:
 spec:
   project: eurotransit-platform
   source:
-    repoURL: https://github.com/carmelo-gulino/EuroTransit-configuration
+    repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
     targetRevision: main
     path: platform/connectors/environments/aks
   destination:

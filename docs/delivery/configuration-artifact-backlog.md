@@ -6,7 +6,8 @@ Application behavior and service contracts remain canonical in the sibling appli
 
 ## GitOps and Environments
 
-- [x] ArgoCD Application definitions for platform and application workloads (initial app-of-apps manifests; cluster sync proof pending).
+- [x] Argo CD root app-of-apps, child Application definitions and Kind/AKS
+  environment overlays (cluster sync proof pending).
 - [x] Environment layout for local/kind and demo namespace bootstrap (target-cluster overlays still pending).
 - [ ] Image tag update strategy used by application CI.
 - [ ] Rollback procedure for application services and frontend.

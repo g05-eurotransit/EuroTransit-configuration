@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: eurotransit-platform-root
+  namespace: argocd
+spec:
+  # The root creates eurotransit-platform, so it must use the built-in project
+  # during the first reconciliation.
+  project: default
+  source:
+    repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
+    targetRevision: main
+    path: platform/argocd/environments/aks
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

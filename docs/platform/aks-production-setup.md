@@ -84,21 +84,28 @@ helm upgrade --install argocd argo/argo-cd \
   --namespace argocd --create-namespace \
   -f platform/argocd/values.yaml
 kubectl -n argocd rollout status deploy/argocd-server
-kubectl apply -k platform/argocd
 ```
 
-When testing before merge, change every relevant `targetRevision` from `main`
-to the pushed branch. Restore `main` before merging.
-
-## 5. Sync In Order
+The configuration repository is private. Provision the read-only repository
+credential before applying the root Application, following
+`docs/platform/argocd-bootstrap.md`. Then bootstrap the complete hierarchy:
 
 ```bash
-argocd app sync traefik cert-manager sealed-secrets strimzi cloudnativepg
-argocd app sync kube-prometheus-stack keycloak
-argocd app sync eurotransit-platform-runtime
-argocd app sync eurotransit-marketplace
-argocd app wait eurotransit-marketplace --health
-argocd app sync eurotransit-connectors
+kubectl apply -k apps/argocd-apps/environments/aks
+argocd app wait eurotransit-platform-root \
+  --sync --health --timeout 1800
+```
+
+Do not replace the root with
+`kubectl apply -k platform/argocd/environments/aks`: that creates all auto-sync
+child Applications concurrently and bypasses their wave ordering.
+
+## 5. Verify Ordered Reconciliation
+
+```bash
+argocd app get eurotransit-platform-root
+kubectl -n argocd get applications \
+  -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'
 ```
 
 The connector Application must remain after the marketplace: its
