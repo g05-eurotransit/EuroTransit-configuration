@@ -239,6 +239,7 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "20"
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
   project: eurotransit-platform
   source:
