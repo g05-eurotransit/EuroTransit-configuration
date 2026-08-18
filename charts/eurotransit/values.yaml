@@ -64,14 +64,12 @@ ingress:
   forwardAuth:
     enabled: false
     address: http://keycloak-forward-auth.eurotransit.svc.cluster.local:4181
-
 monitoring:
   serviceMonitors:
     enabled: true
     releaseLabel: kube-prometheus-stack
     path: /actuator/prometheus
     interval: 30s
-
 networkPolicies:
   enabled: true
   traefikNamespace: traefik
@@ -80,14 +78,13 @@ networkPolicies:
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
-    tag: "fb5569d" # Will be overridden by CI
+    tag: "9637f3b" # Will be overridden by CI
   replicaCount: 2
   resources: {}
-  
 orders:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/orders
-    tag: "fb5569d"
+    tag: "9637f3b"
   replicaCount: 2
   resources: {}
   database:
@@ -98,11 +95,10 @@ orders:
     paymentsUrl: http://payments:8080
   serviceAuth:
     tokenUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/token
-  
 inventory:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/inventory
-    tag: "fb5569d"
+    tag: "9637f3b"
   replicaCount: 2
   resources: {}
   database:
@@ -110,11 +106,10 @@ inventory:
     secretName: inventory-db-credentials
   seed:
     enabled: false
-
 payments:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/payments
-    tag: "fb5569d"
+    tag: "9637f3b"
   replicaCount: 2
   resources: {}
   database:
@@ -124,7 +119,6 @@ payments:
     sandboxUrl: https://api.stripe.com/v1
     secretName: payments-provider-credentials
     secretKey: provider-api-key
-   
 notifications:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/notifications
@@ -133,10 +127,9 @@ notifications:
   resources: {}
   publicApi:
     enabled: true
-
 frontend:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/frontend
-    tag: "fb5569d"
+    tag: "9637f3b"
   replicaCount: 2
   resources: {}
