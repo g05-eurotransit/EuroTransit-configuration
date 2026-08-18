@@ -98,6 +98,8 @@ orders:
     paymentsUrl: http://payments:8080
   serviceAuth:
     tokenUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/token
+    secretName: orders-service-credentials
+    secretKey: client-secret
   
 inventory:
   image:

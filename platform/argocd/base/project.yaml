@@ -13,7 +13,6 @@ spec:
     - https://cloudnative-pg.github.io/charts
     - https://prometheus-community.github.io/helm-charts
     - https://charts.chaos-mesh.org
-    - https://charts.bitnami.com/bitnami
     - https://github.com/keycloak/keycloak-k8s-resources.git
   destinations:
     - namespace: '*'

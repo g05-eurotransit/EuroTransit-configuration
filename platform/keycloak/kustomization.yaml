@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
   - keycloak.yaml
   - eurotransit-realm.yaml
+  - orders-service-client-secret-bootstrap-job.yaml
   - ingressroute.yaml
