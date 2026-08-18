@@ -12,4 +12,4 @@ patches:
 images:
   - name: eurotransit/debezium-connect
     newName: eurotransitregistry.azurecr.io/eurotransit/debezium-connect
-    newTag: strimzi-0.46.1-kafka-3.9.0-debezium-2.7.0
+    digest: sha256:976bd8c3b79b75a20258bec0b1a2351642c207d9b8e1f9f50d50c0a040294bb2
