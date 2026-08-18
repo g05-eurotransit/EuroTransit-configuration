@@ -17,4 +17,6 @@ The AKS constrained production setup is documented in [platform/aks-production-s
 
 The generic cluster bootstrap sequence is documented in [platform/cluster-bootstrap-runbook.md](platform/cluster-bootstrap-runbook.md). The private-repository root app-of-apps bootstrap is documented in [platform/argocd-bootstrap.md](platform/argocd-bootstrap.md). The local kind GitOps and Sealed Secrets workflow is documented in [platform/kind-gitops-secrets-runbook.md](platform/kind-gitops-secrets-runbook.md). Keycloak/OIDC environment configuration is documented in [platform/keycloak-oidc.md](platform/keycloak-oidc.md). Remaining Kubernetes/GitOps artifact gaps are tracked in [delivery/configuration-artifact-backlog.md](delivery/configuration-artifact-backlog.md).
 
+Kafka dead-letter topic provisioning, partitioning, and retention operations are documented in [platform/kafka-dead-letter-operations.md](platform/kafka-dead-letter-operations.md).
+
 Agent skill drafts are canonical in the sibling application repository under `../EuroTransit-application/docs/agent-skills`; this repository keeps only the configuration-side routing note in [governance/agent-skill-recommendations.md](governance/agent-skill-recommendations.md).
