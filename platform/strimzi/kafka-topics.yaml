@@ -135,6 +135,23 @@ spec:
     cleanup.policy: delete
     retention.ms: 604800000
 ---
+# Per-topic DLT for the Orders order-placed consumer. It keeps the source
+# topic's partition count because DeadLetterPublishingRecoverer defaults to the
+# failed record's original partition in the destination record.
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: order-placed-dlt
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    cleanup.policy: delete
+    retention.ms: 1209600000
+---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
