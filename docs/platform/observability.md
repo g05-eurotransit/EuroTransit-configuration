@@ -16,6 +16,10 @@ Service instrumentation conventions are coordinated with the application reposit
 
 - kube-prometheus-stack values live in `platform/kube-prometheus-stack/values.yaml`.
 - Checkout symptom alerts live in `platform/kube-prometheus-stack/prometheus-rules.yaml`.
+- Reconciliation safety alerts in that rule file use the bounded Orders metrics
+  defined by the application repository's
+  `docs/design/reservation-confirmation.md`; they do not put order IDs,
+  correlation IDs, provider messages, or event payloads into Prometheus labels.
 - Application ServiceMonitors are rendered from `charts/eurotransit/templates/servicemonitors.yaml`.
 - Orders and Inventory outbox relays live in `platform/connectors`; their
   `KafkaConnect` and `KafkaConnector` status exposes worker, connector, task,
@@ -33,3 +37,35 @@ Service instrumentation conventions are coordinated with the application reposit
 - Orders and Payments idempotency retention are configured for 24 hours.
 - Payment sandbox credentials are loaded from Kubernetes secret material, not source code.
 - Notifications outage does not fail an already confirmed checkout.
+
+## Reconciliation Alert Policy
+
+The reconciliation rules complement the checkout SLO alerts with durable
+money-path safety signals. They use gauges for open incidents and non-terminal
+orders because a counter rate would clear while an unresolved incident remains.
+The rules are scoped to the Orders scrape target (`namespace="eurotransit",
+app="orders"`).
+
+| Alert | Signal and threshold | Response intent |
+| --- | --- | --- |
+| `ReconciliationRecordOpen` | Any open record, for 5 minutes | Create an operations ticket for the record kind. |
+| `PaymentReversalFailure` | A `PAYMENT_REVERSAL_FAILURE` is recorded in 10 minutes | Page immediately: money is unresolved and the order remains `COMPENSATING`. |
+| `InvariantViolation` | An `INVARIANT_VIOLATION` is recorded in 10 minutes | Page immediately and investigate before an operator resolves it. |
+| `CheckoutStuckNonTerminal` | Oldest order in `PAYMENT_PENDING`, `CONFIRMING_INVENTORY`, or `COMPENSATING` exceeds 5 minutes for 2 minutes | Page while there is still time to recover before the 10-minute Inventory hold boundary. |
+| `ReconciliationAgeHigh` | Oldest open reconciliation record exceeds 15 minutes for 5 minutes | Escalate a record that has not converged through normal redrive. |
+| `InventorySeatConflict` | A `RESERVATION_SEAT_CONFLICT` confirmation refusal occurs in 5 minutes | Page; this is a direct no-oversell invariant signal. |
+| `PoisonOrderEvent` | An unparseable `order-placed-dlt` event occurs in 5 minutes | Ticket; use the Kafka key and original offset in Orders logs, never the payload as a metric label. |
+| `DeadLetterUnknownOrder` | A parseable `order-placed-dlt` event has no durable Orders record in 5 minutes | Ticket; investigate event/data retention before replay. |
+
+The five-minute checkout age is intentionally below the ten-minute seat-hold
+expiry, and the two-minute `for` duration filters one delayed gauge refresh
+(the application publishes every 30 seconds). The five-minute open-record
+delay filters incidents that automatic recovery closes promptly; the 15-minute
+reconciliation age escalates an incident that has not converged. Counter-based
+event alerts use `increase(...)`, which is reset-safe and simply remains
+inactive before a matching series has ever been scraped.
+
+These are deployable platform rules, not end-to-end proof. Alert firing and
+clearing must be demonstrated after the application scrape authorization is
+deployed and the Orders ServiceMonitor successfully scrapes
+`/actuator/prometheus`.
