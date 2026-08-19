@@ -7,6 +7,15 @@ metadata:
     app.kubernetes.io/part-of: eurotransit-marketplace
 spec:
   keycloakCRName: eurotransit-keycloak
+  # The Keycloak Operator otherwise reserves 1700Mi for this one-off import
+  # Job, which cannot be scheduled on the fixed three-node AKS topology.
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
   realm:
     realm: eurotransit
     enabled: true
