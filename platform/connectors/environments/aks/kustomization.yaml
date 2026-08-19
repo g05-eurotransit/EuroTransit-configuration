@@ -2,6 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base
+configurations:
+  - kustomizeconfig.yaml
 patches:
   - path: connect-patch.yaml
     target:
