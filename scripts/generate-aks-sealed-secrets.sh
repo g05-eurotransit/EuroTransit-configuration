@@ -36,8 +36,7 @@ payments="$(openssl rand -base64 32)"; keycloak="$(openssl rand -base64 32)"
 admin="$(openssl rand -base64 32)"; grafana="$(openssl rand -base64 32)"
 client="$(openssl rand -base64 48)"
 read -rsp 'Payment provider API key: ' api; echo
-read -rsp 'Payment provider webhook secret: ' webhook; echo
-[[ -n "$api" && -n "$webhook" ]] || { echo 'Payment provider values must not be empty' >&2; exit 1; }
+[[ -n "$api" ]] || { echo 'Payment provider API key must not be empty' >&2; exit 1; }
 seal eurotransit orders-db-credentials orders-db-credentials.sealedsecret.yaml username=orders "password=$orders"
 seal eurotransit inventory-db-credentials inventory-db-credentials.sealedsecret.yaml username=inventory "password=$inventory"
 seal eurotransit payments-db-credentials payments-db-credentials.sealedsecret.yaml username=payments "password=$payments"
@@ -46,9 +45,9 @@ seal keycloak keycloak-db-credentials keycloak-db-credentials-keycloak.sealedsec
 seal keycloak keycloak-admin-credentials keycloak-admin-credentials.sealedsecret.yaml username=kcadmin "password=$admin"
 seal eurotransit orders-service-credentials orders-service-credentials-eurotransit.sealedsecret.yaml "client-secret=$client"
 seal keycloak orders-service-credentials orders-service-credentials-keycloak.sealedsecret.yaml "client-secret=$client"
-seal eurotransit payments-provider-credentials payments-provider-credentials.sealedsecret.yaml "provider-api-key=$api" "provider-webhook-secret=$webhook"
+seal eurotransit payments-provider-credentials payments-provider-credentials.sealedsecret.yaml "provider-api-key=$api"
 seal monitoring grafana-admin-credentials grafana-admin-credentials.sealedsecret.yaml username=admin "password=$grafana"
-unset orders inventory payments keycloak admin grafana client api webhook
+unset orders inventory payments keycloak admin grafana client api
 
 "$ROOT_DIR/scripts/validate-aks-sealed-secrets.sh" "$staging"
 
