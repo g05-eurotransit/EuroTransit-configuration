@@ -13,6 +13,7 @@ eurotransit-platform-root
 └── platform/argocd/environments/<environment>
     └── platform/argocd/base
         ├── eurotransit-platform AppProject
+        ├── eurotransit-secrets                 wave 5
         ├── platform operators                  wave 10
         ├── keycloak-operator                   wave 15
         ├── eurotransit-platform-runtime        wave 20
@@ -28,7 +29,10 @@ paths and omits the optional monitoring stack.
 Both use the built-in `default` project because the root creates the
 `eurotransit-platform` AppProject as part of its first sync.
 
-The child `Application` health customization in `platform/argocd/values.yaml`
+The Sealed Secrets controller itself is cluster-admin bootstrap infrastructure,
+not an Argo Application. `eurotransit-secrets` owns only cluster-specific
+application SealedSecrets; the private repository credential remains a manual,
+uncommitted bootstrap Secret. The child `Application` health customization in `platform/argocd/values.yaml`
 makes the root wait for each child to become healthy before advancing to a
 later wave. The `KafkaConnect` and `KafkaConnector` customizations propagate
 connector failures through the child and root Application health.
@@ -38,7 +42,7 @@ connector failures through the child and root Application health.
 ```bash
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
-helm upgrade --install argocd argo/argo-cd \
+helm upgrade --install argocd argo/argo-cd --version 10.2.2 \
   --namespace argocd --create-namespace \
   -f platform/argocd/values.yaml
 kubectl -n argocd rollout status deployment/argocd-server --timeout=5m
@@ -78,6 +82,8 @@ bootstrap mechanism. The template in `platform/argocd/templates` can be sealed
 only after a Sealed Secrets controller and its cluster-specific certificate
 exist. Kind and AKS encrypted payloads are not interchangeable. No plaintext
 token belongs in Git, shell history, CI logs, or a values file.
+The exact AKS ordering, including the controller and bootstrap runtime Secrets,
+is documented in [AKS production bootstrap](aks-production-setup.md).
 
 Verify access before creating the root:
 

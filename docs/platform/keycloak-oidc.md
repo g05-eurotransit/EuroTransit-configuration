@@ -19,8 +19,12 @@ The realm import defines `eurotransit-frontend`, `eurotransit-api`, roles
 Required `keycloak` namespace secrets are `keycloak-admin-credentials` and
 `keycloak-db-credentials`, each with `username` and `password` keys. For AKS
 they must be SealedSecrets; CloudNativePG also needs
-`keycloak-db-credentials` in namespace `eurotransit`. Kind creates all of
-these development values in-cluster.
+`keycloak-db-credentials` in namespace `eurotransit`.
+`orders-service-credentials` is required in both `keycloak` and
+`eurotransit`, with the identical rotated `client-secret` value. The
+`keycloak` copy is consumed by the Argo-managed wave-25 client-bootstrap Job;
+the `eurotransit` copy is consumed by Orders. Kind remains a development demo
+and creates all of these values in-cluster.
 
 Verify the operator and instance:
 

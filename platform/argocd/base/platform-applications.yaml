@@ -62,35 +62,6 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: sealed-secrets
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "10"
-spec:
-  project: eurotransit-platform
-  sources:
-    - repoURL: https://charts.bitnami.com/bitnami
-      chart: sealed-secrets
-      targetRevision: 2.5.19
-      helm:
-        valueFiles:
-          - $values/platform/sealed-secrets/values.yaml
-    - repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
-      targetRevision: main
-      ref: values
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: sealed-secrets
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
----
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
   name: strimzi
   namespace: argocd
   annotations:
@@ -117,6 +88,29 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: eurotransit-secrets
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  project: eurotransit-platform
+  source:
+    repoURL: https://github.com/g05-eurotransit/EuroTransit-configuration.git
+    targetRevision: main
+    path: platform/environments/aks/secrets
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: eurotransit
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
       - ServerSideApply=true
 ---
 apiVersion: argoproj.io/v1alpha1

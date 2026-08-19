@@ -101,6 +101,9 @@ kubectl -n eurotransit create secret generic keycloak-db-credentials \
 kubectl -n eurotransit create secret generic payments-provider-credentials \
   --from-literal="provider-api-key=$STRIPE_SECRET_KEY" \
   --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n eurotransit create secret generic orders-service-credentials \
+  --from-literal=client-secret=orders-service-secret \
+  --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n keycloak create secret generic keycloak-admin-credentials \
   --from-literal=username=eurotransit-admin --from-literal=password=admin \
   --dry-run=client -o yaml | kubectl apply -f -

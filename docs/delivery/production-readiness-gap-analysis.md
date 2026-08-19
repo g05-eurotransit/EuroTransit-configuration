@@ -2,10 +2,16 @@
 
 ## Verdict
 
-The repository is now **manifest-ready for constrained AKS deployment** and
-can render both AKS and Kind profiles. It is not yet go-live verified because
-cluster-specific secrets, image availability, DNS/TLS validation, and runtime
-capacity measurements require the real AKS cluster.
+AKS is intentionally not render-ready until controller-specific SealedSecret
+ciphertext is generated and merged; this is a fail-closed bootstrap prerequisite.
+The frontend workload is included in the production chart.
+
+The repository is now **conditionally ready for constrained AKS deployment**:
+Kind and AKS scaffolding render, while the production AKS render is
+intentionally fail-closed until all ten controller-specific ciphertexts have
+been generated, validated and merged. It is not yet go-live verified because
+image availability, DNS/TLS validation and runtime capacity measurements require
+the real AKS cluster.
 
 ## Completed In Configuration
 
@@ -30,15 +36,17 @@ capacity measurements require the real AKS cluster.
 - [ ] Confirm `g05.cpo2026.it` resolves to `g05-eurotransit.swedencentral.cloudapp.azure.com`.
 - [ ] Confirm immutable images exist in `eurotransitregistry.azurecr.io`.
 - [ ] Confirm AKS can pull from ACR.
-- [ ] Replace example SealedSecrets with values encrypted for the AKS controller.
+- [ ] Generate, validate and merge all ten application SealedSecrets encrypted
+  for the AKS controller.
 - [ ] Confirm the Let's Encrypt account email is monitored.
 - [ ] Provision Argo CD with a read-only credential for the private
   `g05-eurotransit/EuroTransit-configuration` repository.
 - [ ] Merge and push the validated configuration revision before applying the
   AKS root Application.
-- [ ] Create `keycloak-admin-credentials` and `keycloak-db-credentials` as
-  SealedSecrets in namespace `keycloak`, plus `keycloak-db-credentials` in
-  namespace `eurotransit`, all with `username` and `password` keys.
+- [ ] Verify the generated ten-secret inventory includes
+  `keycloak-admin-credentials` and `keycloak-db-credentials` in `keycloak`,
+  plus `keycloak-db-credentials` in `eurotransit`, all with `username` and
+  `password` keys.
 
 ## Required Runtime Proof
 
@@ -55,8 +63,6 @@ capacity measurements require the real AKS cluster.
 
 ## Remaining Product And Operations Work
 
-- The React frontend cannot be deployed because it does not exist as a workload
-  in `EuroTransit-application` yet.
 - Real Grafana dashboards, tracing collection, progressive delivery evidence,
   least-privilege RBAC and completed chaos reports remain follow-up work.
 - The single-instance database, Kafka and Keycloak topology cannot tolerate a

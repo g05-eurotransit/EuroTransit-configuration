@@ -5,8 +5,8 @@ global:
     jwkSetUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/certs
     audience: eurotransit-api
 
-podDisruptionBudget:
-  enabled: false
+  podDisruptionBudget:
+    enabled: false
 
 ingress:
   localhost:
@@ -23,3 +23,9 @@ orders: *service
 inventory: *service
 payments: *service
 notifications: *service
+
+frontend:
+  replicaCount: 1
+  resources:
+    requests: { cpu: 25m, memory: 64Mi }
+    limits: { cpu: 200m, memory: 256Mi }

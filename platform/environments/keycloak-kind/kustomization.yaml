@@ -5,3 +5,45 @@ resources:
 patches:
   - path: keycloak-patch.yaml
   - path: keycloak-ingressroute-patch.yaml
+  - path: remove-orders-service-client-secret-bootstrap-job.yaml
+  - target:
+      group: k8s.keycloak.org
+      version: v2beta1
+      kind: KeycloakRealmImport
+      name: eurotransit
+    patch: |-
+      - op: add
+        path: /spec/realm/users/-
+        value:
+          username: alice
+          enabled: true
+          email: alice@eurotransit.local
+          firstName: Alice
+          lastName: Customer
+          emailVerified: true
+          requiredActions: []
+          credentials:
+            - type: password
+              value: alice
+              temporary: false
+          realmRoles:
+            - customer
+      - op: add
+        path: /spec/realm/users/-
+        value:
+          username: admin
+          enabled: true
+          email: admin@eurotransit.local
+          firstName: Admin
+          lastName: Operations
+          emailVerified: true
+          requiredActions: []
+          credentials:
+            - type: password
+              value: admin
+              temporary: false
+          realmRoles:
+            - operations
+      - op: add
+        path: /spec/realm/clients/2/secret
+        value: orders-service-secret

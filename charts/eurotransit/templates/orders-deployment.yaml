@@ -94,6 +94,11 @@ spec:
               value: {{ .Values.orders.services.paymentsUrl | quote }}
             - name: ORDERS_SERVICE_TOKEN_URI
               value: {{ .Values.orders.serviceAuth.tokenUri | quote }}
+            - name: ORDERS_SERVICE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.orders.serviceAuth.secretName | quote }}
+                  key: {{ .Values.orders.serviceAuth.secretKey | quote }}
             - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
               value: "true"
             - name: SERVER_SHUTDOWN

@@ -4,11 +4,17 @@ resources:
   - namespaces.yaml
   - ../../cloudnativepg
   - ../../strimzi
-  - ../../sealed-secrets
   - ../../kube-prometheus-stack
   - letsencrypt-cluster-issuer.yaml
   - production-certificate.yaml
+  - keycloak-production-certificate.yaml
 patches:
   - path: postgres-patch.yaml
   - path: kafka-nodepool-patch.yaml
   - path: kafka-patch.yaml
+  - path: kafka-topics-aks-patch.yaml
+    target:
+      group: kafka.strimzi.io
+      version: v1beta2
+      kind: KafkaTopic
+      labelSelector: strimzi.io/cluster=eurotransit-kafka

@@ -2,6 +2,12 @@
 
 This document owns configuration-side security controls. Application-side authentication and authorization behavior is documented in the application repository.
 
+On AKS the Sealed Secrets controller/key lifecycle is cluster-admin-owned.
+Only application ciphertext under `platform/environments/aks/secrets` is
+Argo-managed (wave 5); the Argo repository credential is manual, uncommitted,
+and outside that path. Ciphertext is cluster/key specific; Orders client
+credentials are duplicated in `eurotransit` and `keycloak` for the Argo Job.
+
 ## Required Controls
 
 - No plaintext production secrets committed to the repository.
@@ -45,21 +51,37 @@ One PostgreSQL cluster may host the three logical databases in local environment
 
 ## Current Manifests
 
-- Sealed Secrets controller values live in `platform/sealed-secrets/values.yaml`.
-- Database credential templates live in `platform/cloudnativepg/templates/`.
-- Payment provider and Keycloak client secret templates live in `platform/sealed-secrets/templates/`.
-- Argo CD private configuration repository credential templates live in `platform/argocd/templates/`.
-- Keycloak admin and database credential templates live in `platform/keycloak/templates/`.
+- The cluster admin installs and upgrades the controller with the reviewed
+  values in `platform/sealed-secrets/values.yaml`; it is not an Argo CD
+  Application and its key backup/restore is an admin responsibility.
+- The ten AKS application ciphertexts live in
+  `platform/environments/aks/secrets/` and are owned by the Argo
+  `eurotransit-secrets` Application at wave 5, with pruning and self-heal.
+- `scripts/generate-aks-sealed-secrets.sh` creates those ciphertexts for the
+  target controller without writing plaintext files;
+  `scripts/validate-aks-sealed-secrets.sh` verifies their required inventory.
+- The sole manual SealedSecret is the private Argo repository credential in
+  `argocd`: it is generated and applied by the cluster admin before Argo can
+  read the repository, is never committed, and is outside the wave-5 app.
+- Database and payment credential templates live in
+  `platform/cloudnativepg/templates/` and `platform/sealed-secrets/templates/`.
+- Keycloak admin, database and Orders client-secret templates live in
+  `platform/keycloak/templates/`; the Orders value is sealed identically for
+  both `keycloak` and `eurotransit`.
 - Keycloak multi-environment OIDC configuration lives in `platform/keycloak/` and is documented in `docs/platform/keycloak-oidc.md`.
 - CloudNativePG database and role references live in `platform/cloudnativepg/postgres-cluster.yaml`.
-- The sealing workflow is documented in `docs/platform/cluster-bootstrap-runbook.md`.
+- The executable sealing, bootstrap, upgrade, rotation and disaster-recovery
+  workflow is documented in `docs/platform/aks-production-setup.md` and
+  summarized in `docs/platform/cluster-bootstrap-runbook.md`.
 
-## To Document
+## Rotation And Recovery
 
-- local development secrets;
-- CI secrets;
-- Keycloak realm, clients, roles/scopes, issuer URL, and JWKS configuration for production hostnames;
-- payment provider sandbox secret names and rotation expectations;
-- Kubernetes Secret or external secret strategy;
-- rotation expectations;
-- review requirements for auth, routing, and secret changes.
+- Rotate application secrets by generating and reviewing replacement AKS
+  ciphertext, merging it through protected `main`, and allowing Argo to sync
+  wave 5. Rotate the Orders value in both namespaces and recreate the
+  `orders-service-client-secret-bootstrap` Job as documented in the runbook.
+- Rotate the manual repository credential outside Git and Argo, with a
+  cluster-admin change before Argo needs the credential.
+- Before every controller upgrade, inventory and back up its key Secrets using
+  the approved encrypted off-cluster process. Recovery restores the original
+  keys before reconciling ciphertext, then performs a tested DR validation.

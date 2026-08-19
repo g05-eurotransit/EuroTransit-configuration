@@ -1,174 +1,234 @@
-# EuroTransit AKS Production Setup
+# EuroTransit AKS production bootstrap
 
-This runbook deploys EuroTransit Marketplace on the fixed AKS target of three
-`Standard_B2als_v2` nodes. It is a constrained production profile: it provides
-the complete backend platform with reduced availability, not full HA.
+Sealed Secrets controller/key lifecycle is cluster-admin-owned and never Argo-owned. Application ciphertext under `platform/environments/aks/secrets` is Argo wave 5; the uncommitted Argo repository credential is the sole manually applied SealedSecret.
 
-## Target
-
-- Public hostname: `g05.cpo2026.it`.
-- Azure Load Balancer hostname: `g05-eurotransit.swedencentral.cloudapp.azure.com`.
-- Public entrypoint: Traefik on ports 80 and 443.
-- OIDC issuer: `https://g05.cpo2026.it/realms/eurotransit`.
-- GitOps owner: Argo CD.
-- Runtime overlay: `platform/environments/aks`.
-
-Before deployment, confirm that `g05.cpo2026.it` resolves to the Azure Load
-Balancer hostname. The frontend is not included because no frontend workload
-currently exists in the sibling application repository.
-
-## 1. Prerequisites
-
-Required tools are `az`, `kubectl`, `helm`, `argocd`, `kubeseal`, and `just`.
-Set the target identifiers:
+## 1. Preconditions
 
 ```bash
-export AKS_RESOURCE_GROUP='<resource-group>'
-export AKS_CLUSTER_NAME='<cluster-name>'
-export ACR_NAME='eurotransitregistry'
+export AZ_SUBSCRIPTION='<subscription-id>' AKS_RESOURCE_GROUP='<resource-group>'
+export AKS_CLUSTER_NAME='<cluster-name>' ACR_NAME='eurotransitregistry'
+az login
+az account set --subscription "$AZ_SUBSCRIPTION"
+az aks get-credentials -g "$AKS_RESOURCE_GROUP" -n "$AKS_CLUSTER_NAME" --overwrite-existing
+kubectl config current-context
+kubectl get nodes -o wide                    # exactly three Ready nodes
+az aks check-acr -g "$AKS_RESOURCE_GROUP" -n "$AKS_CLUSTER_NAME" --acr "$ACR_NAME" \
+  || az aks update -g "$AKS_RESOURCE_GROUP" -n "$AKS_CLUSTER_NAME" --attach-acr "$ACR_NAME"
 ```
 
-Connect and verify the fixed capacity:
+Set `g05.cpo2026.it` CNAME to `g05-eurotransit.swedencentral.cloudapp.azure.com` before root creation and verify `dig +short g05.cpo2026.it`. Confirm the account email in `platform/environments/aks/letsencrypt-cluster-issuer.yaml` is monitored.
+
+## 2. Images and fail-closed rendering
 
 ```bash
-az aks get-credentials --resource-group "$AKS_RESOURCE_GROUP" --name "$AKS_CLUSTER_NAME" --overwrite-existing
-kubectl get nodes -o wide
-kubectl top nodes
-az aks check-acr --resource-group "$AKS_RESOURCE_GROUP" --name "$AKS_CLUSTER_NAME" --acr "$ACR_NAME"
+export IMAGE_TAG='<immutable tag committed on main>'
+export CONNECT_IMAGE_TAG='strimzi-0.46.1-kafka-3.9.0-debezium-2.7.0'
+for image in catalog orders inventory payments notifications frontend; do
+  az acr repository show -n "$ACR_NAME" --image "eurotransit/$image:$IMAGE_TAG" --output none
+done
+az acr repository show -n "$ACR_NAME" --image "eurotransit/debezium-connect:$CONNECT_IMAGE_TAG" --output none
+just render-kind
+just render-aks                         # intentionally fails before ciphertext exists
+ALLOW_MISSING_AKS_SECRETS=1 just render-aks # scaffold-only validation
 ```
 
-There must be three Ready nodes. Attach ACR with `az aks update --attach-acr`
-if the registry check fails.
+The scaffold flag validates only paths and placeholder structure. It is not a
+production render: after ciphertext generation, both the normal `just
+render-kind` and normal `just render-aks` commands must pass before the final
+ciphertext revision is merged.
 
-## 2. Validate Manifests
-
-From the configuration repository:
+If required, build and push the immutable images from the sibling application
+repository. The backend uses its root `Dockerfile` and the required `SERVICE`
+argument; the frontend and connector use the exact Dockerfiles and build
+arguments below.
 
 ```bash
+export APP_REPOSITORY=../EuroTransit-application
+export CONNECT_IMAGE_TAG='strimzi-0.46.1-kafka-3.9.0-debezium-2.7.0'
+az acr login --name "$ACR_NAME"
+for service in catalog orders inventory payments notifications; do
+  docker build -f "$APP_REPOSITORY/Dockerfile" --build-arg SERVICE="$service" \
+    -t "$ACR_NAME.azurecr.io/eurotransit/$service:$IMAGE_TAG" "$APP_REPOSITORY"
+  docker push "$ACR_NAME.azurecr.io/eurotransit/$service:$IMAGE_TAG"
+done
+docker build -f "$APP_REPOSITORY/frontend/Dockerfile" \
+  --build-arg VITE_KEYCLOAK_ISSUER=https://g05.cpo2026.it/realms/eurotransit \
+  --build-arg VITE_KEYCLOAK_CLIENT_ID=eurotransit-frontend \
+  --build-arg VITE_API_BASE=/api \
+  -t "$ACR_NAME.azurecr.io/eurotransit/frontend:$IMAGE_TAG" "$APP_REPOSITORY/frontend"
+docker push "$ACR_NAME.azurecr.io/eurotransit/frontend:$IMAGE_TAG"
+docker build -f "$APP_REPOSITORY/connect/Dockerfile" \
+  -t "$ACR_NAME.azurecr.io/eurotransit/debezium-connect:$CONNECT_IMAGE_TAG" "$APP_REPOSITORY"
+docker push "$ACR_NAME.azurecr.io/eurotransit/debezium-connect:$CONNECT_IMAGE_TAG"
+```
+
+Never use `latest`. Update image references through a reviewed PR; root reads
+protected `main`, so images and configuration must be merged before bootstrap.
+
+## 3. Admin-owned controller and ciphertext
+
+### First installation
+
+```bash
+kubectl apply -f platform/environments/aks/namespaces.yaml
+helm repo add bitnami https://charts.bitnami.com/bitnami && helm repo update
+helm upgrade --install sealed-secrets bitnami/sealed-secrets --version 2.5.19 \
+  -n sealed-secrets --create-namespace -f platform/sealed-secrets/values.yaml
+kubectl -n sealed-secrets rollout status deploy/sealed-secrets-controller --timeout=5m
+# This Kubernetes label selector inventories the controller key Secrets.
+kubectl -n sealed-secrets get secret \
+  -l sealedsecrets.bitnami.com/sealed-secrets-key \
+  -o custom-columns=NAME:.metadata.name,CREATED:.metadata.creationTimestamp
+kubeseal --controller-name sealed-secrets-controller --controller-namespace sealed-secrets \
+  --fetch-cert > /tmp/eurotransit-sealed-secrets.pem
+```
+
+Record that initial inventory and complete the approved encrypted, off-cluster
+key backup before generating ciphertext or bootstrapping Argo; this is a hard
+gate. Never create a plaintext private-key file, uninstall the release, or
+delete its namespace or key Secrets.
+
+### Subsequent controller upgrades
+
+Controller upgrades are cluster-admin actions. Before an upgrade, record the
+same key inventory and ensure its encrypted off-cluster backup is current. Use
+the reviewed upgrade chart version, wait for rollout, then record and compare
+the after inventory:
+
+```bash
+kubectl -n sealed-secrets get secret \
+  -l sealedsecrets.bitnami.com/sealed-secrets-key \
+  -o custom-columns=NAME:.metadata.name,CREATED:.metadata.creationTimestamp
+export SEALED_SECRETS_CHART_VERSION='<reviewed-upgrade-version>'
+helm upgrade sealed-secrets bitnami/sealed-secrets \
+  --version "$SEALED_SECRETS_CHART_VERSION" \
+  -n sealed-secrets -f platform/sealed-secrets/values.yaml
+kubectl -n sealed-secrets rollout status deploy/sealed-secrets-controller --timeout=5m
+kubectl -n sealed-secrets get secret \
+  -l sealedsecrets.bitnami.com/sealed-secrets-key \
+  -o custom-columns=NAME:.metadata.name,CREATED:.metadata.creationTimestamp
+```
+
+Disaster recovery restores all required original keys before any ciphertext is
+reconciled, then runs a DR test outside production.
+
+```bash
+SEALED_SECRETS_CERT=/tmp/eurotransit-sealed-secrets.pem scripts/generate-aks-sealed-secrets.sh
+scripts/validate-aks-sealed-secrets.sh platform/environments/aks/secrets
+just render-kind
 just render-aks
+git switch -c aks/sealed-secrets-bootstrap
+git add platform/environments/aks/secrets
+git commit -m 'Add AKS SealedSecret ciphertext'
+export REVIEWED_COMMIT="$(git rev-parse HEAD)"
+# Open PR, obtain required review, merge through protected main.
+git fetch origin main
+git merge-base --is-ancestor "$REVIEWED_COMMIT" origin/main
 ```
 
-The AKS profile uses one replica for Traefik, Keycloak, CloudNativePG, Kafka,
-and each application service. Prometheus retention and resource limits are
-reduced. Chaos Mesh is not installed by the normal Argo CD application set.
-Keycloak is managed by the official Keycloak Operator `26.7.0` and shares the
-constrained CloudNativePG cluster through the dedicated `keycloak_db` database.
+The generator creates all ten ciphertexts without plaintext files, including the same Orders secret separately scoped to `eurotransit` and `keycloak`.
 
-## 3. Prepare Secrets
+The final command must exit zero: it verifies that the reviewed commit is an
+ancestor of `origin/main`, rather than merely displaying its latest commit.
 
-Bootstrap Sealed Secrets first, fetch its certificate, and replace every
-example encrypted value with a value sealed for the production cluster:
+## 4. Bootstrap Argo
+
+Only repository access is manually sealed and applied; it is not committed or part of `eurotransit-secrets`.
 
 ```bash
-kubeseal --controller-name sealed-secrets-controller \
-  --controller-namespace sealed-secrets --fetch-cert \
-  > /tmp/eurotransit-sealed-secrets.pem
-```
-
-Required secrets include database credentials for Orders, Inventory, Payments
-and Keycloak (in both `eurotransit` for CloudNativePG and `keycloak` for the
-operator), payment provider credentials, Keycloak admin credentials,
-Grafana credentials, and an Argo CD repository secret when the repository is
-private. Commit only `SealedSecret` resources, never plaintext `Secret` files.
-
-The Let's Encrypt account email in
-`platform/environments/aks/letsencrypt-cluster-issuer.yaml` defaults to
-`admin@cpo2026.it`; replace it before go-live if that mailbox is not monitored.
-
-## 4. Bootstrap Argo CD
-
-```bash
-helm repo add argo https://argoproj.github.io/argo-helm
-helm repo update
-helm upgrade --install argocd argo/argo-cd \
-  --namespace argocd --create-namespace \
-  -f platform/argocd/values.yaml
-kubectl -n argocd rollout status deploy/argocd-server
-```
-
-The configuration repository is private. Provision the read-only repository
-credential before applying the root Application, following
-`docs/platform/argocd-bootstrap.md`. Then bootstrap the complete hierarchy:
-
-```bash
+kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+read -rp 'GitHub username: ' ARGO_REPO_USERNAME
+read -rsp 'Read-only repository token: ' ARGO_REPO_TOKEN; echo
+printf 'type=git\nurl=https://github.com/g05-eurotransit/EuroTransit-configuration.git\nusername=%s\npassword=%s\n' "$ARGO_REPO_USERNAME" "$ARGO_REPO_TOKEN" \
+ | kubectl -n argocd create secret generic eurotransit-configuration-repo --from-env-file=/dev/stdin --dry-run=client -o yaml \
+ | kubectl label --local -f - argocd.argoproj.io/secret-type=repository -o yaml \
+ | kubeseal --cert /tmp/eurotransit-sealed-secrets.pem --format yaml | kubectl apply -f -
+unset ARGO_REPO_USERNAME ARGO_REPO_TOKEN
+helm repo add argo https://argoproj.github.io/argo-helm && helm repo update
+helm upgrade --install argocd argo/argo-cd --version 10.2.2 -n argocd --create-namespace -f platform/argocd/values.yaml
+kubectl -n argocd rollout status deploy/argocd-server --timeout=5m
+argocd login --core && argocd repo list
 kubectl apply -k apps/argocd-apps/environments/aks
-argocd app wait eurotransit-platform-root \
-  --sync --health --timeout 1800
+argocd app wait eurotransit-platform-root --sync --health --timeout 1800
 ```
 
-Do not replace the root with
-`kubectl apply -k platform/argocd/environments/aks`: that creates all auto-sync
-child Applications concurrently and bypasses their wave ordering.
+Repository access must be `Successful` before root creation. No runtime Secret is applied manually after this point.
 
-## 5. Verify Ordered Reconciliation
+| Wave | Owner/content |
+| --- | --- |
+| 5 | `eurotransit-secrets`; SealedSecret `Synced=True` health |
+| 10 | Traefik, cert-manager, Strimzi, CNPG, monitoring; never controller |
+| 15/20 | Keycloak Operator; runtime/TLS |
+| 25/30/40 | Keycloak plus client Job; marketplace; connectors |
+
+Confirm no Argo Application owns the controller and inspect `kubectl -n argocd get applications`.
 
 ```bash
-argocd app get eurotransit-platform-root
-kubectl -n argocd get applications \
-  -o custom-columns='NAME:.metadata.name,SYNC:.status.sync.status,HEALTH:.status.health.status'
+argocd app get eurotransit-secrets
+kubectl -n argocd get application eurotransit-secrets \
+  -o jsonpath='{.status.health.status}{"\n"}' # Healthy
+if kubectl -n argocd get application sealed-secrets; then
+  echo 'sealed-secrets must not be Argo-owned' >&2; exit 1
+else
+  echo 'confirmed: sealed-secrets Application is absent'
+fi
 ```
 
-The connector Application must remain after the marketplace: its
-`KafkaConnect` and `KafkaConnector` resources assume that Orders and Inventory
-have already completed Flyway. Before the first connector sync, confirm that
-`eurotransitregistry.azurecr.io/eurotransit/debezium-connect` contains the tag
-or digest referenced by the AKS overlay.
-
-After each group, inspect memory before continuing:
-
-```bash
-kubectl get pods -A
-kubectl top nodes
-kubectl top pods -A --sort-by=memory
-kubectl get events -A --sort-by=.lastTimestamp
-```
-
-Do not increase replica counts until steady-state measurements prove that the
-cluster has sufficient headroom.
-
-## 6. Validate DNS, TLS And OIDC
+## 5. Acceptance and operations
 
 ```bash
 kubectl -n traefik get svc traefik
 kubectl -n eurotransit get certificate eurotransit-production-tls
+kubectl -n keycloak get certificate eurotransit-production-tls
+kubectl -n eurotransit wait --for=condition=Ready certificate/eurotransit-production-tls --timeout=10m
+kubectl -n keycloak wait --for=condition=Ready certificate/eurotransit-production-tls --timeout=10m
+INGRESSROUTES_YAML="$(kubectl get ingressroute -A -o yaml)"
+printf '%s\n' "$INGRESSROUTES_YAML"
+if printf '%s\n' "$INGRESSROUTES_YAML" | rg -qi \
+  '^[[:space:]]*(-[[:space:]]*)?name:[[:space:]]*(inventory|payments)([[:space:]]|$)'; then
+  echo 'Inventory and Payments must not have public IngressRoutes' >&2; exit 1
+else
+  echo 'confirmed: Inventory and Payments IngressRoutes are absent'
+fi
+kubectl -n eurotransit get servicemonitor
+kubectl -n monitoring get servicemonitor
+kubectl -n monitoring get prometheus
+kubectl -n eurotransit get kafka,kafkatopic,cluster
+kubectl -n eurotransit get kafkaconnect,kafkaconnector
+kubectl get pods -A; kubectl get events -A --sort-by=.lastTimestamp
+kubectl top nodes; kubectl top pods -A --sort-by=memory
 curl -fsS https://g05.cpo2026.it/realms/eurotransit/.well-known/openid-configuration
-```
-
-The discovery document must report an issuer exactly equal to
-`https://g05.cpo2026.it/realms/eurotransit`. Application API routes share the
-same host; Keycloak owns non-API paths.
-
-## 7. Smoke Test
-
-```bash
 curl -fsS https://g05.cpo2026.it/api/catalog/routes
-curl -i -X POST https://g05.cpo2026.it/api/orders \
-  -H 'Content-Type: application/json' \
-  -H 'Idempotency-Key: aks-auth-check' -d '{}'
-kubectl -n eurotransit get ingressroute -o yaml | rg 'inventory|payments' || true
+curl -i -X POST https://g05.cpo2026.it/api/orders -H 'Content-Type: application/json' -H 'Idempotency-Key: aks-check' -d '{}'
 ```
 
-Catalog must respond, Orders without a JWT must return 401 or 403, and neither
-Inventory nor Payments may have a public route. Also verify all application
-rollouts and Prometheus targets.
+The EuroTransit and Keycloak Certificates must be `Ready=True`. The only public
+IngressRoutes are the EuroTransit and Keycloak routes: the `eurotransit` list
+must contain no Inventory or Payments route. Confirm ServiceMonitors are present
+and that Prometheus is Ready with their targets discovered; confirm each
+`KafkaConnect` and `KafkaConnector` reports Ready after Orders/Inventory Flyway
+succeeds. This fixed three-node, single-instance topology is deliberately
+non-HA: use the `kubectl top` output to confirm capacity headroom, not a claim
+of node or process failure tolerance.
 
-## 8. Rollback
-
-Use Git as the source of truth:
+If root sync times out, inspect its child Applications and their resource
+health, then diagnose pending certificates explicitly:
 
 ```bash
-git revert <bad-configuration-commit>
-git push
-argocd app sync eurotransit-platform-runtime eurotransit-marketplace
+argocd app get eurotransit-platform-root
+kubectl -n argocd get applications
+kubectl -n eurotransit describe certificate eurotransit-production-tls
+kubectl -n keycloak describe certificate eurotransit-production-tls
+kubectl get challenge,order -A
 ```
 
-An emergency `kubectl rollout undo` must be followed by the equivalent Git
-change or Argo CD will restore the undesired state.
+The OIDC issuer must be public; Orders without JWT returns 401/403;
+Inventory/Payments have no public route.
 
-## Capacity And Availability Statement
-
-The profile intentionally has no stateful failover: PostgreSQL, Kafka and
-Keycloak each run as a single instance. Long-term Prometheus retention and
-steady-state Chaos Mesh are excluded. Production readiness means stable
-scheduling and correct operation on the assigned hardware, not node-failure
-tolerance.
+Rollback Argo-owned resources by reverting the reviewed Git revision through
+the normal PR flow and syncing Argo to that Git state. Rotate application
+secrets by PR-merging new ciphertext. Orders rotation updates the identical
+value in both `keycloak` and `eurotransit`, then deletes the completed
+`orders-service-client-secret-bootstrap` Job so Argo recreates it in wave 25.
+Controller disaster recovery is separate: restore original controller keys
+before any ciphertext reconciliation, then perform the DR test described above.

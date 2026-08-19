@@ -27,32 +27,7 @@ spec:
         - name: service
           description: EuroTransit internal service-to-service role
     users:
-      - username: alice
-        enabled: true
-        email: alice@eurotransit.local
-        firstName: Alice
-        lastName: Customer
-        emailVerified: true
-        requiredActions: []
-        credentials:
-          - type: password
-            value: alice
-            temporary: false
-        realmRoles:
-          - customer
-      - username: admin
-        enabled: true
-        email: admin@eurotransit.local
-        firstName: Admin
-        lastName: Operations
-        emailVerified: true
-        requiredActions: []
-        credentials:
-          - type: password
-            value: admin
-            temporary: false
-        realmRoles:
-          - operations
+      # This is the service account role mapping, not a demo user or credential.
       - username: service-account-orders-service
         enabled: true
         serviceAccountClientId: orders-service
@@ -112,7 +87,6 @@ spec:
         directAccessGrantsEnabled: false
         serviceAccountsEnabled: true
         protocol: openid-connect
-        secret: orders-service-secret
         protocolMappers:
           - name: realm roles
             protocol: openid-connect

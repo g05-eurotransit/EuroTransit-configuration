@@ -11,6 +11,28 @@ configs:
         hs.message = obj.status.health.message or ""
       end
       return hs
+    resource.customizations.health.bitnami.com_SealedSecret: |
+      hs = {}
+      hs.status = "Progressing"
+      hs.message = "Waiting for SealedSecret to be unsealed"
+      if obj.status ~= nil and obj.status.observedGeneration ~= obj.metadata.generation then
+        hs.message = "Waiting for SealedSecret controller to observe this generation"
+        return hs
+      end
+      if obj.status ~= nil and obj.status.conditions ~= nil then
+        for _, condition in ipairs(obj.status.conditions) do
+          if condition.type == "Synced" then
+            hs.message = condition.message or condition.reason or ""
+            if condition.status == "True" then
+              hs.status = "Healthy"
+            elseif condition.status == "False" then
+              hs.status = "Degraded"
+            end
+            return hs
+          end
+        end
+      end
+      return hs
     resource.customizations.health.kafka.strimzi.io_KafkaConnect: |
       hs = {}
       hs.status = "Progressing"
