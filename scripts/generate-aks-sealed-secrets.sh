@@ -31,16 +31,28 @@ seal() {
     | kubeseal --cert "$cert" --format yaml > "$staging/$file"
 }
 
+seal_db_role() {
+  local namespace="$1" name="$2" file="$3"; shift 3
+  # CloudNativePG observes these labeled basic-auth Secrets and reconciles
+  # the corresponding PostgreSQL role password immediately on rotation.
+  local pair
+  { for pair in "$@"; do printf '%s\n' "$pair"; done; } \
+    | kubectl -n "$namespace" create secret generic "$name" \
+        --type=kubernetes.io/basic-auth --from-env-file=/dev/stdin --dry-run=client -o yaml \
+    | kubectl label --local -f - cnpg.io/reload=true -o yaml \
+    | kubeseal --cert "$cert" --format yaml > "$staging/$file"
+}
+
 orders="$(openssl rand -base64 32)"; inventory="$(openssl rand -base64 32)"
 payments="$(openssl rand -base64 32)"; keycloak="$(openssl rand -base64 32)"
 admin="$(openssl rand -base64 32)"; grafana="$(openssl rand -base64 32)"
 client="$(openssl rand -base64 48)"
 read -rsp 'Payment provider API key: ' api; echo
 [[ -n "$api" ]] || { echo 'Payment provider API key must not be empty' >&2; exit 1; }
-seal eurotransit orders-db-credentials orders-db-credentials.sealedsecret.yaml username=orders "password=$orders"
-seal eurotransit inventory-db-credentials inventory-db-credentials.sealedsecret.yaml username=inventory "password=$inventory"
-seal eurotransit payments-db-credentials payments-db-credentials.sealedsecret.yaml username=payments "password=$payments"
-seal eurotransit keycloak-db-credentials keycloak-db-credentials-eurotransit.sealedsecret.yaml username=keycloak "password=$keycloak"
+seal_db_role eurotransit orders-db-credentials orders-db-credentials.sealedsecret.yaml username=orders "password=$orders"
+seal_db_role eurotransit inventory-db-credentials inventory-db-credentials.sealedsecret.yaml username=inventory "password=$inventory"
+seal_db_role eurotransit payments-db-credentials payments-db-credentials.sealedsecret.yaml username=payments "password=$payments"
+seal_db_role eurotransit keycloak-db-credentials keycloak-db-credentials-eurotransit.sealedsecret.yaml username=keycloak "password=$keycloak"
 seal keycloak keycloak-db-credentials keycloak-db-credentials-keycloak.sealedsecret.yaml username=keycloak "password=$keycloak"
 seal keycloak keycloak-admin-credentials keycloak-admin-credentials.sealedsecret.yaml username=kcadmin "password=$admin"
 seal eurotransit orders-service-credentials orders-service-credentials-eurotransit.sealedsecret.yaml "client-secret=$client"
