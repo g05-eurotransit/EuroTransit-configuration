@@ -107,6 +107,11 @@ kubectl -n eurotransit create secret generic orders-service-credentials \
 kubectl -n keycloak create secret generic keycloak-admin-credentials \
   --from-literal=username=eurotransit-admin --from-literal=password=admin \
   --dry-run=client -o yaml | kubectl apply -f -
+kubectl -n keycloak create secret generic keycloak-demo-users-credentials \
+  --from-literal='alice-password=Alice!Metro#2026' \
+  --from-literal='bruno-password=Bruno!Route#2026' \
+  --from-literal='chiara-password=Chiara!Ticket#2026' \
+  --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n keycloak create secret generic keycloak-db-credentials \
   --from-literal=username=keycloak --from-literal=password=password \
   --dry-run=client -o yaml | kubectl apply -f -

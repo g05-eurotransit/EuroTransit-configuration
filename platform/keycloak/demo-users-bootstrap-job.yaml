@@ -1,0 +1,88 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-demo-users-bootstrap
+  namespace: keycloak
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    app.kubernetes.io/component: keycloak-bootstrap
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: eurotransit-marketplace
+        app.kubernetes.io/component: keycloak-bootstrap
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: configure-demo-users
+          image: quay.io/keycloak/keycloak:26.7.0
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-ceu"]
+          args:
+            - |
+              attempt=1
+              max_attempts=60
+              while [ "$attempt" -le "$max_attempts" ]; do
+                if /opt/keycloak/bin/kcadm.sh config credentials \
+                  --server http://keycloak-service:8080 --realm master \
+                  --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD" \
+                  && /opt/keycloak/bin/kcadm.sh get realms/eurotransit >/dev/null; then
+                  ensure_user() {
+                    username="$1" email="$2" first_name="$3" last_name="$4" role="$5" password="$6"
+                    if ! /opt/keycloak/bin/kcadm.sh get users -r eurotransit -q "username=$username" \
+                      --fields username --format csv --noquotes 2>/dev/null | grep -qx "$username"; then
+                      /opt/keycloak/bin/kcadm.sh create users -r eurotransit \
+                        -s "username=$username" -s enabled=true -s emailVerified=true \
+                        -s "email=$email" -s "firstName=$first_name" -s "lastName=$last_name"
+                    fi
+                    /opt/keycloak/bin/kcadm.sh set-password -r eurotransit \
+                      --username "$username" --new-password "$password" --temporary=false
+                    /opt/keycloak/bin/kcadm.sh add-roles -r eurotransit \
+                      --uusername "$username" --rolename "$role" || true
+                  }
+                  ensure_user alice alice@eurotransit.local Alice Customer customer "$ALICE_PASSWORD"
+                  ensure_user bruno bruno@eurotransit.local Bruno Customer customer "$BRUNO_PASSWORD"
+                  ensure_user chiara chiara@eurotransit.local Chiara Operations operations "$CHIARA_PASSWORD"
+                  exit 0
+                fi
+                attempt=$((attempt + 1))
+                sleep 5
+              done
+              echo "Keycloak realm was not ready before the bootstrap deadline" >&2
+              exit 1
+          env:
+            - name: KEYCLOAK_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-credentials
+                  key: username
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-credentials
+                  key: password
+            - name: ALICE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-demo-users-credentials
+                  key: alice-password
+            - name: BRUNO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-demo-users-credentials
+                  key: bruno-password
+            - name: CHIARA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-demo-users-credentials
+                  key: chiara-password
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi

@@ -48,18 +48,24 @@ payments="$(openssl rand -base64 32)"; keycloak="$(openssl rand -base64 32)"
 admin="$(openssl rand -base64 32)"; grafana="$(openssl rand -base64 32)"
 client="$(openssl rand -base64 48)"
 read -rsp 'Payment provider API key: ' api; echo
+read -rsp 'Alice demo-user password: ' alice_demo_password; echo
+read -rsp 'Bruno demo-user password: ' bruno_demo_password; echo
+read -rsp 'Chiara demo-user password: ' chiara_demo_password; echo
 [[ -n "$api" ]] || { echo 'Payment provider API key must not be empty' >&2; exit 1; }
+[[ -n "$alice_demo_password" && -n "$bruno_demo_password" && -n "$chiara_demo_password" ]] \
+  || { echo 'Demo-user passwords must not be empty' >&2; exit 1; }
 seal_db_role eurotransit orders-db-credentials orders-db-credentials.sealedsecret.yaml username=orders "password=$orders"
 seal_db_role eurotransit inventory-db-credentials inventory-db-credentials.sealedsecret.yaml username=inventory "password=$inventory"
 seal_db_role eurotransit payments-db-credentials payments-db-credentials.sealedsecret.yaml username=payments "password=$payments"
 seal_db_role eurotransit keycloak-db-credentials keycloak-db-credentials-eurotransit.sealedsecret.yaml username=keycloak "password=$keycloak"
 seal keycloak keycloak-db-credentials keycloak-db-credentials-keycloak.sealedsecret.yaml username=keycloak "password=$keycloak"
 seal keycloak keycloak-admin-credentials keycloak-admin-credentials.sealedsecret.yaml username=kcadmin "password=$admin"
+seal keycloak keycloak-demo-users-credentials keycloak-demo-users-credentials.sealedsecret.yaml "alice-password=$alice_demo_password" "bruno-password=$bruno_demo_password" "chiara-password=$chiara_demo_password"
 seal eurotransit orders-service-credentials orders-service-credentials-eurotransit.sealedsecret.yaml "client-secret=$client"
 seal keycloak orders-service-credentials orders-service-credentials-keycloak.sealedsecret.yaml "client-secret=$client"
 seal eurotransit payments-provider-credentials payments-provider-credentials.sealedsecret.yaml "provider-api-key=$api"
 seal monitoring grafana-admin-credentials grafana-admin-credentials.sealedsecret.yaml username=admin "password=$grafana"
-unset orders inventory payments keycloak admin grafana client api
+unset orders inventory payments keycloak admin grafana client alice_demo_password bruno_demo_password chiara_demo_password api
 
 "$ROOT_DIR/scripts/validate-aks-sealed-secrets.sh" "$staging"
 
@@ -68,4 +74,4 @@ mv "$target" "$previous"
 mv "$staging" "$target"; staging=""
 rm -rf "$previous"; previous=""
 git -C "$ROOT_DIR" diff --check
-echo "Generated and validated 10 AKS SealedSecrets; review, commit through PR, then merge to main."
+echo "Generated and validated 11 AKS SealedSecrets; review, commit through PR, then merge to main."
