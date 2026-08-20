@@ -26,6 +26,21 @@ they must be SealedSecrets; CloudNativePG also needs
 the `eurotransit` copy is consumed by Orders. Kind remains a development demo
 and creates all of these values in-cluster.
 
+## Demo accounts
+
+The following accounts are provisioned by `keycloak-demo-users-bootstrap` for
+development and acceptance testing. The AKS values are stored in the
+`keycloak-demo-users-credentials` SealedSecret.
+
+| Username | Password | Realm role |
+| --- | --- | --- |
+| `alice` | `Alice!Metro#2026` | `customer` |
+| `bruno` | `Bruno!Route#2026` | `customer` |
+| `chiara` | `Chiara!Ticket#2026` | `operations` |
+
+These are intentionally known demo credentials. Replace or remove them before
+any real-user or internet-facing production use.
+
 Verify the operator and instance:
 
 ```bash
