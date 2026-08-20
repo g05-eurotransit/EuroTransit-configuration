@@ -20,7 +20,12 @@ catalog: &service
     requests: { cpu: 75m, memory: 192Mi }
     limits: { cpu: 500m, memory: 512Mi }
 orders: *service
-inventory: *service
+inventory:
+  <<: *service
+  # The target-cluster environment is a demo deployment and needs the same
+  # sample capacity as local development for checkout to be usable.
+  seed:
+    enabled: true
 payments: *service
 notifications: *service
 
