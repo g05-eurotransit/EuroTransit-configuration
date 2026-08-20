@@ -8,7 +8,7 @@ The frontend workload is included in the production chart.
 
 The repository is now **conditionally ready for constrained AKS deployment**:
 Kind and AKS scaffolding render, while the production AKS render is
-intentionally fail-closed until all ten controller-specific ciphertexts have
+intentionally fail-closed until all eleven controller-specific ciphertexts have
 been generated, validated and merged. It is not yet go-live verified because
 image availability, DNS/TLS validation and runtime capacity measurements require
 the real AKS cluster.
@@ -36,14 +36,14 @@ the real AKS cluster.
 - [ ] Confirm `g05.cpo2026.it` resolves to `g05-eurotransit.swedencentral.cloudapp.azure.com`.
 - [ ] Confirm immutable images exist in `eurotransitregistry.azurecr.io`.
 - [ ] Confirm AKS can pull from ACR.
-- [ ] Generate, validate and merge all ten application SealedSecrets encrypted
+- [ ] Generate, validate and merge all eleven application SealedSecrets encrypted
   for the AKS controller.
 - [ ] Confirm the Let's Encrypt account email is monitored.
 - [ ] Provision Argo CD with a read-only credential for the private
   `g05-eurotransit/EuroTransit-configuration` repository.
 - [ ] Merge and push the validated configuration revision before applying the
   AKS root Application.
-- [ ] Verify the generated ten-secret inventory includes
+- [ ] Verify the generated eleven-secret inventory includes
   `keycloak-admin-credentials` and `keycloak-db-credentials` in `keycloak`,
   plus `keycloak-db-credentials` in `eurotransit`, all with `username` and
   `password` keys.

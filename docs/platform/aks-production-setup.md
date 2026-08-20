@@ -126,7 +126,7 @@ git fetch origin main
 git merge-base --is-ancestor "$REVIEWED_COMMIT" origin/main
 ```
 
-The generator creates all ten ciphertexts without plaintext files, including the same Orders secret separately scoped to `eurotransit` and `keycloak`.
+The generator asks for the payment-provider value and the three demo-user passwords, then creates all eleven ciphertexts without plaintext files, including the same Orders secret separately scoped to `eurotransit` and `keycloak`.
 
 The final command must exit zero: it verifies that the reviewed commit is an
 ancestor of `origin/main`, rather than merely displaying its latest commit.

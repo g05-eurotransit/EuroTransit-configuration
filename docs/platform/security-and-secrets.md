@@ -54,7 +54,7 @@ One PostgreSQL cluster may host the three logical databases in local environment
 - The cluster admin installs and upgrades the controller with the reviewed
   values in `platform/sealed-secrets/values.yaml`; it is not an Argo CD
   Application and its key backup/restore is an admin responsibility.
-- The ten AKS application ciphertexts live in
+- The eleven AKS application ciphertexts live in
   `platform/environments/aks/secrets/` and are owned by the Argo
   `eurotransit-secrets` Application at wave 5, with pruning and self-heal.
 - `scripts/generate-aks-sealed-secrets.sh` creates those ciphertexts for the
@@ -68,6 +68,8 @@ One PostgreSQL cluster may host the three logical databases in local environment
 - Keycloak admin, database and Orders client-secret templates live in
   `platform/keycloak/templates/`; the Orders value is sealed identically for
   both `keycloak` and `eurotransit`.
+- The Keycloak demo-user passwords are sealed only in the `keycloak` namespace
+  and are consumed by an idempotent bootstrap Job.
 - Keycloak multi-environment OIDC configuration lives in `platform/keycloak/` and is documented in `docs/platform/keycloak-oidc.md`.
 - CloudNativePG database and role references live in `platform/cloudnativepg/postgres-cluster.yaml`.
 - The executable sealing, bootstrap, upgrade, rotation and disaster-recovery
