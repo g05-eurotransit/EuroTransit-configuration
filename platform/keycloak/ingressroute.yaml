@@ -10,11 +10,22 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      # The frontend owns `/`.  Keycloak is exposed only for OIDC and its
-      # administrative/static paths, so Traefik never has two equal matches
-      # for the public homepage.
-      match: Host(`g05.cpo2026.it`) && (PathPrefix(`/realms`) || PathPrefix(`/resources`) || PathPrefix(`/admin`))
-      priority: 1
+      # Keep every Keycloak path in its own router.  The previous compound
+      # expression was selected by Traefik even for `/`, shadowing frontend.
+      match: Host(`g05.cpo2026.it`) && PathPrefix(`/realms`)
+      priority: 100
+      services:
+        - name: keycloak-service
+          port: 8080
+    - kind: Rule
+      match: Host(`g05.cpo2026.it`) && PathPrefix(`/resources`)
+      priority: 100
+      services:
+        - name: keycloak-service
+          port: 8080
+    - kind: Rule
+      match: Host(`g05.cpo2026.it`) && PathPrefix(`/admin`)
+      priority: 100
       services:
         - name: keycloak-service
           port: 8080
