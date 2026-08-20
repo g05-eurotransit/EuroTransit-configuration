@@ -78,13 +78,13 @@ networkPolicies:
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
-    tag: "b29053a" # Will be overridden by CI
+    tag: "135c6e3" # Will be overridden by CI
   replicaCount: 2
   resources: {}
 orders:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/orders
-    tag: "b29053a"
+    tag: "135c6e3"
   replicaCount: 2
   resources: {}
   database:
@@ -97,11 +97,10 @@ orders:
     tokenUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/token
     secretName: orders-service-credentials
     secretKey: client-secret
-  
 inventory:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/inventory
-    tag: "b29053a"
+    tag: "135c6e3"
   replicaCount: 2
   resources: {}
   database:
@@ -112,7 +111,7 @@ inventory:
 payments:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/payments
-    tag: "b29053a"
+    tag: "135c6e3"
   replicaCount: 2
   resources: {}
   database:
@@ -125,7 +124,7 @@ payments:
 notifications:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/notifications
-    tag: "b29053a"
+    tag: "135c6e3"
   replicaCount: 2
   resources: {}
   publicApi:
@@ -133,6 +132,6 @@ notifications:
 frontend:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/frontend
-    tag: "b29053a"
+    tag: "135c6e3"
   replicaCount: 2
   resources: {}
