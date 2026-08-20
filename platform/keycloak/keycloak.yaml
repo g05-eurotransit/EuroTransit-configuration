@@ -27,6 +27,10 @@ spec:
   hostname:
     hostname: https://g05.cpo2026.it
     strict: true
+  # Traefik routes Keycloak explicitly. Disable the operator-generated
+  # catch-all Ingress so the marketplace root remains served by the frontend.
+  ingress:
+    enabled: false
   proxy:
     headers: xforwarded
   resources:
