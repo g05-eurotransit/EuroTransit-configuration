@@ -1,3 +1,4 @@
+{{- if or (not .Values.progressiveDelivery.enabled) .Values.progressiveDelivery.workloadRef }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -137,3 +138,4 @@ spec:
             failureThreshold: {{ .Values.global.deployment.probes.readiness.failureThreshold }}
           resources:
             {{- toYaml .Values.orders.resources | nindent 12 }}
+{{- end }}

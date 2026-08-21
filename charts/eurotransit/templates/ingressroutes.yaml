@@ -32,8 +32,13 @@ spec:
         - name: eurotransit-forward-auth
         {{- end }}
       services:
+        {{- if .Values.progressiveDelivery.enabled }}
+        - name: orders-weighted
+          kind: TraefikService
+        {{- else }}
         - name: orders
           port: 8080
+        {{- end }}
     {{- if .Values.ingress.localhost.enabled }}
     - match: Host(`localhost`) && PathPrefix(`/api/orders`)
       kind: Rule
@@ -43,8 +48,13 @@ spec:
         - name: eurotransit-forward-auth
         {{- end }}
       services:
+        {{- if .Values.progressiveDelivery.enabled }}
+        - name: orders-weighted
+          kind: TraefikService
+        {{- else }}
         - name: orders
           port: 8080
+        {{- end }}
     {{- end }}
     {{- if .Values.notifications.publicApi.enabled }}
     - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/api/notifications`)

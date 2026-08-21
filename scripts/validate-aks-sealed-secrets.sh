@@ -18,7 +18,7 @@ dir="$1"
 
 # This is the single authoritative AKS runtime-secret inventory.  The Git
 # bootstrap repository credential is deliberately not part of it.
-inventory=$'orders-db-credentials.sealedsecret.yaml|eurotransit|orders-db-credentials\ninventory-db-credentials.sealedsecret.yaml|eurotransit|inventory-db-credentials\npayments-db-credentials.sealedsecret.yaml|eurotransit|payments-db-credentials\nkeycloak-db-credentials-eurotransit.sealedsecret.yaml|eurotransit|keycloak-db-credentials\nkeycloak-db-credentials-keycloak.sealedsecret.yaml|keycloak|keycloak-db-credentials\nkeycloak-admin-credentials.sealedsecret.yaml|keycloak|keycloak-admin-credentials\nkeycloak-demo-users-credentials.sealedsecret.yaml|keycloak|keycloak-demo-users-credentials\norders-service-credentials-eurotransit.sealedsecret.yaml|eurotransit|orders-service-credentials\norders-service-credentials-keycloak.sealedsecret.yaml|keycloak|orders-service-credentials\npayments-provider-credentials.sealedsecret.yaml|eurotransit|payments-provider-credentials\ngrafana-admin-credentials.sealedsecret.yaml|monitoring|grafana-admin-credentials'
+inventory=$'orders-db-credentials.sealedsecret.yaml|eurotransit|orders-db-credentials\ninventory-db-credentials.sealedsecret.yaml|eurotransit|inventory-db-credentials\npayments-db-credentials.sealedsecret.yaml|eurotransit|payments-db-credentials\nkeycloak-db-credentials-eurotransit.sealedsecret.yaml|eurotransit|keycloak-db-credentials\nkeycloak-db-credentials-keycloak.sealedsecret.yaml|keycloak|keycloak-db-credentials\nkeycloak-admin-credentials.sealedsecret.yaml|keycloak|keycloak-admin-credentials\nkeycloak-demo-users-credentials.sealedsecret.yaml|keycloak|keycloak-demo-users-credentials\norders-service-credentials-eurotransit.sealedsecret.yaml|eurotransit|orders-service-credentials\norders-service-credentials-keycloak.sealedsecret.yaml|keycloak|orders-service-credentials\neurotransit-load-test-credentials-eurotransit.sealedsecret.yaml|eurotransit|eurotransit-load-test-credentials\neurotransit-load-test-credentials-keycloak.sealedsecret.yaml|keycloak|eurotransit-load-test-credentials\npayments-provider-credentials.sealedsecret.yaml|eurotransit|payments-provider-credentials\ngrafana-admin-credentials.sealedsecret.yaml|monitoring|grafana-admin-credentials'
 
 expected_files="$(printf '%s\n' "$inventory" | cut -d'|' -f1 | sort)"
 expected_pairs="$(printf '%s\n' "$inventory" | awk -F'|' '{print $2 "/" $3}' | sort)"
@@ -36,7 +36,7 @@ check_resources() {
   local actual
   actual="$(resources_from_kustomization)"
   if [[ "$actual" != "$expected_files" ]]; then
-    echo "AKS secrets kustomization resources must exactly match the required 11-file inventory" >&2
+    echo "AKS secrets kustomization resources must exactly match the required 13-file inventory" >&2
     echo "expected:" >&2; printf '%s\n' "$expected_files" >&2
     echo "found:" >&2; printf '%s\n' "$actual" >&2
     return 1
@@ -47,7 +47,7 @@ check_files() {
   local actual
   actual="$(find "$dir" -maxdepth 1 -type f -name '*.sealedsecret.yaml' -printf '%f\n' | sort)"
   if [[ "$actual" != "$expected_files" ]]; then
-    echo "AKS ciphertext files must exactly match the required 11-file inventory" >&2
+    echo "AKS ciphertext files must exactly match the required 13-file inventory" >&2
     echo "expected:" >&2; printf '%s\n' "$expected_files" >&2
     echo "found:" >&2; printf '%s\n' "$actual" >&2
     return 1

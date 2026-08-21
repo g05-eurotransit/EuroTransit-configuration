@@ -1,0 +1,185 @@
+{{- if .Values.progressiveDelivery.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: TraefikService
+metadata:
+  name: orders-weighted
+  labels:
+    app: orders
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  weighted:
+    services:
+      - name: orders
+        port: 8080
+        weight: 100
+      - name: orders-canary
+        port: 8080
+        weight: 0
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: catalog-preview-smoke
+spec:
+  args:
+    - name: preview-hash
+  metrics:
+    - name: preview-requests
+      interval: 30s
+      count: 2
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            sum(rate(http_server_requests_seconds_count{app="catalog",rollouts_pod_template_hash="{{`{{args.preview-hash}}`}}"}[1m])) or vector(0)
+      successCondition: result > 0
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: orders-canary-guardrails
+spec:
+  args:
+    - name: canary-hash
+  metrics:
+    # A promotion without samples is unsafe: this gate fails explicitly when
+    # k6 has not reached the canary ReplicaSet.
+    - name: canary-samples
+      interval: 30s
+      count: 2
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            sum(rate(http_server_requests_seconds_count{app="orders",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[1m])) or vector(0)
+      successCondition: result > 0
+    - name: http-5xx-rate
+      interval: 30s
+      count: 2
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            (sum(rate(http_server_requests_seconds_count{app="orders",status=~"5..",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])) / clamp_min(sum(rate(http_server_requests_seconds_count{app="orders",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])), 1))
+      successCondition: result < 0.02
+    - name: p95-latency-seconds
+      interval: 30s
+      count: 2
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{app="orders",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])))
+      successCondition: result < 1
+    - name: non-terminal-orders
+      interval: 30s
+      count: 2
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            sum(orders_pipeline_inflight{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}) or vector(0)
+      successCondition: result < 5
+    - name: open-reconciliation-incidents
+      interval: 30s
+      count: 2
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            sum(orders_reconciliation_open{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}) or vector(0)
+      successCondition: result == 0
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: catalog
+  labels:
+    app: catalog
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  {{- if .Values.progressiveDelivery.workloadRef }}
+  workloadRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: catalog
+    scaleDown: progressively
+  {{- end }}
+  strategy:
+    blueGreen:
+      activeService: catalog
+      previewService: catalog-preview
+      previewReplicaCount: 1
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: 60
+      prePromotionAnalysis:
+        templates:
+          - templateName: catalog-preview-smoke
+        args:
+          - name: preview-hash
+            valueFrom:
+              podTemplateHashValue: Latest
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: orders
+  labels:
+    app: orders
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  {{- if .Values.progressiveDelivery.workloadRef }}
+  workloadRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: orders
+    scaleDown: progressively
+  {{- end }}
+  strategy:
+    canary:
+      stableService: orders
+      canaryService: orders-canary
+      canaryMetadata:
+        labels:
+          app.kubernetes.io/component: canary
+      canaryReplicaCount: 1
+      trafficRouting:
+        traefik:
+          weightedTraefikServiceName: orders-weighted
+      steps:
+        - setWeight: 10
+        - analysis:
+            templates:
+              - templateName: orders-canary-guardrails
+            args:
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
+        - pause: {}
+        - setWeight: 25
+        - analysis:
+            templates:
+              - templateName: orders-canary-guardrails
+            args:
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
+        - pause: {}
+        - setWeight: 50
+        - analysis:
+            templates:
+              - templateName: orders-canary-guardrails
+            args:
+              - name: canary-hash
+                valueFrom:
+                  podTemplateHashValue: Latest
+        - pause: {}
+        - setWeight: 100
+        - pause: {}
+{{- end }}

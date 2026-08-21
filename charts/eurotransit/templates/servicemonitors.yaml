@@ -16,10 +16,15 @@ spec:
   selector:
     matchLabels:
       app: {{ $service }}
+  {{- if or (eq $service "catalog") (eq $service "orders") }}
+  # Rollouts adds this label to each ReplicaSet; retaining it makes the
+  # analysis queries version-specific even when both services are scraped.
+  podTargetLabels:
+    - rollouts-pod-template-hash
+  {{- end }}
   endpoints:
     - port: http
       path: {{ $.Values.monitoring.serviceMonitors.path | quote }}
       interval: {{ $.Values.monitoring.serviceMonitors.interval | quote }}
 {{- end }}
 {{- end }}
-

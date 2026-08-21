@@ -75,6 +75,15 @@ networkPolicies:
   traefikNamespace: traefik
   monitoringNamespace: monitoring
   cloudNativePGNamespace: cnpg-system
+progressiveDelivery:
+  # First migration phase: Argo Rollouts adopts the existing Deployments via
+  # workloadRef.  This preserves the current ReplicaSets while the controller
+  # takes ownership.  The documented second phase removes these Deployments
+  # only after the delivery proof is complete.
+  enabled: true
+  workloadRef: true
+  analysis:
+    prometheusAddress: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
@@ -97,6 +106,12 @@ orders:
     tokenUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/token
     secretName: orders-service-credentials
     secretKey: client-secret
+loadTest:
+  image: grafana/k6:0.57.0
+  clientSecretName: eurotransit-load-test-credentials
+  # The CronJob remains suspended.  Operators create a one-off Job from it.
+  schedule: "0 0 31 2 *"
+
 inventory:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/inventory

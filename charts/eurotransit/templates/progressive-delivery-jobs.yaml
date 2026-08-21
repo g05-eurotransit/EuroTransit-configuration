@@ -1,0 +1,174 @@
+{{- if .Values.progressiveDelivery.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: progressive-delivery-k6
+data:
+  script.js: |
+    import http from 'k6/http';
+    import { check, sleep } from 'k6';
+
+    export const options = { vus: 1, iterations: 90, insecureSkipTLSVerify: true };
+    const publicUrl = __ENV.PUBLIC_URL;
+    const tokenUrl = __ENV.TOKEN_URL;
+    const clientId = __ENV.CLIENT_ID;
+    const clientSecret = __ENV.CLIENT_SECRET;
+
+    function token() {
+      const response = http.post(tokenUrl,
+        { grant_type: 'client_credentials', client_id: clientId, client_secret: clientSecret },
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+      check(response, { 'client credentials token returned': (r) => r.status === 200 });
+      return response.json('access_token');
+    }
+
+    export function setup() {
+      const accessToken = token();
+      const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+      const preview = http.get(`${__ENV.CATALOG_PREVIEW_URL}/api/catalog/routes`, { headers });
+      check(preview, { 'catalog preview is healthy': (r) => r.status === 200 });
+      const publicCatalog = http.get(`${publicUrl}/api/catalog/routes`, { headers });
+      check(publicCatalog, { 'catalog public route is healthy': (r) => r.status === 200 });
+      // These three seats are reserved for the delivery test.  Each checkout
+      // has a unique idempotency key; the rest of the run polls those orders.
+      const orders = [];
+      for (const seat of ['3A', '3B', '2B']) {
+        const response = http.post(`${publicUrl}/api/orders`, JSON.stringify({
+          routeId: 'rt-to-mi-001', seats: [seat], totalAmount: 24.90, paymentMethodToken: 'pd-k6-test-token'
+        }), { headers: { ...headers, 'Idempotency-Key': `pd-k6-${seat}-${Date.now()}-${Math.random()}` } });
+        check(response, { 'checkout accepted': (r) => r.status === 202 });
+        const id = response.json('orderId');
+        if (id) orders.push(id);
+      }
+      return { accessToken, orders };
+    }
+
+    export default function (data) {
+      for (const id of data.orders) {
+        const response = http.get(`${publicUrl}/api/orders/${id}`, { headers: { Authorization: `Bearer ${data.accessToken}` } });
+        check(response, { 'order lookup successful': (r) => r.status === 200 });
+      }
+      sleep(1);
+    }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: progressive-delivery-k6
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    app.kubernetes.io/component: progressive-delivery
+spec:
+  schedule: {{ .Values.loadTest.schedule | quote }}
+  suspend: true
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: k6
+              image: {{ .Values.loadTest.image | quote }}
+              args: ["run", "/scripts/script.js"]
+              env:
+                - name: PUBLIC_URL
+                  value: "https://{{ .Values.global.domain }}"
+                - name: TOKEN_URL
+                  value: "https://keycloak.{{ .Values.global.domain }}/realms/eurotransit/protocol/openid-connect/token"
+                - name: CATALOG_PREVIEW_URL
+                  value: http://catalog-preview:8080
+                - name: CLIENT_ID
+                  value: eurotransit-load-test
+                - name: CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.loadTest.clientSecretName }}
+                      key: client-secret
+              resources:
+                requests: { cpu: 50m, memory: 128Mi }
+                limits: { cpu: 250m, memory: 256Mi }
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: progressive-delivery-k6
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: progressive-delivery-reset
+data:
+  reset.sh: |
+    #!/bin/sh
+    set -eu
+    [ "${CONFIRM_PROGRESSIVE_DELIVERY_RESET:-}" = "RESET_EUROTRANSIT_DEMO" ] || {
+      echo "Refusing reset: set CONFIRM_PROGRESSIVE_DELIVERY_RESET=RESET_EUROTRANSIT_DEMO" >&2; exit 2; }
+    export PGPASSWORD="$ORDERS_DB_PASSWORD"
+    psql -h "$DB_HOST" -U "$ORDERS_DB_USERNAME" -d orders_db -v ON_ERROR_STOP=1 <<'SQL'
+    WITH test_orders AS (SELECT id FROM orders WHERE route_id = 'rt-to-mi-001' AND seats IN ('3A','3B','2B'))
+    DELETE FROM reconciliation_records WHERE order_id IN (SELECT id FROM test_orders);
+    DELETE FROM outbox_events WHERE aggregate_id IN (SELECT id::text FROM orders WHERE route_id = 'rt-to-mi-001' AND seats IN ('3A','3B','2B'));
+    DELETE FROM orders WHERE route_id = 'rt-to-mi-001' AND seats IN ('3A','3B','2B');
+    DELETE FROM idempotency_keys WHERE key LIKE 'pd-k6-%';
+    SQL
+    export PGPASSWORD="$INVENTORY_DB_PASSWORD"
+    psql -h "$DB_HOST" -U "$INVENTORY_DB_USERNAME" -d inventory_db -v ON_ERROR_STOP=1 <<'SQL'
+    DELETE FROM outbox_events WHERE aggregate_id IN (SELECT reservation_id FROM reservations WHERE route_id = 'rt-to-mi-001');
+    DELETE FROM reservations WHERE route_id = 'rt-to-mi-001' AND reservation_id LIKE 'res-%';
+    UPDATE seats SET status = 'AVAILABLE', reservation_id = NULL WHERE route_id = 'rt-to-mi-001' AND seat_id IN ('3A','3B','2B');
+    DELETE FROM idempotency_records WHERE idempotency_key LIKE 'pd-k6-%';
+    SQL
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: progressive-delivery-reset
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    app.kubernetes.io/component: progressive-delivery
+spec:
+  schedule: {{ .Values.loadTest.schedule | quote }}
+  suspend: true
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: reset
+              image: postgres:16.8-alpine
+              command: ["/bin/sh", "/scripts/reset.sh"]
+              env:
+                - name: CONFIRM_PROGRESSIVE_DELIVERY_RESET
+                  value: ""
+                - name: DB_HOST
+                  value: {{ .Values.global.database.host | quote }}
+                - name: ORDERS_DB_USERNAME
+                  valueFrom: { secretKeyRef: { name: {{ .Values.orders.database.secretName | quote }}, key: username } }
+                - name: ORDERS_DB_PASSWORD
+                  valueFrom: { secretKeyRef: { name: {{ .Values.orders.database.secretName | quote }}, key: password } }
+                - name: INVENTORY_DB_USERNAME
+                  valueFrom: { secretKeyRef: { name: {{ .Values.inventory.database.secretName | quote }}, key: username } }
+                - name: INVENTORY_DB_PASSWORD
+                  valueFrom: { secretKeyRef: { name: {{ .Values.inventory.database.secretName | quote }}, key: password } }
+              resources:
+                requests: { cpu: 50m, memory: 128Mi }
+                limits: { cpu: 250m, memory: 256Mi }
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: progressive-delivery-reset
+{{- end }}
