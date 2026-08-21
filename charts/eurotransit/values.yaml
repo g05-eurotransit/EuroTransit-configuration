@@ -80,7 +80,7 @@ progressiveDelivery:
   # workloadRef.  This preserves the current ReplicaSets while the controller
   # takes ownership.  The documented second phase removes these Deployments
   # only after the delivery proof is complete.
-  enabled: true
+  enabled: false
   workloadRef: true
   analysis:
     prometheusAddress: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
