@@ -31,7 +31,7 @@ orders:
 inventory:
   <<: *service
   image: { repository: eurotransit/inventory, tag: local }
-  seed:
+  bootstrap:
     enabled: true
 payments:
   <<: *service
