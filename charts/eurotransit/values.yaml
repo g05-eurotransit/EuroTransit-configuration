@@ -78,13 +78,13 @@ networkPolicies:
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
-    tag: "135c6e3" # Will be overridden by CI
+    tag: "0078e3d" # Will be overridden by CI
   replicaCount: 2
   resources: {}
 orders:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/orders
-    tag: "135c6e3"
+    tag: "0078e3d"
   replicaCount: 2
   resources: {}
   database:
@@ -100,7 +100,7 @@ orders:
 inventory:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/inventory
-    tag: "135c6e3"
+    tag: "0078e3d"
   replicaCount: 2
   resources: {}
   database:
@@ -111,7 +111,7 @@ inventory:
 payments:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/payments
-    tag: "135c6e3"
+    tag: "0078e3d"
   replicaCount: 2
   resources: {}
   database:
@@ -124,7 +124,7 @@ payments:
 notifications:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/notifications
-    tag: "135c6e3"
+    tag: "0078e3d"
   replicaCount: 2
   resources: {}
   publicApi:
@@ -132,6 +132,6 @@ notifications:
 frontend:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/frontend
-    tag: "135c6e3"
+    tag: "0078e3d"
   replicaCount: 2
   resources: {}
