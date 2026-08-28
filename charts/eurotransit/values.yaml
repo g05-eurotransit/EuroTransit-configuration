@@ -100,7 +100,7 @@ orders:
 inventory:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/inventory
-    tag: "0078e3d"
+    tag: "7975ee0"
   replicaCount: 2
   resources: {}
   database:
