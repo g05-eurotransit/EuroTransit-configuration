@@ -4,6 +4,8 @@ metadata:
   name: inventory
   labels:
     app: inventory
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
 spec:
   replicas: {{ .Values.inventory.replicaCount }}
   revisionHistoryLimit: {{ .Values.global.deployment.revisionHistoryLimit }}
@@ -70,10 +72,8 @@ spec:
               value: {{ .Values.global.observability.tracing.enabled | quote }}
             - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
               value: {{ .Values.global.observability.tracing.endpoint | quote }}
-            {{- if .Values.inventory.seed.enabled }}
             - name: SPRING_FLYWAY_LOCATIONS
-              value: classpath:db/migration,classpath:db/seed
-            {{- end }}
+              value: classpath:db/migration
             - name: DB_HOST
               value: {{ .Values.global.database.host | quote }}
             - name: DB_PORT

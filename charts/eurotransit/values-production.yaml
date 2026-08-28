@@ -24,7 +24,7 @@ inventory:
   <<: *service
   # The target-cluster environment is a demo deployment and needs the same
   # sample capacity as local development for checkout to be usable.
-  seed:
+  bootstrap:
     enabled: true
 payments: *service
 notifications: *service

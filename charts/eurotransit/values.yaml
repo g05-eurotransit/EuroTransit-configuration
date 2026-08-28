@@ -106,8 +106,9 @@ inventory:
   database:
     name: inventory_db
     secretName: inventory-db-credentials
-  seed:
+  bootstrap:
     enabled: false
+    image: postgres:16.8-alpine
 payments:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/payments
