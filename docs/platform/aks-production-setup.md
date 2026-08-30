@@ -39,8 +39,9 @@ ciphertext revision is merged.
 
 If required, build and push the immutable images from the sibling application
 repository. The backend uses its root `Dockerfile` and the required `SERVICE`
-argument; the frontend and connector use the exact Dockerfiles and build
-arguments below.
+argument; the frontend is environment-independent and receives its public runtime
+configuration from the Helm-managed ConfigMap, while the connector uses the exact
+Dockerfile and tag below.
 
 ```bash
 export APP_REPOSITORY=../EuroTransit-application
@@ -52,9 +53,6 @@ for service in catalog orders inventory payments notifications; do
   docker push "$ACR_NAME.azurecr.io/eurotransit/$service:$IMAGE_TAG"
 done
 docker build -f "$APP_REPOSITORY/frontend/Dockerfile" \
-  --build-arg VITE_KEYCLOAK_ISSUER=https://g05.cpo2026.it/realms/eurotransit \
-  --build-arg VITE_KEYCLOAK_CLIENT_ID=eurotransit-frontend \
-  --build-arg VITE_API_BASE=/api \
   -t "$ACR_NAME.azurecr.io/eurotransit/frontend:$IMAGE_TAG" "$APP_REPOSITORY/frontend"
 docker push "$ACR_NAME.azurecr.io/eurotransit/frontend:$IMAGE_TAG"
 docker build -f "$APP_REPOSITORY/connect/Dockerfile" \

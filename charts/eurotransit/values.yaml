@@ -136,3 +136,6 @@ frontend:
     tag: "0078e3d"
   replicaCount: 2
   resources: {}
+  config:
+    keycloakClientId: eurotransit-frontend
+    apiBase: /api

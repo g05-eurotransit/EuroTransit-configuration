@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-runtime-config
+  labels:
+    app: frontend
+data:
+  config.json: |
+    {{- dict
+      "keycloakIssuer" .Values.global.oidc.issuerUri
+      "keycloakClientId" .Values.frontend.config.keycloakClientId
+      "apiBase" .Values.frontend.config.apiBase
+      | toPrettyJson | nindent 4 }}
