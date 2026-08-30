@@ -24,5 +24,24 @@ CloudNativePG cluster, databases, roles, secrets, Kafka topics or Keycloak.
 After syncing the new marketplace revision, verify that Inventory completed all
 Flyway migrations before the bootstrap hook, that every route/date contains 24
 distinct seats, and that a second bootstrap run changes neither the row count
-nor held/sold state. Resume the Debezium connectors and Argo CD automation only
-after all services and connectors report Ready.
+nor held/sold state.
+
+Dropped tables are removed from PostgreSQL publications even though the
+publication and replication slot themselves survive `DROP SCHEMA`. Before
+resuming Debezium, reconnect the recreated outbox tables and verify them:
+
+```sql
+-- inventory_db
+ALTER PUBLICATION inventory_outbox_publication ADD TABLE public.outbox_events;
+
+-- orders_db
+ALTER PUBLICATION orders_outbox_publication ADD TABLE public.outbox_events;
+
+SELECT pubname, schemaname, tablename
+FROM pg_publication_tables
+WHERE pubname IN ('inventory_outbox_publication', 'orders_outbox_publication');
+```
+
+Restart the two connector tasks after changing the publications. Resume Argo CD
+automation only after both connectors and their tasks report `RUNNING` and the
+marketplace, connectors and platform root applications report `Synced/Healthy`.
