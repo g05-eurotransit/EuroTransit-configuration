@@ -10,4 +10,5 @@ data:
       "keycloakIssuer" .Values.global.oidc.issuerUri
       "keycloakClientId" .Values.frontend.config.keycloakClientId
       "apiBase" .Values.frontend.config.apiBase
+      "stripePublishableKey" .Values.frontend.config.stripePublishableKey
       | toPrettyJson | nindent 4 }}

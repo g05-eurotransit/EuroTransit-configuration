@@ -20,6 +20,7 @@ spec:
           "keycloakIssuer" .Values.global.oidc.issuerUri
           "keycloakClientId" .Values.frontend.config.keycloakClientId
           "apiBase" .Values.frontend.config.apiBase
+          "stripePublishableKey" .Values.frontend.config.stripePublishableKey
           | toJson | sha256sum | quote }}
       labels:
         app: frontend
