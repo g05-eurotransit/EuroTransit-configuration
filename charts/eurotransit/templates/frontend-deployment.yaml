@@ -16,12 +16,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/runtime-config: {{ dict
-          "keycloakIssuer" .Values.global.oidc.issuerUri
-          "keycloakClientId" .Values.frontend.config.keycloakClientId
-          "apiBase" .Values.frontend.config.apiBase
-          "stripePublishableKey" .Values.frontend.config.stripePublishableKey
-          | toJson | sha256sum | quote }}
+        checksum/runtime-config: {{ include (print $.Template.BasePath "/frontend-configmap.yaml") . | sha256sum | quote }}
       labels:
         app: frontend
     spec:
