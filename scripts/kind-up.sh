@@ -42,9 +42,6 @@ done
 
 if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
   docker build -f "$APP_DIR/frontend/Dockerfile" \
-    --build-arg "VITE_KEYCLOAK_ISSUER=https://keycloak.eurotransit.local/realms/eurotransit" \
-    --build-arg "VITE_KEYCLOAK_CLIENT_ID=eurotransit-frontend" \
-    --build-arg "VITE_API_BASE=/api" \
     -t eurotransit/frontend:local "$APP_DIR/frontend"
 elif ! docker image inspect "eurotransit/frontend:local" >/dev/null 2>&1; then
   echo "Missing eurotransit/frontend:local while SKIP_BUILD=1" >&2

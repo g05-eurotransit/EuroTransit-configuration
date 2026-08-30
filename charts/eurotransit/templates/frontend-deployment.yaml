@@ -15,9 +15,12 @@ spec:
       app: frontend
   template:
     metadata:
+      annotations:
+        checksum/runtime-config: {{ include (print $.Template.BasePath "/frontend-configmap.yaml") . | sha256sum | quote }}
       labels:
         app: frontend
     spec:
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: {{ .Values.global.deployment.terminationGracePeriodSeconds }}
       containers:
         - name: frontend
@@ -36,10 +39,18 @@ spec:
             failureThreshold: 3
           readinessProbe:
             httpGet:
-              path: /
+              path: /config/config.json
               port: http
             periodSeconds: 5
             timeoutSeconds: 2
             failureThreshold: 2
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
+          volumeMounts:
+            - name: runtime-config
+              mountPath: /usr/share/nginx/html/config
+              readOnly: true
+      volumes:
+        - name: runtime-config
+          configMap:
+            name: frontend-runtime-config
