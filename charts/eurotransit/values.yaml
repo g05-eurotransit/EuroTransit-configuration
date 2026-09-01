@@ -106,6 +106,9 @@ inventory:
   database:
     name: inventory_db
     secretName: inventory-db-credentials
+  reservations:
+    expiration:
+      enabled: false
   bootstrap:
     enabled: false
     image: postgres:16.8-alpine
