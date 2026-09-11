@@ -26,6 +26,9 @@ inventory:
   # sample capacity as local development for checkout to be usable.
   bootstrap:
     enabled: true
+  reservations:
+    expiration:
+      enabled: true
 payments: *service
 notifications: *service
 

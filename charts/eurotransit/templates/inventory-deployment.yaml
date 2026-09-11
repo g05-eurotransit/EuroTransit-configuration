@@ -96,6 +96,8 @@ spec:
               value: "graceful"
             - name: SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE
               value: "30s"
+            - name: INVENTORY_RESERVATION_EXPIRATION_ENABLED
+              value: {{ .Values.inventory.reservations.expiration.enabled | quote }}
           {{- if gt (int .Values.global.deployment.preStopSleepSeconds) 0 }}
           lifecycle:
             preStop:
