@@ -1,0 +1,96 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: payments-outbox-connect
+  namespace: eurotransit
+  labels:
+    app.kubernetes.io/name: payments-outbox-connect
+    app.kubernetes.io/part-of: eurotransit-marketplace
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 3.9.0
+  replicas: 1
+  bootstrapServers: eurotransit-kafka-kafka-bootstrap:9092
+  image: eurotransit/debezium-connect:local
+  jvmOptions:
+    -Xms: 256m
+    -Xmx: 1024m
+  config:
+    group.id: payments-outbox-connect
+    config.storage.topic: payments-outbox-connect-configs
+    offset.storage.topic: payments-outbox-connect-offsets
+    status.storage.topic: payments-outbox-connect-status
+    config.storage.replication.factor: 3
+    offset.storage.replication.factor: 3
+    status.storage.replication.factor: 3
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+    config.providers: env
+    config.providers.env.class: org.apache.kafka.common.config.provider.EnvVarConfigProvider
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 2
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 2
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1536Mi
+  template:
+    connectContainer:
+      env:
+        - name: PAYMENTS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: payments-db-credentials
+              key: password
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: payments-outbox-connector
+  namespace: eurotransit
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    strimzi.io/cluster: payments-outbox-connect
+    app.kubernetes.io/name: payments-outbox-connector
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  class: io.debezium.connector.postgresql.PostgresConnector
+  tasksMax: 1
+  autoRestart:
+    enabled: true
+    maxRestarts: 10
+  config:
+    database.hostname: eurotransit-postgres-rw
+    database.port: 5432
+    database.user: payments
+    database.password: ${env:PAYMENTS_DB_PASSWORD}
+    database.dbname: payments_db
+    topic.prefix: payments
+    plugin.name: pgoutput
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter.schemas.enable: false
+    slot.name: payments_outbox
+    publication.name: payments_outbox_publication
+    publication.autocreate.mode: filtered
+    table.include.list: public.outbox_events
+    tombstones.on.delete: false
+    transforms: outbox
+    transforms.outbox.type: io.debezium.transforms.outbox.EventRouter
+    transforms.outbox.table.field.event.key: aggregate_id
+    transforms.outbox.table.field.event.payload: payload
+    transforms.outbox.table.expand.json.payload: true
+    transforms.outbox.route.by.field: type
+    transforms.outbox.route.topic.replacement: ${routedByValue}
