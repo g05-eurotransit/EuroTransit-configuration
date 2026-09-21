@@ -34,6 +34,12 @@ This checklist defines the configuration-side criteria for EuroTransit Marketpla
 - [ ] Canary delivery is demonstrated for Orders.
 - [ ] Blue/Green delivery is demonstrated for Catalog.
 - [ ] Promotion and rollback criteria are tied to observable signals.
+- [ ] Argo Rollouts controller and CRDs are healthy before Marketplace sync.
+- [ ] Orders traffic weights and each AnalysisRun are saved as evidence.
+- [ ] Catalog preview, promotion and rollback inside the 60-second window are demonstrated.
+- [ ] k6 logs prove traffic reached the canary; an empty-sample gate never promotes.
+- [ ] An intentionally impossible temporary threshold proves automatic abort and is restored.
+- [ ] Prometheus/Grafana evidence covers 5xx, p95, Kafka lag, non-terminal Orders and reconciliation incidents.
 
 ## Observability and Reliability Proof
 

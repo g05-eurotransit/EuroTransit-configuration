@@ -1,0 +1,167 @@
+{{- if .Values.progressiveDelivery.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: progressive-delivery-k6
+data:
+  script.js: |
+    import http from 'k6/http';
+    import { check, sleep } from 'k6';
+
+    export const options = {
+      vus: 2,
+      duration: __ENV.K6_DURATION || '45m',
+      insecureSkipTLSVerify: true,
+      thresholds: {
+        // Any failed token, catalog, checkout, or poll check fails the Job.
+        checks: [{ threshold: 'rate==1', abortOnFail: true }],
+      },
+    };
+    const publicUrl = __ENV.PUBLIC_URL;
+    const tokenUrl = __ENV.TOKEN_URL;
+    const clientId = __ENV.CLIENT_ID;
+    const clientSecret = __ENV.CLIENT_SECRET;
+    const routeId = 'rt-to-mi-001';
+    const offerId = 'of-001';
+    const singleSeatAmount = 24.90;
+    const paymentMethodToken = __ENV.PAYMENT_METHOD_TOKEN || 'tok_visa';
+    const startOffsetDays = Number(__ENV.START_OFFSET_DAYS || '7');
+    const demoSeats = [
+      '1A', '1B', '1C', '1D', '2A', '2B', '2C', '2D', '3A', '3B', '3C', '3D',
+      '4A', '4B', '4C', '4D', '5A', '5B', '5C', '5D', '6A', '6B', '6C', '6D',
+    ];
+    // 24 seats x 15 days covers at most 360 checkout cycles. Do not wrap:
+    // a longer or faster run must fail before it can reuse a booked seat/date.
+    const demoDateCount = 15;
+    const maxCheckoutSlots = demoSeats.length * demoDateCount;
+
+    if (!Number.isInteger(startOffsetDays) || startOffsetDays < 7 || startOffsetDays + demoDateCount - 1 > 90) {
+      throw new Error('START_OFFSET_DAYS must select a 15-day block within days 7-90 after Job startup');
+    }
+
+    function checkoutInput(iteration, vu) {
+      // The (VU, iteration) slot is unique within this Job and intentionally
+      // has no modulo: a capacity overrun must be visible, not silently reused.
+      const slot = (vu - 1) + iteration * 2;
+      if (slot >= maxCheckoutSlots) {
+        throw new Error(`Checkout capacity ${maxCheckoutSlots} exhausted; choose a new non-overlapping START_OFFSET_DAYS block`);
+      }
+      const offsetDays = startOffsetDays + Math.floor(slot / demoSeats.length);
+      return {
+        seat: demoSeats[slot % demoSeats.length],
+        travelDate: new Date(Date.now() + offsetDays * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      };
+    }
+
+    function pollUntilTerminal(orderId, headers) {
+      for (let attempt = 0; attempt < 12; attempt += 1) {
+        const response = http.get(`${publicUrl}/api/orders/${orderId}`, { headers });
+        const status = response.status === 200 && response.json('status');
+        check(response, { 'order lookup successful': (r) => r.status === 200 });
+        if (status === 'CONFIRMED' || status === 'FAILED') {
+          check(status, { 'checkout reaches a terminal state': (value) => value === 'CONFIRMED' || value === 'FAILED' });
+          return;
+        }
+        sleep(2);
+      }
+      check(false, { 'checkout reaches a terminal state': (terminal) => terminal });
+    }
+
+    function token() {
+      const response = http.post(tokenUrl,
+        { grant_type: 'client_credentials', client_id: clientId, client_secret: clientSecret },
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+      check(response, { 'client credentials token returned': (r) => r.status === 200 });
+      return response.json('access_token');
+    }
+
+    export function setup() {
+      const accessToken = token();
+      const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+      const preview = http.get(`${__ENV.CATALOG_PREVIEW_URL}/api/catalog/routes`, { headers });
+      check(preview, { 'catalog preview is healthy': (r) => r.status === 200 });
+      const publicCatalog = http.get(`${publicUrl}/api/catalog/routes`, { headers });
+      check(publicCatalog, { 'catalog public route is healthy': (r) => r.status === 200 });
+      const offers = http.get(`${publicUrl}/api/catalog/offers`, { headers });
+      const testOffer = offers.status === 200 && offers.json().find((offer) =>
+        offer.offerId === offerId && offer.routeId === routeId && Number(offer.price) === singleSeatAmount);
+      check(offers, {
+        'catalog exposes the test offer at the single-seat price': () => Boolean(testOffer),
+      });
+      if (!testOffer) throw new Error(`Expected ${offerId} for ${routeId} at ${singleSeatAmount}`);
+      return {};
+    }
+
+    export default function () {
+      // Client-credentials tokens are short-lived. Refresh before every
+      // checkout cycle instead of relying on the setup token for 45 minutes.
+      const accessToken = token();
+      const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+      const { seat, travelDate } = checkoutInput(__ITER, __VU);
+      const response = http.post(`${publicUrl}/api/orders`, JSON.stringify({
+        routeId, offerId, seats: [seat], travelDate, totalAmount: singleSeatAmount, paymentMethodToken
+      }), { headers: { ...headers, 'Idempotency-Key': `pd-k6-${__VU}-${__ITER}-${Date.now()}` } });
+      check(response, { 'checkout accepted': (r) => r.status === 202 });
+      if (response.status === 202) {
+        const orderId = response.json('orderId');
+        if (orderId) pollUntilTerminal(orderId, headers);
+      }
+      // Two VUs yield a deliberately low, continuous checkout rate throughout
+      // the default 45-minute canary exercise.
+      sleep(15);
+    }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: progressive-delivery-k6
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    app.kubernetes.io/component: progressive-delivery
+spec:
+  schedule: {{ .Values.loadTest.schedule | quote }}
+  suspend: true
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: k6
+              image: {{ .Values.loadTest.image | quote }}
+              args: ["run", "/scripts/script.js"]
+              env:
+                - name: PUBLIC_URL
+                  value: "https://{{ .Values.global.domain }}"
+                - name: TOKEN_URL
+                  value: "https://keycloak.{{ .Values.global.domain }}/realms/eurotransit/protocol/openid-connect/token"
+                - name: CATALOG_PREVIEW_URL
+                  value: http://catalog-preview:8080
+                - name: CLIENT_ID
+                  value: eurotransit-load-test
+                - name: CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.loadTest.clientSecretName }}
+                      key: client-secret
+                - name: K6_DURATION
+                  value: {{ .Values.loadTest.duration | quote }}
+                - name: PAYMENT_METHOD_TOKEN
+                  value: {{ .Values.loadTest.paymentMethodToken | quote }}
+                - name: START_OFFSET_DAYS
+                  value: {{ .Values.loadTest.startOffsetDays | quote }}
+              resources:
+                requests: { cpu: 50m, memory: 128Mi }
+                limits: { cpu: 250m, memory: 256Mi }
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+                  readOnly: true
+          volumes:
+            - name: script
+              configMap:
+                name: progressive-delivery-k6
+{{- end }}

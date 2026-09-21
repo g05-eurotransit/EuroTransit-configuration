@@ -277,6 +277,44 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
+  name: argo-rollouts
+  namespace: argocd
+  annotations:
+    # The marketplace Rollout CRs are rendered only after their controller and
+    # CRDs have been installed.
+    argocd.argoproj.io/sync-wave: "29"
+spec:
+  project: eurotransit-platform
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-rollouts
+    targetRevision: 2.41.1
+    helm:
+      values: |
+        installCRDs: true
+        controller:
+          replicas: 1
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 192Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-rollouts
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
   name: eurotransit-marketplace
   namespace: argocd
   annotations:
@@ -294,6 +332,19 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: eurotransit
+  # Rollouts owns the service selectors and Traefik backend weights while a
+  # delivery is in progress.  Argo CD must not fight that controller state.
+  ignoreDifferences:
+    - group: ""
+      kind: Service
+      namespace: eurotransit
+      jqPathExpressions:
+        - .spec.selector
+    - group: traefik.io
+      kind: TraefikService
+      namespace: eurotransit
+      jqPathExpressions:
+        - .spec.weighted.services
   syncPolicy:
     automated:
       prune: true

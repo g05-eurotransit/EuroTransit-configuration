@@ -3,6 +3,17 @@ set -euo pipefail
 source "$(dirname "$0")/lib.sh"
 require_commands kubectl kubeseal openssl
 
+dotenv="$ROOT_DIR/../.env"
+if [[ -f "$dotenv" ]]; then
+  # The shared project .env is deliberately outside this repository.  Export
+  # its values only for this process so they are never written to Git or shown
+  # in command output.
+  set -a
+  # shellcheck disable=SC1090
+  source "$dotenv"
+  set +a
+fi
+
 target="$ROOT_DIR/platform/environments/aks/secrets"
 parent="$(dirname "$target")"
 staging="$(mktemp -d "$parent/.secrets.staging.XXXXXX")"
@@ -46,11 +57,25 @@ seal_db_role() {
 orders="$(openssl rand -base64 32)"; inventory="$(openssl rand -base64 32)"
 payments="$(openssl rand -base64 32)"; keycloak="$(openssl rand -base64 32)"
 admin="$(openssl rand -base64 32)"; grafana="$(openssl rand -base64 32)"
-client="$(openssl rand -base64 48)"
-read -rsp 'Payment provider API key: ' api; echo
-read -rsp 'Alice demo-user password: ' alice_demo_password; echo
-read -rsp 'Bruno demo-user password: ' bruno_demo_password; echo
-read -rsp 'Chiara demo-user password: ' chiara_demo_password; echo
+client="$(openssl rand -base64 48)"; load_test_client="$(openssl rand -base64 48)"
+api="${STRIPE_SECRET_KEY:-}"
+alice_demo_password="${ALICE_PWD:-}"
+bruno_demo_password="${BRUNO_PWD:-}"
+chiara_demo_password="${CHIARA_PWD:-}"
+
+read_if_missing() {
+  local variable="$1" prompt="$2" value="${!1:-}"
+  if [[ -z "$value" ]]; then
+    read -rsp "$prompt" value
+    echo
+    printf -v "$variable" '%s' "$value"
+  fi
+}
+
+read_if_missing api 'Payment provider API key: '
+read_if_missing alice_demo_password 'Alice demo-user password: '
+read_if_missing bruno_demo_password 'Bruno demo-user password: '
+read_if_missing chiara_demo_password 'Chiara demo-user password: '
 [[ -n "$api" ]] || { echo 'Payment provider API key must not be empty' >&2; exit 1; }
 [[ -n "$alice_demo_password" && -n "$bruno_demo_password" && -n "$chiara_demo_password" ]] \
   || { echo 'Demo-user passwords must not be empty' >&2; exit 1; }
@@ -63,9 +88,11 @@ seal keycloak keycloak-admin-credentials keycloak-admin-credentials.sealedsecret
 seal keycloak keycloak-demo-users-credentials keycloak-demo-users-credentials.sealedsecret.yaml "alice-password=$alice_demo_password" "bruno-password=$bruno_demo_password" "chiara-password=$chiara_demo_password"
 seal eurotransit orders-service-credentials orders-service-credentials-eurotransit.sealedsecret.yaml "client-secret=$client"
 seal keycloak orders-service-credentials orders-service-credentials-keycloak.sealedsecret.yaml "client-secret=$client"
+seal eurotransit eurotransit-load-test-credentials eurotransit-load-test-credentials-eurotransit.sealedsecret.yaml "client-secret=$load_test_client"
+seal keycloak eurotransit-load-test-credentials eurotransit-load-test-credentials-keycloak.sealedsecret.yaml "client-secret=$load_test_client"
 seal eurotransit payments-provider-credentials payments-provider-credentials.sealedsecret.yaml "provider-api-key=$api"
 seal monitoring grafana-admin-credentials grafana-admin-credentials.sealedsecret.yaml username=admin "password=$grafana"
-unset orders inventory payments keycloak admin grafana client alice_demo_password bruno_demo_password chiara_demo_password api
+unset orders inventory payments keycloak admin grafana client load_test_client alice_demo_password bruno_demo_password chiara_demo_password api
 
 "$ROOT_DIR/scripts/validate-aks-sealed-secrets.sh" "$staging"
 
@@ -74,4 +101,4 @@ mv "$target" "$previous"
 mv "$staging" "$target"; staging=""
 rm -rf "$previous"; previous=""
 git -C "$ROOT_DIR" diff --check
-echo "Generated and validated 11 AKS SealedSecrets; review, commit through PR, then merge to main."
+echo "Generated and validated 13 AKS SealedSecrets; review, commit through PR, then merge to main."

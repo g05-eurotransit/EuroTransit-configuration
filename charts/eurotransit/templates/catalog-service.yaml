@@ -13,3 +13,22 @@ spec:
       name: http
   selector:
     app: catalog
+---
+{{- if .Values.progressiveDelivery.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-preview
+  labels:
+    app: catalog
+    app.kubernetes.io/component: preview
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: catalog
+{{- end }}
