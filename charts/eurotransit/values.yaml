@@ -84,6 +84,8 @@ progressiveDelivery:
   workloadRef: true
   analysis:
     prometheusAddress: http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090
+    # Wait for three 30-second scrapes before evaluating a new pod hash.
+    initialDelay: 90s
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
@@ -109,6 +111,12 @@ orders:
 loadTest:
   image: grafana/k6:0.57.0
   clientSecretName: eurotransit-load-test-credentials
+  # A small, continuous demo load: two VUs for 45 minutes by default.
+  duration: 45m
+  # Stripe's sandbox accepts this public test token as a source.
+  paymentMethodToken: tok_visa
+  # First day of the 15-day non-overlapping demo range after Job startup.
+  startOffsetDays: 7
   # The CronJob remains suspended.  Operators create a one-off Job from it.
   schedule: "0 0 31 2 *"
 

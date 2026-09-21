@@ -48,10 +48,10 @@ It has a service account with only the `customer` role; direct-access/password
 grants are disabled.  It is not a demo-user credential and must never use
 Alice’s password.
 
-## Controlled traffic and reset
+## Controlled traffic
 
-Both CronJobs are permanently suspended; they are templates for manually
-created, short-lived Jobs rather than scheduled load generators.
+The CronJob is permanently suspended; it is a template for a manually created,
+short-lived Job rather than a scheduled load generator.
 
 ```bash
 kubectl -n eurotransit create job --from=cronjob/progressive-delivery-k6 pd-k6-$(date +%s)
@@ -59,20 +59,44 @@ kubectl -n eurotransit logs -f job/<created-job-name>
 ```
 
 The k6 Job uses client credentials, goes through public Traefik routes, checks
-`catalog-preview` directly before checking the public Catalog route, creates
-only three real Orders with dedicated seats, then repeatedly reads those
-Orders.  Every checkout has a fresh `pd-k6-*` idempotency key.
+`catalog-preview` directly before checking the public Catalog route, and
+verifies that offer `of-001` for `rt-to-mi-001` costs 24.90 for one seat. It
+then continuously creates and polls one-seat Orders with `offerId`, a generated
+future `travelDate`, and fresh `pd-k6-*` idempotency keys. Its default is two
+VUs for 45 minutes. After each checkout/poll cycle, each VU waits 15 seconds,
+so the resulting rate is roughly 3--8 checkouts per minute depending on the
+time to terminal state. A 45-minute run can therefore create up to 360 real
+Orders and Stripe Sandbox payment attempts; verify cluster capacity and Stripe
+rate limits before starting it. Each VU maps its iteration to a distinct
+seat/date pair from 24 seats across a 15-day block. The job refuses to wrap or
+reuse a slot: a duration or rate that exceeds 360 checkouts fails explicitly.
+`tok_visa` is the default Stripe Sandbox source token;
+`loadTest.paymentMethodToken` can override it for a compatible test provider.
+Each checkout cycle gets a fresh client-credentials token, rather than relying
+on the short-lived token used for the setup prechecks.
 
-The reset template never runs automatically and refuses to operate without
-the exact confirmation value.  Create it as a Job, then set the environment
-variable in its copied manifest to `RESET_EUROTRANSIT_DEMO` before applying.
-It resets only the three dedicated seats and their related test Orders,
-outbox/idempotency state and reconciliation state; it must not be used during
-another checkout or connector exercise.
+The Inventory bootstrap hook must have run successfully recently enough to
+provision the selected days; it seeds from its execution date through six
+months ahead. Confirm that precondition before starting k6. The default
+`loadTest.startOffsetDays: 7` uses days 7--21 after Job startup. Do not rerun
+the same block: a subsequent demonstration must use a small reviewed values
+change to the next non-overlapping block, for example `22`, `37`, `52`, or
+`67` (the supported range is 7--76, so every 15-day block ends by day 90).
+
+There is intentionally no reset CronJob or database cleanup procedure.
+Deleting Orders, reservation rows, outbox records, idempotency state, or
+Payments state by route/seat pattern is not safely attributable to this test
+and would destroy audit evidence. If the selected date is unavailable, stop
+the test; do not alter service databases directly. Before another Job, make a
+small reviewed values change to an unused non-overlapping
+`loadTest.startOffsetDays` block.
 
 ## Demonstration procedure
 
-1. Start k6 and wait for Prometheus to scrape both stable and canary pod hashes.
+1. Start k6, then update the target Rollout while k6 continues generating
+   checkouts. Each analysis metric has a 90-second initial delay, allowing the
+   new hash to receive traffic, be scraped two or three times, and process
+   terminal checkout events before its first evaluation.
 2. For Catalog, update the Catalog image tag.  Verify preview health, inspect
    `catalog-preview`, then promote manually with `kubectl argo rollouts promote
    catalog -n eurotransit`.  The former revision stays available for 60 seconds;
@@ -82,9 +106,10 @@ another checkout or connector exercise.
    to the next pause.  Promote the final 100% pause only after the evidence is
    recorded.
 4. Prove automatic abort once: temporarily make a real AnalysisTemplate
-   threshold impossible (for example `p95-latency-seconds: result < 0`), start
-   a new Orders revision, observe `Failed`/`Aborted`, then immediately restore
-   the real threshold (`result < 1`) in Git and re-sync.  Never leave an
+   threshold impossible (for example `p95-latency-seconds:
+   len(result) > 0 && result[0] < 0`), start a new Orders revision, observe
+   `Failed`/`Aborted`, then immediately restore the real threshold
+   (`len(result) > 0 && result[0] < 1`) in Git and re-sync. Never leave an
    impossible guardrail committed.
 
 Useful evidence commands:
@@ -97,15 +122,42 @@ kubectl -n eurotransit logs job/<k6-job>
 ```
 
 Save that output with Grafana/Prometheus screenshots for 5xx rate, p95,
-Kafka lag, non-terminal Orders and open reconciliation incidents.
+the canary pod's terminal checkout counters and dead-letter counter, and
+Kafka lag. Before starting, verify that `/actuator/prometheus` is actually
+scrapable: the ServiceMonitor alone cannot make a security-denied endpoint
+observable.
 
 ## Promotion signals and guardrails
 
 `orders-canary-guardrails` queries only the latest
-`rollouts-pod-template-hash`.  It requires samples (zero traffic fails), a
-5xx rate below 2%, p95 below one second, fewer than five non-terminal Orders,
-and no open reconciliation incident.  ServiceMonitors retain the rollout hash
+`rollouts-pod-template-hash`. It requires HTTP samples (zero traffic fails),
+a 5xx rate below 2%, p95 below one second, at least one terminal checkout
+observed by that pod, a terminal checkout failure rate below 2%, and no
+dead-letter event emitted by that pod. ServiceMonitors retain the rollout hash
 as a Prometheus target label, so stable and canary measurements are distinct.
+Every Prometheus condition explicitly evaluates the returned vector
+(`len(result) > 0 && result[0] ...`). The HTTP error and counter queries use
+`or vector(0)` where an absent series represents zero; p95 deliberately does
+not, so an absent or non-numeric latency result fails safely.
+
+The k6 threshold requires all checks to pass and aborts the Job on the first
+failed check. A failed k6 Job is a failed demonstration input: do not promote
+the Rollout; inspect the Job logs and resolve the cause before restarting with
+an unused date block.
+
+The terminal and dead-letter counters are emitted by the pod that processes a
+Kafka record. Traefik's HTTP weight does **not** select that Kafka consumer: a
+checkout accepted by the HTTP canary can be completed or failed by another pod
+in the consumer group. The guardrails therefore prove the health of the
+canary pod when it processes records; they do not claim end-to-end attribution
+of every weighted HTTP request. With `failureLimit: 0`, zero terminal samples
+make the AnalysisRun fail and the canary abort; continuous k6 checkout traffic
+is required before and throughout each analysis window. Operators must inspect the cross-pod business metrics,
+Kafka assignment/lag, and the k6 order outcomes before manually promoting.
+The former database-wide `orders_pipeline_inflight` and
+`orders_reconciliation_open` gauges are deliberately not rollout gates:
+filtering their replicated DB-wide values by a pod hash neither attributes an
+incident to that revision nor avoids replica multiplication.
 
 ## Strategies Not Used on the Critical Path
 
