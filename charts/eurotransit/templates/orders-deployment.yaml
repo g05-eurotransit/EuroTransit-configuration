@@ -93,6 +93,8 @@ spec:
               value: {{ .Values.orders.services.inventoryUrl | quote }}
             - name: EUROTRANSIT_SERVICES_PAYMENTS_URL
               value: {{ .Values.orders.services.paymentsUrl | quote }}
+            - name: EUROTRANSIT_SERVICES_CATALOG_URL
+              value: {{ .Values.orders.services.catalogUrl | quote }}
             - name: ORDERS_SERVICE_TOKEN_URI
               value: {{ .Values.orders.serviceAuth.tokenUri | quote }}
             - name: ORDERS_SERVICE_CLIENT_SECRET

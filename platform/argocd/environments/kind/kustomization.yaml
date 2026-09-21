@@ -44,6 +44,16 @@ patches:
         namespace: argocd
   - target:
       kind: Application
+      name: eurotransit-monitoring-config
+    patch: |-
+      $patch: delete
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: eurotransit-monitoring-config
+        namespace: argocd
+  - target:
+      kind: Application
       name: eurotransit-secrets
     patch: |-
       $patch: delete

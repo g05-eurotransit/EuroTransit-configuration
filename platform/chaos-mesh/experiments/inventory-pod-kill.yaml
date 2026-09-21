@@ -1,0 +1,16 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: inventory-pod-kill
+  namespace: eurotransit
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    eurotransit.io/experiment: inventory-pod-kill
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces:
+      - eurotransit
+    labelSelectors:
+      app: inventory

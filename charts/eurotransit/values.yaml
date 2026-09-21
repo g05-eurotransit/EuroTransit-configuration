@@ -104,6 +104,10 @@ orders:
   services:
     inventoryUrl: http://inventory:8080
     paymentsUrl: http://payments:8080
+    # Resolved once per checkout, to price the offer and freeze its refund terms on the order.
+    # Without it Orders falls back to its localhost default and answers 503 OFFER_UNRESOLVABLE to
+    # every checkout that carries an offerId.
+    catalogUrl: http://catalog:8080
   serviceAuth:
     tokenUri: http://keycloak-service.keycloak.svc.cluster.local:8080/realms/eurotransit/protocol/openid-connect/token
     secretName: orders-service-credentials
@@ -129,6 +133,9 @@ inventory:
   database:
     name: inventory_db
     secretName: inventory-db-credentials
+  reservations:
+    expiration:
+      enabled: false
   bootstrap:
     enabled: false
     image: postgres:16.8-alpine

@@ -33,6 +33,9 @@ inventory:
   image: { repository: eurotransit/inventory, tag: local }
   bootstrap:
     enabled: true
+  reservations:
+    expiration:
+      enabled: true
 payments:
   <<: *service
   image: { repository: eurotransit/payments, tag: local }

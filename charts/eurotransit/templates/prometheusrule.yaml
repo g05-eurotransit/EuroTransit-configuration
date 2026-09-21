@@ -1,0 +1,77 @@
+{{- if .Values.monitoring.serviceMonitors.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: eurotransit-reconciliation-alerts
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    release: {{ $.Values.monitoring.serviceMonitors.releaseLabel | quote }}
+spec:
+  groups:
+    - name: checkout-reconciliation
+      rules:
+        - alert: ReconciliationRecordOpen
+          expr: max(orders_reconciliation_open) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Reconciliation records are open for operator intervention"
+            description: "An incident automatic recovery could not resolve is waiting for an operator."
+
+        - alert: PaymentReversalFailure
+          expr: increase(orders_reconciliation_required_total{kind="PAYMENT_REVERSAL_FAILURE"}[10m]) > 0
+          labels:
+            severity: critical
+          annotations:
+            summary: "Payment reversal failed permanently"
+            description: "Money was taken and a reversal definitively failed; the order is deliberately non-terminal."
+
+        - alert: InvariantViolation
+          expr: increase(orders_reconciliation_required_total{kind="INVARIANT_VIOLATION"}[10m]) > 0
+          labels:
+            severity: critical
+          annotations:
+            summary: "System invariant violation detected"
+            description: "Inventory reported a state the model says cannot occur."
+
+        - alert: CheckoutStuckNonTerminal
+          expr: max(orders_pipeline_oldest_age_seconds) > 900
+          labels:
+            severity: warning
+          annotations:
+            summary: "Checkout stuck in non-terminal state"
+            description: "An order is stranded in PAYMENT_PENDING, CONFIRMING_INVENTORY or COMPENSATING for over 15 minutes."
+
+        - alert: InventorySeatConflict
+          expr: increase(orders_inventory_confirm_total{code="RESERVATION_SEAT_CONFLICT"}[10m]) > 0
+          labels:
+            severity: critical
+          annotations:
+            summary: "Inventory seat conflict"
+            description: "Seat ownership disagreement between the two services."
+
+        - alert: ReconciliationAgeHigh
+          expr: max(orders_reconciliation_oldest_age_seconds) > 3600
+          labels:
+            severity: warning
+          annotations:
+            summary: "Reconciliation incident waiting too long"
+            description: "An incident has been waiting over 1 hour, whatever its kind."
+
+        - alert: PoisonOrderEvent
+          expr: increase(orders_events_dlt_total{result="poison"}[10m]) > 0
+          labels:
+            severity: critical
+          annotations:
+            summary: "Poison order event in DLT"
+            description: "A record reached order-placed-dlt with a payload that cannot be parsed."
+
+        - alert: DeadLetterUnknownOrder
+          expr: increase(orders_events_dlt_total{result="unknown_order"}[10m]) > 0
+          labels:
+            severity: critical
+          annotations:
+            summary: "Dead letter referenced unknown order"
+            description: "A dead letter referenced an order id that does not exist: producer or data-retention problem."
+{{- end }}

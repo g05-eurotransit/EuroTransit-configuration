@@ -16,6 +16,18 @@ Service instrumentation conventions are coordinated with the application reposit
 
 - kube-prometheus-stack values live in `platform/kube-prometheus-stack/values.yaml`.
 - Checkout symptom alerts live in `platform/kube-prometheus-stack/prometheus-rules.yaml`.
+- Grafana dashboards live in `platform/kube-prometheus-stack/dashboards/` as ConfigMaps
+  labelled `grafana_dashboard: "1"`, picked up by the Grafana sidecar
+  (`sidecar.dashboards.searchNamespace: ALL`): RED per service, checkout SLO for the
+  money path, and USE for nodes and pods. Their queries reuse the alert label scheme
+  (`namespace="eurotransit"`, `app=...`) and mirror the `CheckoutFastBurn`,
+  `CheckoutLatencyHigh`, and `KafkaPipelineStalled` thresholds, so a dashboard and the
+  alert that pages on it never disagree.
+- **Delivery path:** the `kube-prometheus-stack` Application installs the Helm chart only
+  and never renders `platform/kube-prometheus-stack/kustomization.yaml`. The rules and
+  dashboards are delivered by a separate `eurotransit-monitoring-config` Application
+  (sync-wave 15, after the chart's CRDs at wave 10) that syncs that kustomization into the
+  `monitoring` namespace. Both are removed by the kind overlay, so monitoring is AKS-only.
 - Reconciliation safety alerts in that rule file use the bounded Orders metrics
   defined by the application repository's
   `docs/design/reservation-confirmation.md`; they do not put order IDs,
