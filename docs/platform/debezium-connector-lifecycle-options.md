@@ -7,11 +7,17 @@ CD.
 
 ## Decisione implementata
 
-È stata selezionata la soluzione B. EuroTransit usa due worker `KafkaConnect`
-separati e due `KafkaConnector` dichiarativi con restart automatico. L'immagine
+È stata selezionata la soluzione B. EuroTransit usa un worker `KafkaConnect`
+separato e un `KafkaConnector` dichiarativo con restart automatico per ogni
+servizio con un outbox — Orders, Inventory e Payments (tre in tutto). L'immagine
 compatibile con Strimzi viene costruita da `connect/Dockerfile` nel repository
 applicativo: Kind la costruisce e carica localmente, mentre AKS usa l'artefatto
 pubblicato in ACR e pinato per digest.
+
+Il connector Payments segue lo stesso lifecycle di questo documento, ma il resto
+dell'analisi — flusso, problema di bootstrap e verifica — riguarda `order-placed`
+e quindi i soli connector Orders e Inventory: gli eventi di Payments oggi non
+hanno consumatori e non guidano la saga di checkout.
 
 ## Flusso dell'acquisto
 

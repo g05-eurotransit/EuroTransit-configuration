@@ -272,3 +272,43 @@ spec:
   replicas: 3
   config:
     cleanup.policy: compact
+---
+# Internal topics for the payments Kafka Connect worker (Debezium).
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: payments-outbox-connect-configs
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 1
+  replicas: 3
+  config:
+    cleanup.policy: compact
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: payments-outbox-connect-offsets
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 25
+  replicas: 3
+  config:
+    cleanup.policy: compact
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: payments-outbox-connect-status
+  namespace: eurotransit
+  labels:
+    strimzi.io/cluster: eurotransit-kafka
+spec:
+  partitions: 5
+  replicas: 3
+  config:
+    cleanup.policy: compact
