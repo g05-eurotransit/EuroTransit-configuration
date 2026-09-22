@@ -1,0 +1,108 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: frontend-identity-claims-reconcile
+  namespace: keycloak
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    app.kubernetes.io/component: keycloak-bootstrap
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: eurotransit-marketplace
+        app.kubernetes.io/component: keycloak-bootstrap
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: reconcile-frontend-identity-claims
+          image: quay.io/keycloak/keycloak:26.7.0
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-ceu"]
+          args:
+            - |
+              kcadm=/opt/keycloak/bin/kcadm.sh
+              attempt=1
+              while [ "$attempt" -le 60 ]; do
+                if "$kcadm" config credentials \
+                  --server http://keycloak-service:8080 --realm master \
+                  --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD"; then
+                  client_uuid="$("$kcadm" get clients -r eurotransit \
+                    -q clientId=eurotransit-frontend --fields id --format csv --noquotes 2>/dev/null \
+                    | tr -d '\r' | tail -n 1 || true)"
+                  if [ -n "$client_uuid" ] && [ "$client_uuid" != id ]; then
+                    break
+                  fi
+                fi
+                attempt=$((attempt + 1))
+                sleep 5
+              done
+              if [ "$attempt" -gt 60 ]; then
+                echo "frontend client was not ready before the bootstrap deadline" >&2
+                exit 1
+              fi
+
+              ensure_mapper() {
+                mapper_name="$1"
+                user_property="$2"
+                claim_name="$3"
+                mapper_uuid="$("$kcadm" get "clients/$client_uuid/protocol-mappers/models" \
+                  -r eurotransit --fields id,name --format csv --noquotes \
+                  | tr -d '\r' | grep -F ",$mapper_name" | cut -d, -f1 | tail -n 1 || true)"
+                mapper_id_field=
+                if [ -n "$mapper_uuid" ]; then
+                  mapper_id_field="\"id\": \"$mapper_uuid\","
+                fi
+                cat > /tmp/mapper.json <<EOF
+              {
+                $mapper_id_field
+                "name": "$mapper_name",
+                "protocol": "openid-connect",
+                "protocolMapper": "oidc-usermodel-property-mapper",
+                "consentRequired": false,
+                "config": {
+                  "user.attribute": "$user_property",
+                  "claim.name": "$claim_name",
+                  "jsonType.label": "String",
+                  "access.token.claim": "false",
+                  "id.token.claim": "true",
+                  "userinfo.token.claim": "true"
+                }
+              }
+              EOF
+                if [ -n "$mapper_uuid" ]; then
+                  "$kcadm" update "clients/$client_uuid/protocol-mappers/models/$mapper_uuid" \
+                    -r eurotransit -f /tmp/mapper.json
+                else
+                  "$kcadm" create "clients/$client_uuid/protocol-mappers/models" \
+                    -r eurotransit -f /tmp/mapper.json
+                fi
+                echo "Reconciled $claim_name for eurotransit-frontend"
+              }
+
+              ensure_mapper 'preferred username' username preferred_username
+              ensure_mapper email email email
+          env:
+            - name: KEYCLOAK_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-credentials
+                  key: username
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-credentials
+                  key: password
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
