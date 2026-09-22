@@ -152,11 +152,11 @@ kubectl -n eurotransit delete \
   --ignore-not-found
 
 kubectl apply -k "$ROOT_DIR/platform/connectors/environments/kind"
-for connect in orders-outbox-connect inventory-outbox-connect; do
+for connect in orders-outbox-connect inventory-outbox-connect payments-outbox-connect; do
   kubectl -n eurotransit wait "kafkaconnect/$connect" \
     --for=condition=Ready --timeout=8m
 done
-for connector in orders-outbox-connector inventory-outbox-connector; do
+for connector in orders-outbox-connector inventory-outbox-connector payments-outbox-connector; do
   kubectl -n eurotransit wait "kafkaconnector/$connector" \
     --for=condition=Ready --timeout=8m
 done
