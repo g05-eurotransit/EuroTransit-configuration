@@ -89,13 +89,13 @@ progressiveDelivery:
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
-    tag: "0078e3d" # Will be overridden by CI
+    tag: "e2748f8" # Will be overridden by CI
   replicaCount: 2
   resources: {}
 orders:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/orders
-    tag: "0078e3d"
+    tag: "e2748f8"
   replicaCount: 2
   resources: {}
   database:
@@ -123,11 +123,10 @@ loadTest:
   startOffsetDays: 7
   # The CronJob remains suspended.  Operators create a one-off Job from it.
   schedule: "0 0 31 2 *"
-
 inventory:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/inventory
-    tag: "7975ee0"
+    tag: "e2748f8"
   replicaCount: 2
   resources: {}
   database:
@@ -142,7 +141,7 @@ inventory:
 payments:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/payments
-    tag: "0078e3d"
+    tag: "e2748f8"
   replicaCount: 2
   resources: {}
   database:
@@ -155,7 +154,7 @@ payments:
 notifications:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/notifications
-    tag: "0078e3d"
+    tag: "e2748f8"
   replicaCount: 2
   resources: {}
   publicApi:
@@ -163,7 +162,7 @@ notifications:
 frontend:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/frontend
-    tag: "0078e3d"
+    tag: "e2748f8"
   replicaCount: 2
   resources: {}
   config:
