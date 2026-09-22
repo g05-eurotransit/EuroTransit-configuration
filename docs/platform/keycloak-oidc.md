@@ -15,6 +15,24 @@ database.
 
 The realm import defines `eurotransit-frontend`, `eurotransit-api`, roles
 `customer`, `operations`, `admin`, and the customer and operations scopes.
+The frontend client explicitly maps `preferred_username` and `email` into its
+ID token and UserInfo response. Those two mappers match the Docker Compose realm
+in the application repository. The frontend requests `openid` and uses those
+claims for the signed-in name and avatar.
+
+`KeycloakRealmImport` creates a realm only once. The Argo CD PostSync Job
+`frontend-identity-claims-reconcile` applies the same two mappers idempotently
+to an existing realm on each Keycloak application sync. For a cluster not yet
+synced to this revision, apply the Job once and wait for completion:
+
+```bash
+kubectl apply -f platform/keycloak/frontend-identity-claims-reconcile-job.yaml
+kubectl -n keycloak wait --for=condition=complete \
+  job/frontend-identity-claims-reconcile --timeout=10m
+```
+
+After applying the change, sign out and sign in again to obtain a fresh ID
+token. Confirm that it includes `preferred_username` and `email`.
 
 Required `keycloak` namespace secrets are `keycloak-admin-credentials` and
 `keycloak-db-credentials`, each with `username` and `password` keys. For AKS

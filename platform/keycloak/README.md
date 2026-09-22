@@ -7,6 +7,8 @@ the `eurotransit-keycloak` Argo CD Application from this directory.
 - `keycloak.yaml`: one Keycloak instance using the dedicated `keycloak_db` in
   CloudNativePG.
 - `eurotransit-realm.yaml`: realm, roles, clients and scopes.
+- `frontend-identity-claims-reconcile-job.yaml`: Argo CD PostSync Job that
+  keeps the frontend identity mappers present in an already imported realm.
 - `ingressroute.yaml`: low-priority Traefik fallback route for Keycloak.
 
 The production hostname is `g05.cpo2026.it`. The Kind overlay is under

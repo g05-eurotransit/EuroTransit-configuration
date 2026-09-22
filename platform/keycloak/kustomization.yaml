@@ -6,4 +6,5 @@ resources:
   - orders-service-client-secret-bootstrap-job.yaml
   - load-test-client-secret-bootstrap-job.yaml
   - demo-users-bootstrap-job.yaml
+  - frontend-identity-claims-reconcile-job.yaml
   - ingressroute.yaml
