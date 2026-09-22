@@ -86,8 +86,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.payments.database.secretName | quote }}
                   key: password
-            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
-              value: {{ .Values.global.kafka.bootstrapServers | quote }}
             - name: STRIPE_SANDBOX_URL
               value: {{ .Values.payments.provider.sandboxUrl | quote }}
             - name: STRIPE_SECRET_KEY

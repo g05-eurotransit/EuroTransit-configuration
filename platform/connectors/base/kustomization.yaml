@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - orders-outbox-connect.yaml
   - inventory-outbox-connect.yaml
+  - payments-outbox-connect.yaml

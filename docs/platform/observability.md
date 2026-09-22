@@ -33,9 +33,9 @@ Service instrumentation conventions are coordinated with the application reposit
   `docs/design/reservation-confirmation.md`; they do not put order IDs,
   correlation IDs, provider messages, or event payloads into Prometheus labels.
 - Application ServiceMonitors are rendered from `charts/eurotransit/templates/servicemonitors.yaml`.
-- Orders and Inventory outbox relays live in `platform/connectors`; their
-  `KafkaConnect` and `KafkaConnector` status exposes worker, connector, task,
-  and automatic-restart health through Strimzi.
+- Orders, Inventory and Payments outbox relays live in `platform/connectors`;
+  their `KafkaConnect` and `KafkaConnector` status exposes worker, connector,
+  task, and automatic-restart health through Strimzi.
 - Chaos Mesh installation values live in `platform/chaos-mesh/values.yaml`; experiment manifests are still pending.
 
 ## Money-Path Proof Checklist
