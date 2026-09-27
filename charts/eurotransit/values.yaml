@@ -89,13 +89,13 @@ progressiveDelivery:
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
-    tag: "e2748f8" # Will be overridden by CI
+    tag: "98bedf2" # Will be overridden by CI
   replicaCount: 2
   resources: {}
 orders:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/orders
-    tag: "e2748f8"
+    tag: "98bedf2"
   replicaCount: 2
   resources: {}
   database:
@@ -126,7 +126,7 @@ loadTest:
 inventory:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/inventory
-    tag: "e2748f8"
+    tag: "98bedf2"
   replicaCount: 2
   resources: {}
   database:
@@ -141,7 +141,7 @@ inventory:
 payments:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/payments
-    tag: "e2748f8"
+    tag: "98bedf2"
   replicaCount: 2
   resources: {}
   database:
@@ -154,7 +154,7 @@ payments:
 notifications:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/notifications
-    tag: "e2748f8"
+    tag: "98bedf2"
   replicaCount: 2
   resources: {}
   publicApi:
@@ -162,7 +162,7 @@ notifications:
 frontend:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/frontend
-    tag: "e2748f8"
+    tag: "98bedf2"
   replicaCount: 2
   resources: {}
   config:
