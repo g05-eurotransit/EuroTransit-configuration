@@ -20,3 +20,5 @@ The generic cluster bootstrap sequence is documented in [platform/cluster-bootst
 Kafka dead-letter topic provisioning, partitioning, and retention operations are documented in [platform/kafka-dead-letter-operations.md](platform/kafka-dead-letter-operations.md).
 
 Agent skill drafts are canonical in the sibling application repository under `../EuroTransit-application/docs/agent-skills`; this repository keeps only the configuration-side routing note in [governance/agent-skill-recommendations.md](governance/agent-skill-recommendations.md).
+
+AKS memory reduction has a [release and rollback runbook](platform/aks-memory-reduction-runbook.md), [persistent resource budgets](platform/aks-resource-budgets.md), and [offline verification and capacity accounting](platform/aks-memory-verification.md).
