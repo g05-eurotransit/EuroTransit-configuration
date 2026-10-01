@@ -4,7 +4,6 @@ resources:
   - namespaces.yaml
   - ../../cloudnativepg
   - ../../strimzi
-  - ../../kube-prometheus-stack
   - letsencrypt-cluster-issuer.yaml
   - production-certificate.yaml
   - keycloak-production-certificate.yaml

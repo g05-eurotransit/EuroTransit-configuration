@@ -28,6 +28,16 @@ Service instrumentation conventions are coordinated with the application reposit
   dashboards are delivered by a separate `eurotransit-monitoring-config` Application
   (sync-wave 15, after the chart's CRDs at wave 10) that syncs that kustomization into the
   `monitoring` namespace. Both are removed by the kind overlay, so monitoring is AKS-only.
+  `eurotransit-monitoring-config` is the sole owner of these four resources;
+  `platform/environments/aks` must not include `../../kube-prometheus-stack`,
+  because that would also render them through `eurotransit-platform-runtime`.
+  Before merging an ownership correction on an existing AKS cluster, verify
+  that the three dashboard ConfigMaps and `PrometheusRule/eurotransit-money-path`
+  have `argocd.argoproj.io/tracking-id` annotations starting with
+  `eurotransit-monitoring-config:`. If they still belong to the runtime
+  Application, sync the monitoring Application first and verify ownership
+  before allowing the runtime Application to prune resources removed from its
+  desired state.
 - Reconciliation safety alerts in that rule file use the bounded Orders metrics
   defined by the application repository's
   `docs/design/reservation-confirmation.md`; they do not put order IDs,
