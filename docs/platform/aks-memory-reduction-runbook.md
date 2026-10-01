@@ -252,10 +252,14 @@ dead letters and missed processing. Validate the application-owned expectations 
 
 Only after these checks, remove `spec.state: stopped` from the three connector CRs
 and unpause shared-worker/connector reconciliation. Verify all remain healthy.
-Retire the old Inventory/Payments worker CRs in the controlled final sync; do not
-delete their internal topics or state. Restore child automation, then parent
-automation from the recorded policies, and verify GitOps converges to exactly one
-worker and three connectors. Verify old internal topics still exist after pruning.
+Advance only the `eurotransit-connectors` Application Git source to the reviewed
+functional revision, keeping its automation disabled. Retire the old
+Inventory/Payments worker CRs in that controlled sync; do not delete their
+internal topics or state. Verify convergence to exactly one worker and three
+connectors, and verify old internal topics still exist after pruning. Keep the
+root and affected child automation suspended through the subsequent metric-filter
+and resource-budget stages. Restore policies only at the end of the complete
+release, as described in the pre-merge GitOps gate.
 The normal final overlay is not safe to auto-sync before this migration completes.
 
 ### Rollback
