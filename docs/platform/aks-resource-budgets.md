@@ -65,11 +65,15 @@ sum of regular container requests and the largest init container request.
 Restartable init sidecars contribute to steady state and subsequent init
 stages. Account for Pod overhead and operator-generated Pods, including CNPG
 bootstrap/recovery, Keycloak import and Prometheus/Alertmanager reloaders.
+CloudNativePG 1.26.0 assigns `cluster.Spec.Resources` to both its
+[bootstrap init container](https://github.com/cloudnative-pg/cloudnative-pg/blob/v1.26.0/pkg/specs/containers.go#L34)
+and [bootstrap/recovery Job container](https://github.com/cloudnative-pg/cloudnative-pg/blob/v1.26.0/pkg/specs/jobs.go#L358).
 Rendered CR resources and the pinned operator behavior define those budgets;
 the next live inventory must verify the generated Pods actually match.
 
 Before release, calculate requests against each node's allocatable capacity,
-subtract AKS system reservations and current Pods, and inspect placement,
+which already excludes kube/system reservations. Subtract AKS-managed Pod
+requests and current project Pods, and inspect placement,
 affinity, volumes and taints. Aggregate free memory does not imply that a
 512Mi Pod can fit on any individual node. Reserve overlap for one controlled
 rollout at a time, temporary Jobs and the current image-cleaner workload.
