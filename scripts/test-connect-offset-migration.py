@@ -50,6 +50,8 @@ class MigrationTest(unittest.TestCase):
                 if name not in worker:
                     return self.respond(404, {"error": "PASSWORD_MUST_NEVER_APPEAR"})
                 item = worker[name]
+                if "status_override" in item and parts[2] == "status":
+                    return self.respond(200, item["status_override"])
                 action = parts[2]
                 if action == "status":
                     return self.respond(200, {"connector": {"state": item["state"]}, "tasks": item.get("tasks", [] if item["state"] == "STOPPED" else [{"id": 0, "state": "RUNNING"}])})
@@ -155,8 +157,38 @@ spec:
         self.run_step("import", "target", ok=False)
         self.run_step("stop", connector="missing", ok=False)
 
+    def test_missing_tasks_and_empty_offset_objects_are_rejected(self):
+        self.stopped_export()
+        self.run_step("create", "target")
+        target = self.workers["target"][NAME]
+        for status in [None, {}, {"connector": {"state": "STOPPED"}},
+                       {"connector": {"state": "STOPPED"}, "tasks": None}]:
+            target["status_override"] = status
+            before = len(self.calls)
+            self.run_step("import", "target", ok=False)
+            self.assertFalse(any(method == "PATCH" for method, _ in self.calls[before:]))
+        del target["status_override"]
+        for partition, offset in [({}, {"lsn": 1234}), ({"server": "inventory"}, {})]:
+            snapshot = json.loads(self.file.read_text())
+            snapshot["offsets"] = [{"partition": partition, "offset": offset}]
+            self.file.write_text(json.dumps(snapshot))
+            before = len(self.calls)
+            self.run_step("import", "target", ok=False)
+            self.assertFalse(any(method == "PATCH" for method, _ in self.calls[before:]))
+
+    def test_malformed_yaml_is_redacted(self):
+        self.manifest.write_text("kind: KafkaConnector\nspec:\n  config:\n    database.password: [DO_NOT_LOG_THIS_PASSWORD\n")
+        result = self.run_step("create", "target", ok=False)
+        self.assertNotIn("DO_NOT_LOG_THIS_PASSWORD", result.stdout + result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(self.calls, [])
+
     def test_literal_credentials_rejected_before_post(self):
         self.manifest.write_text(self.manifest.read_text().replace("${env:INVENTORY_DB_PASSWORD}", "DO_NOT_LOG_THIS_PASSWORD"))
+        result = self.run_step("create", "target", ok=False)
+        self.assertNotIn("DO_NOT_LOG_THIS_PASSWORD", result.stdout + result.stderr)
+        self.assertEqual(self.calls, [])
+        self.manifest.write_text(self.manifest.read_text().replace("DO_NOT_LOG_THIS_PASSWORD", "${env:INVENTORY_DB_PASSWORD}DO_NOT_LOG_THIS_PASSWORD${env:OTHER}"))
         result = self.run_step("create", "target", ok=False)
         self.assertNotIn("DO_NOT_LOG_THIS_PASSWORD", result.stdout + result.stderr)
         self.assertEqual(self.calls, [])

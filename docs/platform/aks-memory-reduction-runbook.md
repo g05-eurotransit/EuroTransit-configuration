@@ -20,6 +20,53 @@ After resource changes, test cold starts and at least 30 minutes of representati
 load with no OOM, eviction or pod Pending for memory. Keep any evidence and offset
 exports outside Git, with access restricted to the release operator.
 
+## GitOps gate before merging to main
+
+The root and child Applications follow `main` with automated sync and pruning.
+**Pause and pin their sources before merging either branch into `main`.** A
+branch push alone does not change the cluster; a merge can start reconciliation
+immediately. Reviewing or merging a branch is not the controlled migration.
+
+Before the first merge, preserve the current Application sources and sync policies,
+then disable automated sync on `eurotransit-platform-root` and every affected
+child Application. Include `eurotransit-connectors`,
+`eurotransit-platform-runtime`, `kube-prometheus-stack`, and the Helm/operator/
+marketplace owners affected by the later budgets. Terminate in-flight syncs and
+wait for them to finish. Suspend any external automation that syncs these apps.
+Do not manually sync the root while maintenance is in progress: it can restore
+child automation and replace their pinned sources.
+
+Pin each affected child Git source, including Helm's `$values` source, to the
+recorded pre-release commit; keep chart versions unchanged. Keep Argo CD and
+Sealed Secrets bootstrap releases at their recorded values until their own stage.
+Once these gates are confirmed, the branches can be reviewed and merged in order:
+functional reductions, then resource budgets. Automation remains paused and the
+old sources remain pinned while each stage is qualified.
+
+Do not sync the full new overlay to implement the early stages. Use the pinned
+old render and reviewed temporary values/CR manifests for just that stage:
+
+1. Disable unused controllers; change only Argo's Dex/ApplicationSet settings and
+   Kafka's User Operator, retaining the old budgets and other CR settings.
+2. Upgrade monitoring with only the new `grafana` values layered over the old
+   values, preserving the old API server filter and memory budgets.
+3. Perform the complete stopped-connector migration below. Preserve both old
+   workers until backlog and checkout checks pass; then retire them explicitly.
+4. Layer in only the new `kubeApiServer` filter, retaining the already-qualified
+   Grafana provisioning and the old memory budgets.
+5. Apply one controller/service budget at a time through its persistent owner.
+   A Helm release can roll several Deployments together: use a temporary values
+   overlay for the selected component and retain the other qualified settings.
+   Verify actual rollout overlap and available capacity before each update.
+
+Temporary manifests must keep a single owner and be rendered/reviewed before
+use; keep them outside Git with private permissions. At the end, compare all live
+owners to the reviewed final render. Advance child Git/value sources to the
+reviewed final revision, perform the final controlled sync, and restore child
+policies before the root policy. Confirm that `main` still matches the reviewed
+release before returning any source to `main`. The root must remain paused until
+all stages, including the offset migration, are complete.
+
 ## Unused components
 
 Before disabling Dex or ApplicationSet and removing Kafka User Operator, inspect
@@ -101,9 +148,9 @@ outbox backlog, Kafka offsets/consumer lag and a known completed checkout.
 
 Pin a pre-migration Git revision and render both its connectors and the final AKS
 overlay. Keep the original Inventory/Payments worker definitions for rollback.
-Disable automated synchronization on the root Application first, then on
-`eurotransit-connectors`; terminate any already-running sync operation and wait
-for it to finish. Preserve the original sync policy for restoration. A running
+Confirm the pre-merge GitOps gate above is still in place: root and connector
+automation are suspended and their sources pinned. Terminate any already-running
+sync operation and wait for it to finish. Preserve the original sync policy for restoration. A running
 parent must not restore child automation during maintenance. Suspend any other
 automation/operator job that edits these CRs.
 
@@ -213,10 +260,14 @@ The normal final overlay is not safe to auto-sync before this migration complete
 
 ### Rollback
 
-Before any destination connector restarts, stop and verify all destination tasks,
-confirm inactive slots, restore the original worker/connector topology, and verify
-original stopped registrations still have the exported offsets. Resume those
-original registrations one at a time and restore reconciliation only after checks.
+Before any destination connector restarts, keep parent/child automation and
+Strimzi reconciliation suspended. Stop and verify all destination tasks, confirm
+inactive slots, and restore the original worker/connector topology with connector
+CRs explicitly `spec.state: stopped` and `strimzi.io/pause-reconciliation=true`.
+Verify original stopped registrations still have the exported offsets. Reconcile
+stopped ownership, re-pause, then resume the original registrations one at a time
+using their own verified exports. Remove the stopped state and restore
+reconciliation only after checks.
 Orders remains on its existing worker throughout.
 
 **After any destination connector has restarted, pre-migration exports are stale.**

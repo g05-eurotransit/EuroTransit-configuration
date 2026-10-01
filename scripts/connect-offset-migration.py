@@ -11,6 +11,7 @@ import datetime
 import json
 import os
 from pathlib import Path
+import re
 import sys
 import time
 import urllib.error
@@ -32,7 +33,7 @@ def request(base, path, method="GET", body=None):
     req = urllib.request.Request(base + path, data=data, method=method,
                                  headers={"Content-Type": "application/json"})
     try:
-        with urllib.request.build_opener(NoRedirect).open(req, timeout=15) as response:
+        with urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect).open(req, timeout=15) as response:
             raw = response.read()
             return json.loads(raw) if raw else None
     except urllib.error.HTTPError as exc:
@@ -45,7 +46,9 @@ def stopped(base, path, wait=0):
     deadline = time.monotonic() + wait
     while True:
         status = request(base, path + "/status")
-        if status.get("connector", {}).get("state") == "STOPPED" and not status.get("tasks"):
+        if (isinstance(status, dict) and isinstance(status.get("connector"), dict)
+                and status["connector"].get("state") == "STOPPED"
+                and status.get("tasks") == []):
             return
         if time.monotonic() >= deadline:
             raise MigrationError("Connector must be STOPPED with no tasks")
@@ -57,8 +60,8 @@ def canonical(offsets):
         raise MigrationError("Refusing empty or invalid offsets; investigate source initialization")
     keys = []
     for item in offsets:
-        if not isinstance(item, dict) or not isinstance(item.get("partition"), dict) or not isinstance(item.get("offset"), dict):
-            raise MigrationError("Offsets must contain partition and non-null offset objects")
+        if not isinstance(item, dict) or not isinstance(item.get("partition"), dict) or not item["partition"] or not isinstance(item.get("offset"), dict) or not item["offset"]:
+            raise MigrationError("Offsets must contain nonempty partition and offset objects")
         keys.append(json.dumps(item["partition"], sort_keys=True))
     if len(set(keys)) != len(keys):
         raise MigrationError("Duplicate offset partitions")
@@ -84,7 +87,10 @@ def registration(manifest, connector):
         import yaml
     except ImportError:
         raise MigrationError("create requires PyYAML") from None
-    docs = list(yaml.safe_load_all(Path(manifest).read_text()))
+    try:
+        docs = list(yaml.safe_load_all(Path(manifest).read_text()))
+    except yaml.YAMLError:
+        raise MigrationError("Manifest YAML is invalid; inspect it privately") from None
     matches = [d for d in docs if d and d.get("kind") == "KafkaConnector" and d.get("metadata", {}).get("name") == connector]
     if len(matches) != 1:
         raise MigrationError("Manifest must contain exactly one matching KafkaConnector")
@@ -94,7 +100,7 @@ def registration(manifest, connector):
     config = spec["config"].copy()
     for key, value in config.items():
         if any(word in key.lower() for word in ("password", "secret", "token")):
-            if not isinstance(value, str) or not value.startswith("${env:") or not value.endswith("}"):
+            if not isinstance(value, str) or not re.fullmatch(r"\$\{env:[A-Za-z_][A-Za-z0-9_]*\}", value):
                 raise MigrationError("Only environment references are allowed for credentials")
     config["connector.class"] = spec["class"]
     config["tasks.max"] = "1"
@@ -157,7 +163,7 @@ if __name__ == "__main__":
     except MigrationError as exc:
         print(f"Migration step failed: {exc}. Keep workers stopped.", file=sys.stderr)
         sys.exit(1)
-    except (OSError, ValueError, KeyError):
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
         # Avoid raw exceptions, which could expose response data or credential paths.
         print("Migration step failed; workers must remain stopped. Check inputs and private worker status.", file=sys.stderr)
         sys.exit(1)
