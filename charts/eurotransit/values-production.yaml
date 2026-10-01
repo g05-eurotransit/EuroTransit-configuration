@@ -14,26 +14,40 @@ ingress:
   tls:
     secretName: eurotransit-production-tls
 
-catalog: &service
+catalog:
   replicaCount: 1
   resources:
-    requests: { cpu: 75m, memory: 192Mi }
+    requests: { cpu: 75m, memory: 224Mi }
     limits: { cpu: 500m, memory: 512Mi }
-orders: *service
+orders:
+  replicaCount: 1
+  resources:
+    requests: { cpu: 75m, memory: 320Mi }
+    limits: { cpu: 500m, memory: 512Mi }
 inventory:
-  <<: *service
-  # The target-cluster environment is a demo deployment and needs the same
-  # sample capacity as local development for checkout to be usable.
+  replicaCount: 1
+  resources:
+    requests: { cpu: 75m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  # Keep the demo capacity and expiration reconciler available for checkout.
   bootstrap:
     enabled: true
   reservations:
     expiration:
       enabled: true
-payments: *service
-notifications: *service
+payments:
+  replicaCount: 1
+  resources:
+    requests: { cpu: 75m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+notifications:
+  replicaCount: 1
+  resources:
+    requests: { cpu: 75m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
 
 frontend:
   replicaCount: 1
   resources:
-    requests: { cpu: 25m, memory: 64Mi }
-    limits: { cpu: 200m, memory: 256Mi }
+    requests: { cpu: 25m, memory: 16Mi }
+    limits: { cpu: 200m, memory: 128Mi }

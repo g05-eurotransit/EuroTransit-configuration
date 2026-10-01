@@ -71,7 +71,7 @@ protected `main`, so images and configuration must be merged before bootstrap.
 kubectl apply -f platform/environments/aks/namespaces.yaml
 helm repo add bitnami https://charts.bitnami.com/bitnami && helm repo update
 helm upgrade --install sealed-secrets bitnami/sealed-secrets --version 2.5.19 \
-  -n sealed-secrets --create-namespace -f platform/sealed-secrets/values.yaml
+  -n sealed-secrets --create-namespace -f platform/sealed-secrets/values.yaml -f platform/sealed-secrets/values-aks.yaml
 kubectl -n sealed-secrets rollout status deploy/sealed-secrets-controller --timeout=5m
 # This Kubernetes label selector inventories the controller key Secrets.
 kubectl -n sealed-secrets get secret \
@@ -100,7 +100,7 @@ kubectl -n sealed-secrets get secret \
 export SEALED_SECRETS_CHART_VERSION='<reviewed-upgrade-version>'
 helm upgrade sealed-secrets bitnami/sealed-secrets \
   --version "$SEALED_SECRETS_CHART_VERSION" \
-  -n sealed-secrets -f platform/sealed-secrets/values.yaml
+  -n sealed-secrets -f platform/sealed-secrets/values.yaml -f platform/sealed-secrets/values-aks.yaml
 kubectl -n sealed-secrets rollout status deploy/sealed-secrets-controller --timeout=5m
 kubectl -n sealed-secrets get secret \
   -l sealedsecrets.bitnami.com/sealed-secrets-key \

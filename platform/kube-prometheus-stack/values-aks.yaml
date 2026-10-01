@@ -7,7 +7,7 @@ prometheus:
     resources:
       requests:
         cpu: 100m
-        memory: 256Mi
+        memory: 320Mi
       limits:
         cpu: 500m
         memory: 768Mi
@@ -16,7 +16,7 @@ alertmanager:
     resources:
       requests:
         cpu: 25m
-        memory: 64Mi
+        memory: 32Mi
       limits:
         cpu: 150m
         memory: 128Mi
@@ -203,8 +203,17 @@ grafana:
       name: kube-prometheus-stack-grafana-dashboard-providers
       namespace: monitoring
     data:
-      dashboardproviders.yaml: "apiVersion: 1\nproviders:\n- name: default\n  orgId: 1\n  folder: ''\n  type: file\n  disableDeletion: false\n\
-        \  editable: true\n  updateIntervalSeconds: 30\n  options:\n    path: /var/lib/grafana/dashboards\n    foldersFromFilesStructure: false\n"
+      dashboardproviders.yaml: "apiVersion: 1\nproviders:\n- name: default\n  orgId:\
+        \ 1\n  folder: ''\n  type: file\n  disableDeletion: false\n  editable: true\n\
+        \  updateIntervalSeconds: 30\n  options:\n    path: /var/lib/grafana/dashboards\n\
+        \    foldersFromFilesStructure: false\n"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 160Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
 kubeApiServer:
   serviceMonitor:
     metricRelabelings:
@@ -217,3 +226,53 @@ kubeApiServer:
       sourceLabels:
       - __name__
       regex: apiserver_(request_duration_seconds|request_body_size_bytes|request_sizes|response_sizes|response_size_bytes)_(bucket|sum|count)
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 16Mi
+    limits:
+      cpu: 250m
+      memory: 64Mi
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  prometheusConfigReloader:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 24Mi
+      limits:
+        cpu: 250m
+        memory: 64Mi
+  admissionWebhooks:
+    patch:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 16Mi
+        limits:
+          cpu: 250m
+          memory: 64Mi
+crds:
+  upgradeJob:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 32Mi
+      limits:
+        cpu: 250m
+        memory: 128Mi

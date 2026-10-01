@@ -11,5 +11,5 @@ spec:
     offset.storage.replication.factor: 1
     status.storage.replication.factor: 1
   resources:
-    requests: { cpu: 100m, memory: 256Mi }
+    requests: { cpu: 100m, memory: 512Mi }
     limits: { cpu: 750m, memory: 768Mi }
