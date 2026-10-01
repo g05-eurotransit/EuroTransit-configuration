@@ -3,8 +3,8 @@
 Both branches started at `7e4a146dcb2f1d8b6fdde704222b6f1d90dba5a4`
 (`origin/main`, including monitoring single ownership). The resource budget branch
 is based on the completed functional reduction branch. The original checkout and
-its uncommitted report were preserved. No cluster changes, merges or publication
-were performed.
+its uncommitted report were preserved. The branches are prepared for remote
+review; no cluster changes or merges were performed.
 
 ## Reproduce
 
@@ -30,8 +30,9 @@ scripts/render.sh aks
 For the functional branch alone, run the checker from the budget worktree with
 `--root ../memory-reduction` and omit `--budgets`. The output contains per-owner
 AKS/Kind manifests and `budget.json`. Keep render artifacts private: Helm can
-produce fresh bootstrap Secret payloads. Kind equality excludes only those random
-Secret payloads; all other rendered fields, including Secret references, match.
+produce bootstrap Secret payloads. Kind equality now compares every field,
+including Secret data and references; the pinned Kind charts do not require
+random-payload exclusions.
 
 Optional saved inventories can be added without accessing a cluster:
 
@@ -79,9 +80,11 @@ Checks passed:
 - All five Keycloak 26.7.0 upstream checksums pass. Of its 20 rendered objects,
   only the Deployment memory request differs from the upstream base; CRDs, RBAC,
   ServiceAccount, image and CPU are preserved.
-- Seven scheduling-accounting/parser tests and three REST migration simulator tests pass.
+- Ten scheduling-accounting/preservation tests and five REST migration simulator tests pass.
   The REST simulator covers fresh-offset rollback, stopped-only offset writes,
-  missing/empty/mismatched offset guards and literal-credential rejection.
+  missing/empty/mismatched offset guards, malformed status rejection and
+  literal-credential rejection. Dashboard removal and Kind Secret changes are
+  rejected; ownership checks include Argo destination namespaces.
 
 ## Requests and capacity
 
@@ -141,3 +144,21 @@ and [persistent resource budgets](aks-resource-budgets.md). Release one change a
 a time; verify login, checkout, three outbox flows, dashboards and GitOps, then
 qualify startup and at least 30 minutes of load without OOM, eviction or memory
 Pending. These live checks remain future release gates.
+
+## Technical review before push
+
+The review additionally checked the exact Kafka 3.9 and Debezium 2.7.0 source
+versions used by the Connect image:
+[Kafka SourceConnector](https://github.com/apache/kafka/blob/3.9.0/connect/api/src/main/java/org/apache/kafka/connect/source/SourceConnector.java)
+and [Debezium BaseSourceConnector](https://github.com/debezium/debezium/blob/v2.7.0.Final/debezium-core/src/main/java/io/debezium/connector/common/BaseSourceConnector.java). Offset import must still be qualified against
+the actual image during the maintenance window; the simulator exercises the
+procedure and safeguards, not a running Debezium task.
+
+Review fixes: the runbook now requires the GitOps pause and source pinning before
+merging to `main`, with staged values/CR changes instead of an early whole-overlay
+sync. Pre-start rollback explicitly retains stopped, paused connector CRs. The
+REST helper rejects missing task lists, empty partition/offset objects and
+malformed credential references; YAML parse errors are redacted. It ignores proxy
+environment variables for loopback operations. Offline verification
+compares complete Kind Secret data, checks the complete baseline dashboard set,
+and resolves default destination namespaces for ownership.

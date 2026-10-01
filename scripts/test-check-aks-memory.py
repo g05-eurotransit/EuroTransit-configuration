@@ -47,5 +47,36 @@ class SchedulingRequests(unittest.TestCase):
             audit.audit({'first': [doc], 'second': [doc]}, False, 3)
 
 
+    def test_kind_secret_changes_are_rejected(self):
+        def render(value):
+            return {'owner': [{'apiVersion': 'v1', 'kind': 'Secret',
+                              'metadata': {'name': 'test'}, 'data': {'key': value}}]}
+        audit.check_kind_unchanged(render('a'), render('a'))
+        with self.assertRaisesRegex(AssertionError, 'Kind render changed'):
+            audit.check_kind_unchanged(render('b'), render('a'))
+
+    def test_deleted_or_changed_dashboard_is_rejected(self):
+        def dashboard(value):
+            return {'kind': 'ConfigMap', 'metadata': {'name': 'test', 'namespace': 'monitoring',
+                    'labels': {'grafana_dashboard': '1'}}, 'data': {'test.json': value}}
+        audit.check_dashboard_preservation([dashboard('a')], [dashboard('a')])
+        with self.assertRaisesRegex(AssertionError, 'set changed'):
+            audit.check_dashboard_preservation([], [dashboard('a')])
+        with self.assertRaisesRegex(AssertionError, 'content changed'):
+            audit.check_dashboard_preservation([dashboard('b')], [dashboard('a')])
+
+    def test_default_application_namespace_counts_for_ownership(self):
+        def cm(namespace=None):
+            doc = {'apiVersion': 'v1', 'kind': 'ConfigMap', 'metadata': {'name': 'test'}}
+            if namespace:
+                doc['metadata']['namespace'] = namespace
+            return doc
+        app = {'kind': 'Application', 'metadata': {'name': 'first'},
+               'spec': {'destination': {'namespace': 'monitoring'}}}
+        with self.assertRaisesRegex(AssertionError, 'duplicate ownership'):
+            audit.audit({'argocd-applications': [app], 'first': [cm()],
+                         'second': [cm('monitoring')]}, False, 3)
+
+
 if __name__ == '__main__':
     unittest.main()

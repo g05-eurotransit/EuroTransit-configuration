@@ -7,7 +7,6 @@ renders are identical. --inventory-pods/--inventory-nodes accept saved read-only
 snapshots; they never query a cluster and are not a scheduling guarantee.
 """
 import argparse
-import copy
 import json
 import math
 import os
@@ -98,15 +97,19 @@ def render(root, env, charts):
     return output
 
 
-def stable(value):
-    value = copy.deepcopy(value)
-    for docs in value.values():
-        for doc in docs:
-            # Helm creates random bootstrap credentials when none are configured.
-            if doc.get('kind') == 'Secret':
-                doc.pop('data', None)
-                doc.pop('stringData', None)
-    return value
+def check_kind_unchanged(current, baseline):
+    # The pinned Kind profile renders no random Secret payloads. Compare all data.
+    assert current == baseline, 'Kind render changed from baseline'
+
+
+def check_dashboard_preservation(current, baseline):
+    def dashboard_map(docs):
+        return {(d['metadata'].get('namespace', ''), d['metadata']['name']): d.get('data', {})
+                for d in docs if d.get('kind') == 'ConfigMap'
+                and d['metadata'].get('labels', {}).get('grafana_dashboard') == '1'}
+    before, after = dashboard_map(baseline), dashboard_map(current)
+    assert after.keys() == before.keys(), 'dashboard ConfigMap set changed from baseline'
+    assert after == before, 'dashboard content changed from baseline'
 
 
 def quantity(value, cpu=False):
@@ -136,11 +139,25 @@ def effective(pod):
 
 def audit(rendered, strict, nodes):
     seen, rows, errors = {}, [], []
+    namespaces = {'argocd': 'argocd', 'sealed-secrets': 'sealed-secrets'}
+    namespaces.update({d['metadata']['name']: d['spec']['destination']['namespace']
+                       for d in rendered.get('argocd-applications', [])
+                       if d.get('kind') == 'Application'})
+    cluster_kinds = {'Namespace', 'CustomResourceDefinition', 'ClusterRole',
+                     'ClusterRoleBinding', 'APIService', 'IngressClass', 'PriorityClass',
+                     'MutatingWebhookConfiguration', 'ValidatingWebhookConfiguration',
+                     'PodSecurityPolicy', 'ClusterIssuer'}
+    cluster_crs = {(d['spec']['group'], d['spec']['names']['kind'])
+                   for docs in rendered.values() for d in docs
+                   if d.get('kind') == 'CustomResourceDefinition'
+                   and d['spec']['scope'] == 'Cluster'}
     for owner, docs in rendered.items():
         for d in docs:
             kind, m, s = d.get('kind'), d.get('metadata', {}), d.get('spec', {})
-            ns = m.get('namespace', '')
-            key = (d.get('apiVersion', '').split('/')[0], kind, ns, m.get('name'))
+            api = d.get('apiVersion', '')
+            group = api.split('/')[0] if '/' in api else ''
+            ns = '' if kind in cluster_kinds or (group, kind) in cluster_crs else m.get('namespace', namespaces.get(owner, ''))
+            key = (group, kind, ns, m.get('name'))
             if key in seen:
                 errors.append(f'duplicate ownership {key}: {seen[key]}, {owner}')
             seen[key] = owner
@@ -267,8 +284,7 @@ def topology(rendered, baseline=None):
         for service in ['orders', 'inventory', 'payments']:
             assert secret_refs[service.upper() + '_DB_PASSWORD'] == {'name': service + '-db-credentials', 'key': 'password'}
         old_cms = {d['metadata']['name']: d for d in old if d.get('kind') == 'ConfigMap'}
-        for name in dashboards:
-            assert cms[name]['data'] == old_cms[name]['data'], 'dashboard content changed: ' + name
+        check_dashboard_preservation(all_docs, old)
         for d in datasource:
             assert d['data'] == old_cms[d['metadata']['name']]['data'], 'datasource content changed'
         rules = lambda docs: {d['metadata']['name']: d['spec'] for d in docs if d.get('kind') == 'PrometheusRule'}
@@ -279,6 +295,7 @@ def topology(rendered, baseline=None):
         assert current[:-1] == previous, 'chart default API server filter changed'
         drop = current[-1]
         assert drop['action'] == 'drop' and drop['sourceLabels'] == ['__name__']
+        assert drop['regex'] == 'apiserver_(request_duration_seconds|request_body_size_bytes|request_sizes|response_sizes|response_size_bytes)_(bucket|sum|count)', 'unexpected API server drop families'
         expression = re.compile(drop['regex'])
         assert expression.fullmatch('apiserver_request_duration_seconds_bucket')
         for name in ['apiserver_request_sli_duration_seconds_bucket', 'apiserver_request_total', 'apiserver_client_certificate_expiration_seconds_bucket', 'container_memory_working_set_bytes', 'node_memory_MemAvailable_bytes']:
@@ -308,6 +325,10 @@ def main():
     p.add_argument('--inventory-pods', type=Path)
     p.add_argument('--inventory-nodes', type=Path)
     args = p.parse_args()
+    if args.nodes < 1:
+        p.error('--nodes must be positive')
+    if args.inventory_nodes and len(json.loads(args.inventory_nodes.read_text())['items']) != args.nodes:
+        p.error('--nodes must match the saved node inventory')
     charts = chart_index(args.chart_cache)
     args.output.mkdir(parents=True, exist_ok=True, mode=0o700)
     args.output.chmod(0o700)
@@ -317,9 +338,9 @@ def main():
         for owner, docs in manifests.items():
             (args.output / (env + '-' + owner + '.yaml')).write_text(yaml.dump_all(docs, sort_keys=False, Dumper=DUMPER))
     if args.baseline_root:
-        before = stable(render(args.baseline_root, 'kind', charts))
-        assert stable(rendered['kind']) == before, 'Kind render changed from baseline'
-        print('Kind: pinned Helm and Kustomize renders identical to baseline (random Helm Secret payloads excluded)')
+        before = render(args.baseline_root, 'kind', charts)
+        check_kind_unchanged(rendered['kind'], before)
+        print('Kind: all pinned Helm and Kustomize fields, including Secret data, identical to baseline')
     baseline = render(args.baseline_root, 'aks', charts) if args.baseline_root else None
     topology(rendered['aks'], baseline)
     if args.budgets and baseline:
