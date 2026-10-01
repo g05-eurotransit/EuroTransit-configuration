@@ -46,7 +46,8 @@ helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
 helm upgrade --install argocd argo/argo-cd --version 10.2.2 \
   --namespace argocd --create-namespace \
-  -f platform/argocd/values.yaml
+  -f platform/argocd/values.yaml \
+  -f platform/argocd/values-aks.yaml
 kubectl -n argocd rollout status deployment/argocd-server --timeout=5m
 ```
 

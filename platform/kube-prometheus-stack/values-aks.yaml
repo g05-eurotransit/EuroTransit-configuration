@@ -1,11 +1,183 @@
+# AKS-only: keep the chart-generated datasources and dashboard ConfigMaps.
+# Mount complete directories so kubelet updates remain visible to the file provider.
+# Dashboard mounts below match kube-prometheus-stack 75.15.1; verify on upgrades.
 prometheus:
   prometheusSpec:
     retention: 2d
     resources:
-      requests: { cpu: 100m, memory: 256Mi }
-      limits: { cpu: 500m, memory: 768Mi }
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 768Mi
 alertmanager:
   alertmanagerSpec:
     resources:
-      requests: { cpu: 25m, memory: 64Mi }
-      limits: { cpu: 150m, memory: 128Mi }
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 150m
+        memory: 128Mi
+grafana:
+  sidecar:
+    dashboards:
+      enabled: false
+    datasources:
+      enabled: false
+  forceDeployDatasources: true
+  extraConfigmapMounts:
+  - name: datasources
+    configMap: kube-prometheus-stack-grafana-datasource
+    mountPath: /etc/grafana/provisioning/datasources
+    readOnly: true
+  - name: dashboard-providers
+    configMap: kube-prometheus-stack-grafana-dashboard-providers
+    mountPath: /etc/grafana/provisioning/dashboards
+    readOnly: true
+  - name: dashboard-00
+    configMap: kube-prometheus-stack-alertmanager-overview
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-alertmanager-overview
+    readOnly: true
+  - name: dashboard-01
+    configMap: kube-prometheus-stack-apiserver
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-apiserver
+    readOnly: true
+  - name: dashboard-02
+    configMap: kube-prometheus-stack-cluster-total
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-cluster-total
+    readOnly: true
+  - name: dashboard-03
+    configMap: kube-prometheus-stack-controller-manager
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-controller-manager
+    readOnly: true
+  - name: dashboard-04
+    configMap: kube-prometheus-stack-etcd
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-etcd
+    readOnly: true
+  - name: dashboard-05
+    configMap: kube-prometheus-stack-grafana-overview
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-grafana-overview
+    readOnly: true
+  - name: dashboard-06
+    configMap: kube-prometheus-stack-k8s-coredns
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-k8s-coredns
+    readOnly: true
+  - name: dashboard-07
+    configMap: kube-prometheus-stack-k8s-resources-cluster
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-k8s-resources-cluster
+    readOnly: true
+  - name: dashboard-08
+    configMap: kube-prometheus-stack-k8s-resources-multicluster
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-k8s-resources-multicluster
+    readOnly: true
+  - name: dashboard-09
+    configMap: kube-prometheus-stack-k8s-resources-namespace
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-k8s-resources-namespace
+    readOnly: true
+  - name: dashboard-10
+    configMap: kube-prometheus-stack-k8s-resources-node
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-k8s-resources-node
+    readOnly: true
+  - name: dashboard-11
+    configMap: kube-prometheus-stack-k8s-resources-pod
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-k8s-resources-pod
+    readOnly: true
+  - name: dashboard-12
+    configMap: kube-prometheus-stack-k8s-resources-workload
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-k8s-resources-workload
+    readOnly: true
+  - name: dashboard-13
+    configMap: kube-prometheus-stack-k8s-resources-workloads-namespace
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-k8s-resources-workloads-namespace
+    readOnly: true
+  - name: dashboard-14
+    configMap: kube-prometheus-stack-kubelet
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-kubelet
+    readOnly: true
+  - name: dashboard-15
+    configMap: kube-prometheus-stack-namespace-by-pod
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-namespace-by-pod
+    readOnly: true
+  - name: dashboard-16
+    configMap: kube-prometheus-stack-namespace-by-workload
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-namespace-by-workload
+    readOnly: true
+  - name: dashboard-17
+    configMap: kube-prometheus-stack-node-cluster-rsrc-use
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-node-cluster-rsrc-use
+    readOnly: true
+  - name: dashboard-18
+    configMap: kube-prometheus-stack-node-rsrc-use
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-node-rsrc-use
+    readOnly: true
+  - name: dashboard-19
+    configMap: kube-prometheus-stack-nodes-aix
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-nodes-aix
+    readOnly: true
+  - name: dashboard-20
+    configMap: kube-prometheus-stack-nodes-darwin
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-nodes-darwin
+    readOnly: true
+  - name: dashboard-21
+    configMap: kube-prometheus-stack-nodes
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-nodes
+    readOnly: true
+  - name: dashboard-22
+    configMap: kube-prometheus-stack-persistentvolumesusage
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-persistentvolumesusage
+    readOnly: true
+  - name: dashboard-23
+    configMap: kube-prometheus-stack-pod-total
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-pod-total
+    readOnly: true
+  - name: dashboard-24
+    configMap: kube-prometheus-stack-prometheus
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-prometheus
+    readOnly: true
+  - name: dashboard-25
+    configMap: kube-prometheus-stack-proxy
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-proxy
+    readOnly: true
+  - name: dashboard-26
+    configMap: kube-prometheus-stack-scheduler
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-scheduler
+    readOnly: true
+  - name: dashboard-27
+    configMap: kube-prometheus-stack-workload-total
+    mountPath: /var/lib/grafana/dashboards/kube-prometheus-stack-workload-total
+    readOnly: true
+  - name: dashboard-28
+    configMap: eurotransit-dashboard-checkout-slo
+    mountPath: /var/lib/grafana/dashboards/eurotransit-dashboard-checkout-slo
+    readOnly: true
+  - name: dashboard-29
+    configMap: eurotransit-dashboard-infra-use
+    mountPath: /var/lib/grafana/dashboards/eurotransit-dashboard-infra-use
+    readOnly: true
+  - name: dashboard-30
+    configMap: eurotransit-dashboard-red-services
+    mountPath: /var/lib/grafana/dashboards/eurotransit-dashboard-red-services
+    readOnly: true
+  extraObjects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: kube-prometheus-stack-grafana-dashboard-providers
+      namespace: monitoring
+    data:
+      dashboardproviders.yaml: "apiVersion: 1\nproviders:\n- name: default\n  orgId: 1\n  folder: ''\n  type: file\n  disableDeletion: false\n\
+        \  editable: true\n  updateIntervalSeconds: 30\n  options:\n    path: /var/lib/grafana/dashboards\n    foldersFromFilesStructure: false\n"
+kubeApiServer:
+  serviceMonitor:
+    metricRelabelings:
+    - action: drop
+      regex: (etcd_request|apiserver_request_slo|apiserver_request_sli|apiserver_request)_duration_seconds_bucket;(0\.15|0\.2|0\.3|0\.35|0\.4|0\.45|0\.6|0\.7|0\.8|0\.9|1\.25|1\.5|1\.75|2|3|3\.5|4|4\.5|6|7|8|9|15|20|40|45|50)(\.0)?
+      sourceLabels:
+      - __name__
+      - le
+    - action: drop
+      sourceLabels:
+      - __name__
+      regex: apiserver_(request_duration_seconds|request_body_size_bytes|request_sizes|response_sizes|response_size_bytes)_(bucket|sum|count)

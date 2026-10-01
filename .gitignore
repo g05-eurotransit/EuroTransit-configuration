@@ -36,3 +36,6 @@ kubeconfig
 *.out
 *.log
 
+
+# Isolated implementation checkouts
+.worktrees/

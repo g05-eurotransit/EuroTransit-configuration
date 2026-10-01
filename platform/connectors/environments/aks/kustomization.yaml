@@ -5,12 +5,19 @@ resources:
 configurations:
   - kustomizeconfig.yaml
 patches:
+  - path: shared-worker-patch.yaml
+  - path: connector-worker-patch.yaml
+    target:
+      group: kafka.strimzi.io
+      version: v1beta2
+      kind: KafkaConnector
+      labelSelector: app.kubernetes.io/part-of=eurotransit-marketplace
   - path: connect-patch.yaml
     target:
       group: kafka.strimzi.io
       version: v1beta2
       kind: KafkaConnect
-      labelSelector: app.kubernetes.io/part-of=eurotransit-marketplace
+      name: orders-outbox-connect
 images:
   - name: eurotransit/debezium-connect
     newName: eurotransitregistry.azurecr.io/eurotransit/debezium-connect
