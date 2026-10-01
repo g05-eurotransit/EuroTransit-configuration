@@ -40,7 +40,10 @@ readiness and authentication. No application identity provider is changed.
 
 The pinned kube-prometheus-stack 75.15.1 chart still generates its datasources and
 28 standard dashboard ConfigMaps. AKS disables both sidecars and mounts those
-ConfigMaps plus the three EuroTransit dashboard ConfigMaps as complete directories.
+ConfigMaps plus the three EuroTransit and nine Strimzi dashboard ConfigMaps as
+complete directories: 40 dashboards in total. The Strimzi 0.46.1 chart continues
+to own its monitoring-namespace dashboard ConfigMaps; include its render in the
+mount-set validation.
 Datasource names, URLs, default selection, settings and UIDs (`prometheus`,
 `alertmanager`) come from the same chart template. A Helm-owned provider ConfigMap
 is mounted at `/etc/grafana/provisioning/dashboards`; its file provider scans
@@ -52,7 +55,8 @@ Validate the render's dashboard ConfigMap set against the mounted set on every
 chart upgrade. A changed dashboard name needs a corresponding mount before the
 upgrade. Grafana runs exactly one container. All dashboard ConfigMaps have one
 GitOps owner: the chart owns standard dashboards and provisioning; the separate
-`eurotransit-monitoring-config` Application owns the custom dashboards and rules.
+`eurotransit-monitoring-config` Application owns the custom dashboards and rules;
+the Strimzi Application owns the nine Strimzi dashboards.
 
 After rollout, compare dashboard JSON/UIDs and datasource definitions with the
 previous render, verify the live dashboard list, and perform a reversible custom

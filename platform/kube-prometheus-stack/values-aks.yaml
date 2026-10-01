@@ -1,6 +1,6 @@
 # AKS-only: keep the chart-generated datasources and dashboard ConfigMaps.
 # Mount complete directories so kubelet updates remain visible to the file provider.
-# Dashboard mounts below match kube-prometheus-stack 75.15.1; verify on upgrades.
+# Dashboard mounts match kube-prometheus-stack 75.15.1 and Strimzi 0.46.1; verify on upgrades.
 prometheus:
   prometheusSpec:
     retention: 2d
@@ -159,6 +159,42 @@ grafana:
   - name: dashboard-30
     configMap: eurotransit-dashboard-red-services
     mountPath: /var/lib/grafana/dashboards/eurotransit-dashboard-red-services
+    readOnly: true
+  - name: dashboard-32
+    configMap: strimzi-kafka-oauth
+    mountPath: /var/lib/grafana/dashboards/strimzi-kafka-oauth
+    readOnly: true
+  - name: dashboard-33
+    configMap: strimzi-kraft
+    mountPath: /var/lib/grafana/dashboards/strimzi-kraft
+    readOnly: true
+  - name: dashboard-34
+    configMap: strimzi-kafka-connect
+    mountPath: /var/lib/grafana/dashboards/strimzi-kafka-connect
+    readOnly: true
+  - name: dashboard-35
+    configMap: strimzi-kafka-bridge
+    mountPath: /var/lib/grafana/dashboards/strimzi-kafka-bridge
+    readOnly: true
+  - name: dashboard-36
+    configMap: strimzi-operators
+    mountPath: /var/lib/grafana/dashboards/strimzi-operators
+    readOnly: true
+  - name: dashboard-37
+    configMap: strimzi-kafka-mirror-maker-2
+    mountPath: /var/lib/grafana/dashboards/strimzi-kafka-mirror-maker-2
+    readOnly: true
+  - name: dashboard-38
+    configMap: strimzi-kafka-exporter
+    mountPath: /var/lib/grafana/dashboards/strimzi-kafka-exporter
+    readOnly: true
+  - name: dashboard-39
+    configMap: strimzi-kafka
+    mountPath: /var/lib/grafana/dashboards/strimzi-kafka
+    readOnly: true
+  - name: dashboard-40
+    configMap: strimzi-cruise-control
+    mountPath: /var/lib/grafana/dashboards/strimzi-cruise-control
     readOnly: true
   extraObjects:
   - apiVersion: v1
