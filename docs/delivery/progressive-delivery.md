@@ -43,8 +43,12 @@ SEALED_SECRETS_CERT=/tmp/eurotransit-sealed-secrets.pem \
   scripts/generate-aks-sealed-secrets.sh
 ```
 
-This creates a confidential Keycloak client named `eurotransit-load-test`.
-It has a service account with only the `customer` role; direct-access/password
+The sealing script supplies the client secret in both namespaces.
+The Keycloak bootstrap Job creates or reconciles the confidential client named
+`eurotransit-load-test`, including in an already imported realm. When its Pod
+template changes, recreate only that Job after merge using the
+[AKS recovery procedure](../platform/aks-keycloak-cert-manager-recovery.md).
+It has a service account with the `customer` role; direct-access/password
 grants are disabled.  It is not a demo-user credential and must never use
 Alice’s password.
 
