@@ -31,8 +31,10 @@ Both use the built-in `default` project because the root creates the
 
 The Sealed Secrets controller itself is cluster-admin bootstrap infrastructure,
 not an Argo Application. `eurotransit-secrets` owns only cluster-specific
-application SealedSecrets; the private repository credential remains a manual,
-uncommitted bootstrap Secret. The child `Application` health customization in `platform/argocd/values.yaml`
+application SealedSecrets; the private repository credential is versioned as
+ciphertext under `platform/argocd/bootstrap/aks` and applied manually before
+root creation, outside the Argo-managed resources. The child `Application`
+health customization in `platform/argocd/values.yaml`
 makes the root wait for each child to become healthy before advancing to a
 later wave. The `KafkaConnect` and `KafkaConnector` customizations propagate
 connector failures through the child and root Application health.
@@ -77,10 +79,15 @@ kubectl -n argocd label secret eurotransit-configuration-repo \
 unset ARGO_REPO_USERNAME ARGO_REPO_TOKEN
 ```
 
-For AKS, provision the same Argo repository Secret through the approved secret
-bootstrap mechanism. The template in `platform/argocd/templates` can be sealed
-only after a Sealed Secrets controller and its cluster-specific certificate
-exist. Kind and AKS encrypted payloads are not interchangeable. No plaintext
+For AKS, manually apply the committed
+`platform/argocd/bootstrap/aks/eurotransit-configuration-repo.sealedsecret.yaml`
+after the Sealed Secrets controller and required original keys are available.
+A new PC can clone the repository with its own GitHub access and reuse this
+ciphertext on the same cluster. For a new controller without the original keys,
+or an expired/revoked token, seal a replacement with the target certificate
+and apply it manually; commit only the replacement ciphertext. The template
+in `platform/argocd/templates` documents the expected structure. Kind and AKS
+encrypted payloads are not interchangeable. No plaintext
 token belongs in Git, shell history, CI logs, or a values file.
 The exact AKS ordering, including the controller and bootstrap runtime Secrets,
 is documented in [AKS production bootstrap](aks-production-setup.md).

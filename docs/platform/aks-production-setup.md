@@ -1,6 +1,6 @@
 # EuroTransit AKS production bootstrap
 
-Sealed Secrets controller/key lifecycle is cluster-admin-owned and never Argo-owned. Application ciphertext under `platform/environments/aks/secrets` is Argo wave 5; the uncommitted Argo repository credential is the sole manually applied SealedSecret.
+Sealed Secrets controller/key lifecycle is cluster-admin-owned and never Argo-owned. Application ciphertext under `platform/environments/aks/secrets` is Argo wave 5; the versioned Argo repository credential under `platform/argocd/bootstrap/aks` is the sole manually applied SealedSecret.
 
 ## 1. Preconditions
 
@@ -131,17 +131,25 @@ ancestor of `origin/main`, rather than merely displaying its latest commit.
 
 ## 4. Bootstrap Argo
 
-Only repository access is manually sealed and applied; it is not committed or part of `eurotransit-secrets`.
+The repository credential is versioned as ciphertext at
+`platform/argocd/bootstrap/aks/eurotransit-configuration-repo.sealedsecret.yaml`.
+It is applied manually before root creation and is outside `eurotransit-secrets`
+and all Argo kustomizations. Clone the repository using your own GitHub access;
+Argo's token is used only after the bootstrap Secret exists.
+
+On another PC with the same cluster, reuse the committed ciphertext. On a new
+cluster, restore the required original controller keys from the encrypted
+backup first. If those keys are unavailable or the GitHub token has expired or
+been revoked, generate a replacement as described below. Ciphertext in Git is
+not a backup of controller private keys.
 
 ```bash
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-read -rp 'GitHub username: ' ARGO_REPO_USERNAME
-read -rsp 'Read-only repository token: ' ARGO_REPO_TOKEN; echo
-printf 'type=git\nurl=https://github.com/g05-eurotransit/EuroTransit-configuration.git\nusername=%s\npassword=%s\n' "$ARGO_REPO_USERNAME" "$ARGO_REPO_TOKEN" \
- | kubectl -n argocd create secret generic eurotransit-configuration-repo --from-env-file=/dev/stdin --dry-run=client -o yaml \
- | kubectl label --local -f - argocd.argoproj.io/secret-type=repository -o yaml \
- | kubeseal --cert /tmp/eurotransit-sealed-secrets.pem --format yaml | kubectl apply -f -
-unset ARGO_REPO_USERNAME ARGO_REPO_TOKEN
+kubeseal --controller-name sealed-secrets-controller --controller-namespace sealed-secrets \
+  --validate < platform/argocd/bootstrap/aks/eurotransit-configuration-repo.sealedsecret.yaml
+kubectl apply -f platform/argocd/bootstrap/aks/eurotransit-configuration-repo.sealedsecret.yaml
+kubectl -n argocd wait --for=condition=Synced \
+  sealedsecret/eurotransit-configuration-repo --timeout=60s
 helm repo add argo https://argoproj.github.io/argo-helm && helm repo update
 helm upgrade --install argocd argo/argo-cd --version 10.2.2 -n argocd --create-namespace -f platform/argocd/values.yaml
 kubectl -n argocd rollout status deploy/argocd-server --timeout=5m
@@ -171,6 +179,36 @@ else
   echo 'confirmed: sealed-secrets Application is absent'
 fi
 ```
+
+### Repository token rotation or sealing for a new controller
+
+Use a dedicated fine-grained GitHub token with read-only Contents access only
+to `EuroTransit-configuration`; enter the personal username that owns the token.
+Fetch the target controller certificate after the key-backup gate above. With
+shell tracing disabled, regenerate only ciphertext, validate it, then apply it
+manually. Review and commit the replacement file after access is restored;
+Argo does not apply repository credential rotations from Git.
+
+```bash
+set -euo pipefail
+read -rp 'GitHub username: ' ARGO_REPO_USERNAME
+read -rsp 'Read-only repository token: ' ARGO_REPO_TOKEN; echo
+printf 'type=git\nurl=https://github.com/g05-eurotransit/EuroTransit-configuration.git\nusername=%s\npassword=%s\n' "$ARGO_REPO_USERNAME" "$ARGO_REPO_TOKEN" \
+ | kubectl -n argocd create secret generic eurotransit-configuration-repo --from-env-file=/dev/stdin --dry-run=client -o yaml \
+ | kubectl label --local -f - argocd.argoproj.io/secret-type=repository -o yaml \
+ | kubeseal --cert /tmp/eurotransit-sealed-secrets.pem --scope strict --format yaml \
+ > platform/argocd/bootstrap/aks/eurotransit-configuration-repo.sealedsecret.yaml
+unset ARGO_REPO_USERNAME ARGO_REPO_TOKEN
+kubeseal --controller-name sealed-secrets-controller --controller-namespace sealed-secrets \
+  --validate < platform/argocd/bootstrap/aks/eurotransit-configuration-repo.sealedsecret.yaml
+kubectl apply -f platform/argocd/bootstrap/aks/eurotransit-configuration-repo.sealedsecret.yaml
+kubectl -n argocd wait --for=condition=Synced \
+  sealedsecret/eurotransit-configuration-repo --timeout=60s
+argocd repo list
+# Require Successful, then review and commit only the replacement ciphertext.
+```
+
+Never commit the token, the decrypted Secret, or controller private keys.
 
 ## 5. Acceptance and operations
 
