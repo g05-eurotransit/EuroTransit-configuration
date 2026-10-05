@@ -66,6 +66,25 @@ filter. `diff` exits with status 1 for this expected change.
 
 ## Publication and rollout
 
+Before rerunning the bootstrap, verify that PostgreSQL is ready:
+
+```bash
+kubectl -n eurotransit get cluster eurotransit-postgres
+kubectl -n eurotransit get pvc -l cnpg.io/cluster=eurotransit-postgres
+```
+
+Keycloak can answer HTTP discovery requests while authentication fails because
+its database is unavailable. If CloudNativePG reports `Not enough disk space`,
+recover the database first by merging the AKS storage increase to `10Gi` and
+syncing `eurotransit-platform-runtime`. The AKS storage class must allow volume
+expansion. Wait for the PVC capacity to reach the requested size and the
+PostgreSQL Cluster to become Ready, then recreate the failed bootstrap Job as
+described below. [CloudNativePG 1.26](https://cloudnative-pg.io/docs/1.26/storage/#volume-expansion)
+applies the Cluster's requested size to its PVCs when expansion is supported.
+Keep the expanded size in Git: volumes cannot be shrunk by
+reverting it. After recovery, inspect disk usage and WAL/replication-slot
+retention to establish why the volume filled.
+
 Push and merge are manual, with human review before merging. Do not apply the
 new Job directly or recreate the realm. After the reviewed commit is merged
 into `main`, an operator with the AKS kubectl context and Argo CLI session runs:
