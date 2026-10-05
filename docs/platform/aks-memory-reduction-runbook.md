@@ -67,6 +67,21 @@ policies before the root policy. Confirm that `main` still matches the reviewed
 release before returning any source to `main`. The root must remain paused until
 all stages, including the offset migration, are complete.
 
+## Kafka storage gate before any broker rollout
+
+Inspect every live KafkaNodePool storage volume before changing broker resources.
+The current AKS overlay inherits `ephemeral` storage from the shared base. A
+request-only resource edit can recreate the broker Pod and erase its `emptyDir`,
+including Kafka records and Connect config/offset/status state. Existing topic
+names being recreated is not proof that their contents survived.
+
+**Do not roll an ephemeral broker as part of this release.** Stop that stage and
+prepare a separate durable-storage migration or a verified complete Kafka backup
+and restore. Preserve Kafka metadata, application records, consumer offsets and
+all three workers' internal topic contents. A PostgreSQL/CNPG snapshot does not
+back up Kafka. Export fresh stopped-connector offsets again before any future
+Kafka maintenance; pre-migration exports become stale after processing resumes.
+
 ## Unused components
 
 Before disabling Dex or ApplicationSet and removing Kafka User Operator, inspect
