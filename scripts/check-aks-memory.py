@@ -137,6 +137,16 @@ def effective(pod):
     return max(app + sidecars, init_peak) + quantity(pod.get('overhead', {}).get('memory', 0))
 
 
+def eraser_requests(pods):
+    erasers = [x for x in pods if 'eraser-aks-' in x['metadata']['name']]
+    return {
+        'eraser_request_per_node_mib': max((effective(x['spec']) for x in erasers), default=None),
+        'observed_active_eraser_requests_mib': sum(
+            effective(x['spec']) for x in erasers
+            if x.get('status', {}).get('phase') not in ['Succeeded', 'Failed']),
+    }
+
+
 def audit(rendered, strict, nodes):
     seen, rows, errors = {}, [], []
     namespaces = {'argocd': 'argocd', 'sealed-secrets': 'sealed-secrets'}
@@ -352,9 +362,7 @@ def main():
         managed = [x for x in pods if x['metadata']['namespace'] in ['kube-system', 'gatekeeper-system'] and 'eraser-aks-' not in x['metadata']['name'] and x.get('status', {}).get('phase') not in ['Succeeded', 'Failed']]
         report['observed_managed_requests_mib'] = sum(effective(x['spec']) for x in managed)
         report['observed_managed_by_node_mib'] = {node: sum(effective(x['spec']) for x in managed if x['spec'].get('nodeName') == node) for node in {x['spec'].get('nodeName') for x in managed}}
-        erasers = [x for x in pods if 'eraser-aks-' in x['metadata']['name']]
-        report['eraser_request_per_node_mib'] = max((effective(x['spec']) for x in erasers), default=0)
-        report['observed_active_eraser_requests_mib'] = sum(effective(x['spec']) for x in erasers if x.get('status', {}).get('phase') not in ['Succeeded', 'Failed'])
+        report.update(eraser_requests(pods))
     if args.inventory_nodes:
         nodes = json.loads(args.inventory_nodes.read_text())['items']
         report['observed_allocatable_by_node_mib'] = {x['metadata']['name']: quantity(x['status']['allocatable']['memory']) for x in nodes}
@@ -363,7 +371,10 @@ def main():
             report['estimated_steady_headroom_mib'] = report['observed_allocatable_mib'] - report['observed_managed_requests_mib'] - report['steady_project_requests_mib']
             report['estimated_headroom_all_temporary_and_one_rollout_mib'] = report['estimated_steady_headroom_mib'] - report['temporary_requests_mib'] - report['largest_single_deployment_surge_mib']
             report['estimated_headroom_observed_active_erasers_mib'] = report['estimated_steady_headroom_mib'] - report['observed_active_eraser_requests_mib']
-            report['estimated_headroom_three_erasers_mib'] = report['estimated_steady_headroom_mib'] - args.nodes * report['eraser_request_per_node_mib']
+            eraser_request = report['eraser_request_per_node_mib']
+            report['estimated_headroom_three_erasers_mib'] = (
+                report['estimated_steady_headroom_mib'] - args.nodes * eraser_request
+                if eraser_request is not None else None)
     (args.output / 'budget.json').write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps({k: v for k, v in report.items() if k not in ['rows', 'observed_managed_by_node_mib', 'observed_allocatable_by_node_mib']}, indent=2))
     print('Render and checks passed; budget uses owner CR resources, config reloaders and effective init requests. Operator-created bootstrap/realm-import pods require live inventory validation.')

@@ -35,6 +35,24 @@ class SchedulingRequests(unittest.TestCase):
         self.assertEqual(audit.quantity('1024Ki'), 1)
         self.assertEqual(audit.quantity('500m', cpu=True), 0.5)
 
+    def test_absent_eraser_sample_leaves_future_request_unknown(self):
+        unrelated = {'metadata': {'name': 'eraser-controller-manager-test'},
+                     'spec': {'containers': [container('64Mi')]},
+                     'status': {'phase': 'Running'}}
+        result = audit.eraser_requests([unrelated])
+        self.assertIsNone(result['eraser_request_per_node_mib'])
+        self.assertEqual(result['observed_active_eraser_requests_mib'], 0)
+
+    def test_completed_eraser_sample_sizes_future_scan_without_active_cost(self):
+        scan = {'metadata': {'name': 'eraser-aks-test'},
+                'spec': {'containers': [container('550Mi')]},
+                'status': {'phase': 'Succeeded'}}
+        result = audit.eraser_requests([scan])
+        self.assertEqual(result['eraser_request_per_node_mib'], 550)
+        self.assertEqual(result['observed_active_eraser_requests_mib'], 0)
+        scan['status']['phase'] = 'Running'
+        self.assertEqual(audit.eraser_requests([scan])['observed_active_eraser_requests_mib'], 550)
+
     def test_invalid_budget_is_rejected(self):
         pod = {'containers': [container('2Gi')]}
         render = {'test': [{'apiVersion': 'apps/v1', 'kind': 'Deployment', 'metadata': {'name': 'test'}, 'spec': {'template': {'spec': pod}}}]}
