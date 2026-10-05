@@ -108,7 +108,10 @@ the Strimzi Application owns the nine Strimzi dashboards.
 After rollout, compare dashboard JSON/UIDs and datasource definitions with the
 previous render, verify the live dashboard list, and perform a reversible custom
 dashboard update to confirm polling sees the projected update. Preserve existing
-admin Secret references. Datasources are provisioned at startup: if their values
+admin Secret references. The 31 dashboards with explicit manifest UIDs retain
+those UIDs; the nine Strimzi dashboards have no explicit UID, so Grafana may
+regenerate their database IDs after a restart of its ephemeral storage, as before.
+Compare all 40 titles and dashboard JSON, and the 31 explicit UIDs. Datasources are provisioned at startup: if their values
 change later, roll Grafana or use the authorized Grafana provisioning reload API.
 
 Rollback: restore the prior AKS Grafana values, roll Grafana, verify both sidecars

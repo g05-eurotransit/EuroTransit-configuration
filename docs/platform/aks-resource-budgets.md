@@ -9,7 +9,7 @@ separate changes.
 
 | Component | Memory request / limit (MiB) | Persistent owner |
 | --- | --- | --- |
-| Argo application-controller | 384 / 768 | `platform/argocd/values-aks.yaml` |
+| Argo application-controller | 384 / 1024 | `platform/argocd/values-aks.yaml` |
 | Argo repo-server | 128 / 384 | same Helm overlay |
 | Argo server | 48 / 192 | same Helm overlay |
 | Argo Redis | 16 / 64 | same Helm overlay |
@@ -37,6 +37,11 @@ separate changes.
 | Strimzi Cluster Operator | 256 / 512 | existing `platform/strimzi/values-aks.yaml` |
 | Traefik | 48 / 256 | `platform/traefik/values-aks.yaml` |
 | Argo Rollouts controller | 64 / 192 | existing Helm values in platform Application |
+
+The application-controller limit was raised from 768Mi to 1024Mi after
+release qualification found an OOM during reconciliation. Its 384Mi request
+and CPU budget stay unchanged, so the scheduling-request totals below do not
+change. Requalify startup and the load window after any such correction.
 
 The local Keycloak Operator overlay vendors the exact upstream 26.7.0 resources,
 with SHA-256 checksums. It changes only the Deployment memory resources. CPU
