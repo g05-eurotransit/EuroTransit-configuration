@@ -4,8 +4,9 @@ This document owns configuration-side security controls. Application-side authen
 
 On AKS the Sealed Secrets controller/key lifecycle is cluster-admin-owned.
 Only application ciphertext under `platform/environments/aks/secrets` is
-Argo-managed (wave 5); the Argo repository credential is manual, uncommitted,
-and outside that path. Ciphertext is cluster/key specific; Orders client
+Argo-managed (wave 5); the Argo repository credential is versioned as ciphertext
+under `platform/argocd/bootstrap/aks`, applied manually, and outside that path.
+Ciphertext is cluster/key specific; Orders client
 credentials are duplicated in `eurotransit` and `keycloak` for the Argo Job.
 
 ## Required Controls
@@ -62,7 +63,9 @@ One PostgreSQL cluster may host the three logical databases in local environment
   `scripts/validate-aks-sealed-secrets.sh` verifies their required inventory.
 - The sole manual SealedSecret is the private Argo repository credential in
   `argocd`: it is generated and applied by the cluster admin before Argo can
-  read the repository, is never committed, and is outside the wave-5 app.
+  read the repository. Only its ciphertext is committed under
+  `platform/argocd/bootstrap/aks`; it is outside the wave-5 app and every Argo
+  kustomization. No decrypted Secret or controller private key belongs in Git.
 - Database and payment credential templates live in
   `platform/cloudnativepg/templates/` and `platform/sealed-secrets/templates/`.
 - Keycloak admin, database and Orders client-secret templates live in
@@ -82,8 +85,12 @@ One PostgreSQL cluster may host the three logical databases in local environment
   ciphertext, merging it through protected `main`, and allowing Argo to sync
   wave 5. Rotate the Orders value in both namespaces and recreate the
   `orders-service-client-secret-bootstrap` Job as documented in the runbook.
-- Rotate the manual repository credential outside Git and Argo, with a
-  cluster-admin change before Argo needs the credential.
+- Rotate the repository credential with a manual cluster-admin apply before
+  Argo needs it, then review and commit the replacement ciphertext. Argo never
+  applies this bootstrap credential from Git. A new PC can reuse ciphertext on
+  the same cluster; a new cluster needs the original controller keys restored
+  or newly sealed credentials. An expired/revoked token needs replacement
+  regardless of whether its ciphertext and controller keys remain available.
 - Before every controller upgrade, inventory and back up its key Secrets using
   the approved encrypted off-cluster process. Recovery restores the original
   keys before reconciling ciphertext, then performs a tested DR validation.
