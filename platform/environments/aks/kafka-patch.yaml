@@ -1,6 +1,8 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
-metadata: { name: eurotransit-kafka, namespace: eurotransit }
+metadata:
+  name: eurotransit-kafka
+  namespace: eurotransit
 spec:
   kafka:
     config:
@@ -11,3 +13,11 @@ spec:
       transaction.state.log.replication.factor: 1
   entityOperator:
     userOperator: null
+    topicOperator:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 192Mi
+        limits:
+          cpu: 500m
+          memory: 384Mi

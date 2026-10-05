@@ -4,3 +4,51 @@ dex:
 applicationSet:
   # Chart 10.2.2 renders the controller unconditionally; replicas disables its pods.
   replicas: 0
+controller:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 384Mi
+    limits:
+      cpu: 1000m
+      memory: 768Mi
+repoServer:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+  copyutil:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 16Mi
+      limits:
+        cpu: 250m
+        memory: 64Mi
+server:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 48Mi
+    limits:
+      cpu: 250m
+      memory: 192Mi
+redis:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 16Mi
+    limits:
+      cpu: 250m
+      memory: 64Mi
+redisSecretInit:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 16Mi
+    limits:
+      cpu: 250m
+      memory: 64Mi

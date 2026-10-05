@@ -1,4 +1,11 @@
 replicaCount: 1
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    cpu: 500m
+    memory: 128Mi
 webhook:
   replicaCount: 1
   validatingWebhookConfiguration:
@@ -13,4 +20,27 @@ webhook:
         - key: kubernetes.azure.com/managedby
           operator: NotIn
           values: ["aks"]
-cainjector: { replicaCount: 1 }
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+cainjector:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 192Mi
+startupapicheck:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 16Mi
+    limits:
+      cpu: 250m
+      memory: 64Mi
