@@ -151,7 +151,7 @@ kubectl apply -f platform/argocd/bootstrap/aks/eurotransit-configuration-repo.se
 kubectl -n argocd wait --for=condition=Synced \
   sealedsecret/eurotransit-configuration-repo --timeout=60s
 helm repo add argo https://argoproj.github.io/argo-helm && helm repo update
-helm upgrade --install argocd argo/argo-cd --version 10.2.2 -n argocd --create-namespace -f platform/argocd/values.yaml
+helm upgrade --install argocd argo/argo-cd --version 10.2.2 -n argocd --create-namespace -f platform/argocd/values.yaml -f platform/argocd/values-aks.yaml
 kubectl -n argocd rollout status deploy/argocd-server --timeout=5m
 argocd login --core && argocd repo list
 kubectl apply -k apps/argocd-apps/environments/aks

@@ -1,0 +1,6 @@
+# AKS uses local Argo authentication; Keycloak remains the marketplace identity provider.
+dex:
+  enabled: false
+applicationSet:
+  # Chart 10.2.2 renders the controller unconditionally; replicas disables its pods.
+  replicas: 0

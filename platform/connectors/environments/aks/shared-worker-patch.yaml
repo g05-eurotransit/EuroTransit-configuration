@@ -1,0 +1,32 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: inventory-outbox-connect
+  namespace: eurotransit
+$patch: delete
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: payments-outbox-connect
+  namespace: eurotransit
+$patch: delete
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: orders-outbox-connect
+  namespace: eurotransit
+spec:
+  template:
+    connectContainer:
+      env:
+        - name: ORDERS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef: { name: orders-db-credentials, key: password }
+        - name: INVENTORY_DB_PASSWORD
+          valueFrom:
+            secretKeyRef: { name: inventory-db-credentials, key: password }
+        - name: PAYMENTS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef: { name: payments-db-credentials, key: password }
