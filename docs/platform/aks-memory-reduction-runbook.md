@@ -67,6 +67,23 @@ policies before the root policy. Confirm that `main` still matches the reviewed
 release before returning any source to `main`. The root must remain paused until
 all stages, including the offset migration, are complete.
 
+## Kafka storage gate before any broker rollout
+
+Inspect every live KafkaNodePool storage volume before changing broker resources.
+The current AKS overlay inherits `ephemeral` storage from the shared base. A
+request-only resource edit can recreate the broker Pod and erase its `emptyDir`,
+including Kafka records and Connect config/offset/status state. Existing topic
+names being recreated is not proof that their contents survived.
+
+**Do not roll an ephemeral broker when Kafka state must survive.** Stop that
+stage and prepare a separate durable-storage migration or a verified complete
+Kafka backup and restore. In a disposable environment, an explicitly authorized
+data reset may proceed, but stop/recover connector registrations and qualify the
+checkout after the restart before restoring GitOps automation. Preserve Kafka metadata, application records, consumer offsets and
+all three workers' internal topic contents. A PostgreSQL/CNPG snapshot does not
+back up Kafka. Export fresh stopped-connector offsets again before any future
+Kafka maintenance; pre-migration exports become stale after processing resumes.
+
 ## Unused components
 
 Before disabling Dex or ApplicationSet and removing Kafka User Operator, inspect
@@ -108,7 +125,10 @@ the Strimzi Application owns the nine Strimzi dashboards.
 After rollout, compare dashboard JSON/UIDs and datasource definitions with the
 previous render, verify the live dashboard list, and perform a reversible custom
 dashboard update to confirm polling sees the projected update. Preserve existing
-admin Secret references. Datasources are provisioned at startup: if their values
+admin Secret references. The 31 dashboards with explicit manifest UIDs retain
+those UIDs; the nine Strimzi dashboards have no explicit UID, so Grafana may
+regenerate their database IDs after a restart of its ephemeral storage, as before.
+Compare all 40 titles and dashboard JSON, and the 31 explicit UIDs. Datasources are provisioned at startup: if their values
 change later, roll Grafana or use the authorized Grafana provisioning reload API.
 
 Rollback: restore the prior AKS Grafana values, roll Grafana, verify both sidecars
