@@ -170,7 +170,12 @@ class Operator:
 
     def db(self, database, sql):
         pods = self.get('pods', '-l', 'cnpg.io/cluster=eurotransit-postgres')['items']
-        primary = next(p for p in pods if p['metadata'].get('labels', {}).get('role') == 'primary')
+        primaries = [p for p in pods if p['metadata'].get('labels', {}).get('cnpg.io/instanceRole', p['metadata'].get('labels', {}).get('role')) == 'primary']
+        if len(primaries) == 1:
+            primary = primaries[0]
+        else:
+            current = self.get('cluster.postgresql.cnpg.io', 'eurotransit-postgres')['status']['currentPrimary']
+            primary = next(p for p in pods if p['metadata']['name'] == current)
         raw = self.k('exec', '-i', primary['metadata']['name'], '-c', 'postgres', '--', 'psql', '-X', '-q', '-t', '-A', '-v', 'ON_ERROR_STOP=1', '-U', 'postgres', '-d', database, data='BEGIN READ ONLY; SET LOCAL statement_timeout=10000; ' + sql + '; COMMIT;')
         return json.loads(raw.strip())
 
