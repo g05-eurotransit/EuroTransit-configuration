@@ -9,7 +9,7 @@ separate changes.
 
 | Component | Memory request / limit (MiB) | Persistent owner |
 | --- | --- | --- |
-| Argo application-controller | 384 / 1024 | `platform/argocd/values-aks.yaml` |
+| Argo application-controller | 384 / 1536 | `platform/argocd/values-aks.yaml` |
 | Argo repo-server | 128 / 384 | same Helm overlay |
 | Argo server | 48 / 192 | same Helm overlay |
 | Argo Redis | 16 / 64 | same Helm overlay |
@@ -38,8 +38,8 @@ separate changes.
 | Traefik | 48 / 256 | `platform/traefik/values-aks.yaml` |
 | Argo Rollouts controller | 64 / 192 | existing Helm values in platform Application |
 
-The application-controller limit was raised from 768Mi to 1024Mi after
-release qualification found an OOM during reconciliation. Its 384Mi request
+The application-controller limit was raised from 768Mi to 1536Mi after
+release qualification found OOMs at both 768Mi and 1024Mi during reconciliation. Its 384Mi request
 and CPU budget stay unchanged, so the scheduling-request totals below do not
 change. Requalify startup and the load window after any such correction.
 
