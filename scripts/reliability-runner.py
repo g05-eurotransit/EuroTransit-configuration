@@ -363,8 +363,9 @@ class Operator:
             write(output / 'evidence.json', evidence)
 
     def telemetry(self, output, meta):
-        result = {'runId': meta['runId'], 'extraction': 'INCOMPLETE', 'attribution': 'namespace_and_time_window_not_exclusive_run', 'queries': {}}
+        result = {'runId': meta['runId'], 'extraction': 'INCOMPLETE', 'attribution': 'namespace_and_time_window_not_exclusive_run', 'status': 'NOT_VERIFIED', 'missingSeries': [], 'queries': {}}
         if not getattr(self.args, 'prometheus_url', None):
+            result['reason'] = 'prometheus_url_not_supplied'
             write(output / 'telemetry.json', result)
             return
         url = urlsplit(self.args.prometheus_url)
@@ -376,6 +377,10 @@ class Operator:
             'failed': 'orders_checkout_failed_total{namespace=' + namespace + '}',
             'duration_buckets': 'orders_checkout_duration_seconds_bucket{namespace=' + namespace + '}',
             'dead_letters': 'orders_events_dlt_total{namespace=' + namespace + '}',
+            'acceptance_count': 'http_server_requests_seconds_count{namespace=' + namespace + ',app="orders",method="POST",uri="/api/orders"}',
+            'acceptance_sum': 'http_server_requests_seconds_sum{namespace=' + namespace + ',app="orders",method="POST",uri="/api/orders"}',
+            'breaker_state': 'resilience4j_circuitbreaker_state{namespace=' + namespace + '}',
+            'kafka_lag': 'kafka_consumergroup_lag{namespace=' + namespace + '}',
         }
         try:
             for name, query in queries.items():
@@ -385,7 +390,16 @@ class Operator:
                 if data.get('status') != 'success':
                     raise ValueError('Prometheus query failed')
                 result['queries'][name] = data['data']
-            result['extraction'] = 'COMPLETE'
+                if not data['data'].get('result'):
+                    result['missingSeries'].append(name)
+            if not result['missingSeries']:
+                result['extraction'] = 'COMPLETE'
+                result['status'] = 'COLLECTED'
+            else:
+                result['reason'] = 'metric_series_missing'
+        except (OSError, ValueError) as exc:
+            result['reason'] = 'sampling_failed:' + type(exc).__name__
+            print('Telemetry sampling failed; evidence remains NOT_VERIFIED', file=sys.stderr)
         finally:
             write(output / 'telemetry.json', result)
 
