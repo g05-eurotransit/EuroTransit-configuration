@@ -1,0 +1,83 @@
+{{- if .Values.reliabilityTests.enabled }}
+{{- $image := required "reliabilityTests.image must identify the immutable harness image" .Values.reliabilityTests.image }}
+{{- if not (regexMatch "(:[a-f0-9]{7,40}|@sha256:[a-f0-9]{64})$" $image) }}
+{{- fail "reliabilityTests.image must be pinned to commit SHA or digest" }}
+{{- end }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: eurotransit-load-tests
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    app.kubernetes.io/component: reliability-tests
+spec:
+  schedule: "0 0 31 2 *"
+  suspend: true
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 600
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/component: reliability-tests
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          containers:
+            - name: harness
+              image: {{ $image | quote }}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: [ALL]
+              env:
+                - name: PUBLIC_URL
+                  value: "https://{{ .Values.global.domain }}"
+                - name: TOKEN_URL
+                  value: {{ printf "%s/protocol/openid-connect/token" (trimSuffix "/" .Values.global.oidc.issuerUri) | quote }}
+                - name: CLIENT_ID
+                  value: eurotransit-load-test
+                - name: CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.reliabilityTests.clientSecretName }}
+                      key: client-secret
+                - name: SCENARIO
+                  value: baseline
+                - name: MAX_ATTEMPTS
+                  value: "20"
+                - name: MAX_VUS
+                  value: "1"
+                - name: POLL_TIMEOUT_SECONDS
+                  value: "30"
+                - name: FIXTURES_FILE
+                  value: /fixtures/fixtures.json
+                - name: OUTPUT_DIR
+                  value: /results
+              resources:
+                requests: { cpu: 50m, memory: 128Mi }
+                limits: { cpu: 250m, memory: 256Mi }
+              volumeMounts:
+                - name: fixtures
+                  mountPath: /fixtures
+                  readOnly: true
+                - name: results
+                  mountPath: /results
+          volumes:
+            - name: fixtures
+              configMap:
+                # Supplied by the operator launcher per run; never run this
+                # CronJob directly without fixture claims and preflight.
+                name: eurotransit-load-tests-unclaimed-fixtures
+            - name: results
+              emptyDir:
+                sizeLimit: 16Mi
+{{- end }}
