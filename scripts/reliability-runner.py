@@ -329,7 +329,7 @@ class Operator:
             projection = ','.join("'" + f + "',to_jsonb(t)->'" + f + "'" for f in fields)
             return 'SELECT COALESCE(jsonb_agg(jsonb_build_object(' + projection + ")), '[]'::jsonb) FROM " + table + ' t WHERE ' + where
         try:
-            evidence['orders'] = query('orders_db', select('orders', ['id', 'status', 'route_id', 'travel_date', 'seats', 'total_amount', 'failure_code', 'reservation_id'], 'id::text IN (' + literals + ')'))
+            evidence['orders'] = query('orders_db', select('orders', ['id', 'status', 'route_id', 'travel_date', 'seats', 'total_amount', 'currency', 'failure_code', 'reservation_id'], 'id::text IN (' + literals + ')'))
             evidence['reservations'] = query('inventory_db', select('reservations', ['reservation_id', 'order_id', 'route_id', 'travel_date', 'status', 'expires_at'], 'order_id::text IN (' + literals + ')'))
             evidence['inventory'] = query('inventory_db', select('seats', ['route_id', 'travel_date', 'seat_id', 'status', 'reservation_id'], ' OR '.join(fixture_scope)))
             evidence['payments'] = query('payments_db', select('payment_authorizations', ['id', 'order_id', 'amount', 'currency', 'status', 'provider_reference', 'error_code', 'idempotency_key'], 'order_id::text IN (' + literals + ')'))
@@ -361,7 +361,7 @@ class Operator:
                     ref = row['provider_reference']
                     if not isinstance(ref, str) or not ref or row['status'] not in ['SUCCEEDED', 'FAILED', 'REFUNDED']:
                         raise ValueError('Invalid provider audit row')
-                    safe.append({'order_id': row['order_id'], 'provider_reference_hash': hashlib.sha256(ref.encode()).hexdigest(), 'status': row['status']})
+                    safe.append({'order_id': row['order_id'], 'provider_reference_hash': hashlib.sha256(ref.encode()).hexdigest(), 'status': row['status'], 'amount': row['amount'], 'currency': row['currency']})
                 evidence['providerEffects'] = {'extraction': 'COMPLETE', 'authorizations': safe}
             evidence['extraction'] = 'COMPLETE'
         finally:
@@ -380,7 +380,8 @@ class Operator:
         queries = {
             'confirmed': 'orders_checkout_completed_total{namespace=' + namespace + '}',
             'failed': 'orders_checkout_failed_total{namespace=' + namespace + '}',
-            'duration_buckets': 'orders_checkout_duration_seconds_bucket{namespace=' + namespace + '}',
+            'stage_duration_buckets': 'orders_checkout_duration_seconds_bucket{namespace=' + namespace + '}',
+            'e2e_duration_buckets': 'orders_checkout_e2e_duration_seconds_bucket{namespace=' + namespace + '}',
             'dead_letters': 'orders_events_dlt_total{namespace=' + namespace + '}',
             'acceptance_count': 'http_server_requests_seconds_count{namespace=' + namespace + ',app="orders",method="POST",uri="/api/orders"}',
             'acceptance_sum': 'http_server_requests_seconds_sum{namespace=' + namespace + ',app="orders",method="POST",uri="/api/orders"}',

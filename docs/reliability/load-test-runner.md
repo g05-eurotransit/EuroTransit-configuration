@@ -110,7 +110,7 @@ the queries completed, not that correctness passed.
 Provider effects cannot be inferred from payment rows. By default `providerEffects`
 is INCOMPLETE and no claim of no double-charge is made. `--provider-evidence` accepts
 a separately collected provider audit `{runId, extraction: "COMPLETE", authorizations:
-[{order_id, provider_reference, status}]}` and hashes references before exporting.
+[{order_id, provider_reference, status, amount, currency}]}` and hashes references before exporting.
 Its attribution/completeness must be verified at the provider; the collector only
 validates scope and shape. The application verifier determines the final result.
 
