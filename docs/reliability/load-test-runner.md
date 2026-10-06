@@ -132,3 +132,32 @@ http://127.0.0.1:9090` to export checkout confirmation/failure counters, duratio
 buckets and dead-letter counters over the run's UTC window. Results are explicitly
 namespace/time scoped and include other traffic; they do not prove per-order
 invariants. Without a Prometheus URL, `telemetry.json` remains INCOMPLETE.
+
+## Independent sandbox provider audit
+
+`python3 scripts/reliability/provider-audit.py --run-dir <results>` reads
+`run.json` and `evidence.json`, then enumerates the complete Stripe sandbox charge
+window through read-only HTTPS GET `/v1/charges`, padded by two seconds on each
+side. Supply `STRIPE_SECRET_KEY` through the environment using a secret manager or
+hidden prompt. Only test/restricted-test key prefixes are accepted; keys never
+appear in arguments, output or artifacts. Redirects are rejected so authorization
+cannot be forwarded to another host. Each request has a ten-second timeout;
+pagination uses 100 records/page and stops at ten pages. Exhaustion is required.
+
+The output is exclusive-created `provider-audit.json` with permission 0600.
+It contains only attributed order IDs, charge references, amounts, currencies,
+statuses and audit coverage. No card, customer, billing or provider response body
+is exported. Charge references are needed by the subsequent collector but remain
+restricted here; the collector hashes them for public evidence.
+
+Any unattributed charge in the window, duplicate reference, live-mode charge,
+missing authorized payment effect, pending charge, invalid record, pagination
+limit or HTTP failure leaves extraction INCOMPLETE and exits nonzero. Hashing a DB
+reference is used only to map independently enumerated charges to run Orders;
+it is not used to manufacture provider effects. Other traffic during the window
+can therefore prevent a complete run attribution, even when checkout succeeded.
+
+After a complete audit, rerun `collect --provider-evidence <provider-audit.json>`
+and the Application verifier. Audit completeness applies to the bounded window,
+not to future charges, historical charges outside the window or provider metadata
+that the current payment adapter does not supply. Record this limit in the report.

@@ -383,8 +383,8 @@ class Operator:
             'stage_duration_buckets': 'orders_checkout_duration_seconds_bucket{namespace=' + namespace + '}',
             'e2e_duration_buckets': 'orders_checkout_e2e_duration_seconds_bucket{namespace=' + namespace + '}',
             'dead_letters': 'orders_events_dlt_total{namespace=' + namespace + '}',
-            'acceptance_count': 'http_server_requests_seconds_count{namespace=' + namespace + ',app="orders",method="POST",uri="/api/orders"}',
-            'acceptance_sum': 'http_server_requests_seconds_sum{namespace=' + namespace + ',app="orders",method="POST",uri="/api/orders"}',
+            'acceptance_count': 'http_server_requests_seconds_count{namespace=' + namespace + ',application="orders",method="POST",uri="/api/orders"}',
+            'acceptance_sum': 'http_server_requests_seconds_sum{namespace=' + namespace + ',application="orders",method="POST",uri="/api/orders"}',
             'breaker_state': 'resilience4j_circuitbreaker_state{namespace=' + namespace + '}',
             'kafka_lag': 'kafka_consumergroup_lag{namespace=' + namespace + '}',
         }
