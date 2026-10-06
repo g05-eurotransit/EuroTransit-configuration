@@ -14,3 +14,4 @@ spec:
       - eurotransit
     labelSelectors:
       app: inventory
+  duration: 30s

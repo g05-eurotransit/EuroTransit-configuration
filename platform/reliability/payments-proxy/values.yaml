@@ -1,0 +1,6 @@
+# Preparation defaults. Supply the published derivative image digest before enabling.
+reliability:
+  paymentsProxy:
+    enabled: false
+    routeOrders: false
+    image: ""
