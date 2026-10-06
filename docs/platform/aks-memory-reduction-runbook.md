@@ -75,9 +75,11 @@ request-only resource edit can recreate the broker Pod and erase its `emptyDir`,
 including Kafka records and Connect config/offset/status state. Existing topic
 names being recreated is not proof that their contents survived.
 
-**Do not roll an ephemeral broker as part of this release.** Stop that stage and
-prepare a separate durable-storage migration or a verified complete Kafka backup
-and restore. Preserve Kafka metadata, application records, consumer offsets and
+**Do not roll an ephemeral broker when Kafka state must survive.** Stop that
+stage and prepare a separate durable-storage migration or a verified complete
+Kafka backup and restore. In a disposable environment, an explicitly authorized
+data reset may proceed, but stop/recover connector registrations and qualify the
+checkout after the restart before restoring GitOps automation. Preserve Kafka metadata, application records, consumer offsets and
 all three workers' internal topic contents. A PostgreSQL/CNPG snapshot does not
 back up Kafka. Export fresh stopped-connector offsets again before any future
 Kafka maintenance; pre-migration exports become stale after processing resumes.
