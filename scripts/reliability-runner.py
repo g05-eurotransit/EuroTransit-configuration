@@ -16,7 +16,10 @@ from urllib.request import urlopen
 
 
 def command(argv, data=None, env=None):
-    result = subprocess.run(argv, input=data, text=True, capture_output=True, env=env)
+    try:
+        result = subprocess.run(argv, input=data, text=True, capture_output=True, env=env, timeout=30)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError('Command timed out after 30 seconds') from None
     if result.returncode:
         raise RuntimeError('Command failed: ' + ' '.join(argv[:3]))
     return result.stdout
@@ -277,7 +280,19 @@ class Operator:
                 container = pod['containers'][0]
                 container['image'] = a.image
                 config.update({'OUTPUT_DIR': '/results', 'FIXTURES_FILE': '/fixtures/fixtures.json'})
-                container['env'] = [{'name': k, 'value': v} for k, v in config.items()] + [{'name': 'CLIENT_SECRET', 'valueFrom': {'secretKeyRef': {'name': 'eurotransit-load-test-credentials', 'key': 'client-secret'}}}]
+                template_env = container.get('env', [])
+                credentials = [entry for entry in template_env if entry.get('name') == 'CLIENT_SECRET']
+                if len(credentials) != 1:
+                    raise ValueError('Job template requires one CLIENT_SECRET Secret reference')
+                credential = credentials[0]
+                reference = credential.get('valueFrom', {}).get('secretKeyRef', {})
+                if ('value' in credential or not reference.get('name') or not reference.get('key')
+                        or set(credential.get('valueFrom', {})) != {'secretKeyRef'}):
+                    raise ValueError('Job template requires CLIENT_SECRET from a Secret')
+                # Preserve template credentials and optional harness settings; only
+                # replace the run-specific inputs owned by this launcher.
+                container['env'] = [entry for entry in template_env if entry.get('name') not in config]
+                container['env'] += [{'name': k, 'value': v} for k, v in config.items()]
                 claim = 'et-run-' + run_id
                 self.cm(claim, {'fixtures.json': json.dumps(fixtures)})
                 pod['volumes'][0]['configMap']['name'] = claim

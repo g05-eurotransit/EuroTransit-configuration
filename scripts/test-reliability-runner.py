@@ -18,6 +18,60 @@ def inventory(used='1000Mi'):
 
 
 class RunnerTests(unittest.TestCase):
+    def test_command_timeout_is_bounded_and_redacted(self):
+        with patch.object(r.subprocess, 'run', side_effect=subprocess.TimeoutExpired(
+                ['tool', 'secret-argument'], 30, output='secret-output', stderr='secret-error')) as run:
+            with self.assertRaisesRegex(RuntimeError, '^Command timed out after 30 seconds$'):
+                r.command(['tool', 'secret-argument'], data='secret-input', env={'SECRET': 'secret-env'})
+            self.assertEqual(run.call_args.kwargs['timeout'], 30)
+
+    def test_job_launcher_preserves_template_secret_and_extra_env(self):
+        secret = {'name': 'CLIENT_SECRET', 'valueFrom': {'secretKeyRef': {
+            'name': 'custom-load-credentials', 'key': 'custom-key', 'optional': False}}}
+        for credentials, valid in [(secret, True), ({'name': 'CLIENT_SECRET', 'value': 'unsafe'}, False), (None, False)]:
+            with self.subTest(credentials=credentials), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                fixtures = root / 'fixtures.json'
+                r.write(fixtures, {'version': 1, 'fixtures': [
+                    {'routeId': 'route', 'travelDate': '2026-11-01', 'seatId': '1A'}]})
+                args = SimpleNamespace(context='test', namespace='test', output=root / 'results',
+                    fixtures=fixtures, scenario='baseline', max_attempts=1, image='registry/harness:abcdef1',
+                    mode='job', max_vus=1, run_id='custom-secret-run', harness=None,
+                    public_url='https://example.invalid', issuer='https://example.invalid/realm', deadline=60)
+                extra = {'name': 'EXPECT_OVERLOAD', 'value': 'true'}
+                template = {'template': {'spec': {'containers': [{'env': [extra,
+                    {'name': 'RUN_ID', 'value': 'old-run'}] + ([credentials] if credentials else [])}],
+                    'volumes': [{'configMap': {'name': 'unclaimed'}}]}}}
+                op = r.Operator(args)
+                def get(*argv):
+                    if argv[0] == 'deployments':
+                        return {'items': [{'metadata': {'name': name}, 'status': {'availableReplicas': 1}}
+                                          for name in ['catalog', 'orders', 'inventory', 'payments']]}
+                    if argv[0] == 'cronjob':
+                        return {'spec': {'jobTemplate': {'spec': template}}}
+                    if argv[0] == 'job':
+                        return {'status': {'succeeded': 1}}
+                    raise AssertionError(argv)
+                op.get = Mock(side_effect=get)
+                op.preflight = Mock(return_value={'errors': [], 'saturated': False})
+                op.available_fixtures = Mock()
+                op.snapshot = Mock()
+                op.cm = Mock()
+                op.k = Mock(return_value='')
+                if valid:
+                    self.assertEqual(op.run(), 0)
+                    creation = next(call for call in op.k.call_args_list if call.args[0] == 'create')
+                    job = json.loads(creation.kwargs['data'])
+                    env = job['spec']['template']['spec']['containers'][0]['env']
+                    self.assertEqual([entry for entry in env if entry['name'] == 'CLIENT_SECRET'], [secret])
+                    self.assertIn(extra, env)
+                    self.assertEqual([entry for entry in env if entry['name'] == 'RUN_ID'],
+                                     [{'name': 'RUN_ID', 'value': args.run_id}])
+                else:
+                    with self.assertRaisesRegex(ValueError, 'CLIENT_SECRET'):
+                        op.run()
+                    op.k.assert_not_called()
+
     def test_saturation_only_baseline_workstation(self):
         nodes, pods, metrics = inventory('2900Mi')
         self.assertTrue(r.capacity(nodes, pods, metrics, 'workstation')['saturated'])
