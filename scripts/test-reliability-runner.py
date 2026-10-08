@@ -53,11 +53,16 @@ class RunnerTests(unittest.TestCase):
                         return {'status': {'succeeded': 1}}
                     raise AssertionError(argv)
                 op.get = Mock(side_effect=get)
-                op.preflight = Mock(return_value={'errors': [], 'saturated': False})
+                op.preflight = Mock(return_value={'errors': [], 'saturated': False,
+                                                 'eligibleNodes': ['admitted-node']})
                 op.available_fixtures = Mock()
                 op.snapshot = Mock()
                 op.cm = Mock()
-                op.k = Mock(return_value='')
+                events = '\n'.join('ET_RESULT ' + json.dumps(event) for event in [
+                    {'type': 'order_result', 'runId': args.run_id, 'orderId': 'order-one'},
+                    {'type': 'run_summary', 'runId': args.run_id, 'passed': True},
+                    {'type': 'runner_finished', 'runId': args.run_id, 'passed': True}])
+                op.k = Mock(side_effect=lambda *argv, **kwargs: events if argv[0] == 'logs' else '')
                 if valid:
                     self.assertEqual(op.run(), 0)
                     creation = next(call for call in op.k.call_args_list if call.args[0] == 'create')
@@ -67,6 +72,15 @@ class RunnerTests(unittest.TestCase):
                     self.assertIn(extra, env)
                     self.assertEqual([entry for entry in env if entry['name'] == 'RUN_ID'],
                                      [{'name': 'RUN_ID', 'value': args.run_id}])
+                    terms = job['spec']['template']['spec']['affinity']['nodeAffinity'][
+                        'requiredDuringSchedulingIgnoredDuringExecution']['nodeSelectorTerms']
+                    self.assertEqual(terms[0]['matchFields'], [
+                        {'key': 'metadata.name', 'operator': 'In', 'values': ['admitted-node']}])
+                    # A successful Kubernetes exit cannot certify missing results.
+                    args.output = root / 'missing-results'
+                    op.k = Mock(return_value='')
+                    self.assertEqual(op.run(), 1)
+                    self.assertFalse(json.loads((args.output / 'summary.json').read_text())['passed'])
                 else:
                     with self.assertRaisesRegex(ValueError, 'CLIENT_SECRET'):
                         op.run()
@@ -172,6 +186,24 @@ class RunnerTests(unittest.TestCase):
             op.k = Mock(return_value='[]')
             r.Operator.db(op, 'orders_db', 'SELECT 1')
             self.assertIn('BEGIN READ ONLY; SET LOCAL statement_timeout=10000; SELECT 1; COMMIT;', op.k.call_args.kwargs['data'])
+
+    def test_orders_admission_can_be_configured_through_gitops(self):
+        import yaml
+        root = Path(__file__).resolve().parents[1]
+        base = ['helm', 'template', 'eurotransit', str(root / 'charts/eurotransit'),
+                '-f', str(root / 'charts/eurotransit/values-production.yaml')]
+        for extra, expected in [([], ('0', '8', '100')),
+                                (['--set', 'orders.admission.maxOutstanding=4',
+                                  '--set', 'orders.admission.maxConcurrent=2',
+                                  '--set', 'orders.admission.lockTimeoutMs=50'], ('4', '2', '50'))]:
+            result = subprocess.run(base + extra, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            deployment = next(d for d in yaml.safe_load_all(result.stdout)
+                              if d and d.get('kind') == 'Deployment' and d['metadata']['name'] == 'orders')
+            env = {e['name']: e.get('value') for e in deployment['spec']['template']['spec']['containers'][0]['env']}
+            self.assertEqual(tuple(env[k] for k in ['ORDERS_ADMISSION_MAX_OUTSTANDING',
+                                                   'ORDERS_ADMISSION_MAX_CONCURRENT',
+                                                   'ORDERS_ADMISSION_LOCK_TIMEOUT_MS']), expected)
 
     def test_chart_opt_in_pinned_and_bounded(self):
         root = Path(__file__).resolve().parents[1]

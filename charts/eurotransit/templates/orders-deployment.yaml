@@ -105,6 +105,12 @@ spec:
                   key: {{ .Values.orders.serviceAuth.secretKey | quote }}
             - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
               value: "true"
+            - name: ORDERS_ADMISSION_MAX_OUTSTANDING
+              value: {{ .Values.orders.admission.maxOutstanding | quote }}
+            - name: ORDERS_ADMISSION_MAX_CONCURRENT
+              value: {{ .Values.orders.admission.maxConcurrent | quote }}
+            - name: ORDERS_ADMISSION_LOCK_TIMEOUT_MS
+              value: {{ .Values.orders.admission.lockTimeoutMs | quote }}
             - name: SERVER_SHUTDOWN
               value: "graceful"
             - name: SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE

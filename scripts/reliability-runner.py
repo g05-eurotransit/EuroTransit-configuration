@@ -277,6 +277,15 @@ class Operator:
                 template = self.get('cronjob', 'eurotransit-load-tests')['spec']['jobTemplate']['spec']
                 template['activeDeadlineSeconds'] = a.deadline
                 pod = template['template']['spec']
+                eligible = report.get('eligibleNodes', [])
+                if not eligible or (pod.get('nodeName') and pod['nodeName'] not in eligible):
+                    raise ValueError('Job must use a node admitted by the capacity preflight')
+                affinity = pod.setdefault('affinity', {}).setdefault('nodeAffinity', {})
+                requirement = affinity.setdefault('requiredDuringSchedulingIgnoredDuringExecution',
+                                                   {'nodeSelectorTerms': [{}]})
+                for term in requirement['nodeSelectorTerms']:
+                    term.setdefault('matchFields', []).append({
+                        'key': 'metadata.name', 'operator': 'In', 'values': eligible})
                 container = pod['containers'][0]
                 container['image'] = a.image
                 config.update({'OUTPUT_DIR': '/results', 'FIXTURES_FILE': '/fixtures/fixtures.json'})
@@ -311,7 +320,12 @@ class Operator:
                 (output / 'runner.log').write_text(self.k('logs', 'job/' + job_name))
                 write(output / 'job.json', self.get('job', job_name))
             self.snapshot(output, 'after')
-            self.extract(output, run_id)
+            rows = self.extract(output, run_id)
+            summary = json.loads((output / 'summary.json').read_text())
+            if len(rows) != a.max_attempts or not summary.get('passed'):
+                summary.update(passed=False, extraction='INCOMPLETE')
+                write(output / 'summary.json', summary)
+                code = code or 1
             meta.update({'finishedAt': utc().isoformat(), 'exitCode': code})
             write(output / 'run.json', meta)
             return code

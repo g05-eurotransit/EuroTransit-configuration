@@ -59,12 +59,28 @@ mode may run only a sequential baseline of at most 20 attempts when measured
 usage exceeds allocatable. It declares saturation and prohibits fault experiments.
 These are tool admission bounds, not SLOs or a capacity certification.
 
+Orders admission settings are exposed as `orders.admission.maxOutstanding`
+(default `0`, shared cap disabled), `maxConcurrent` (default `8`) and
+`lockTimeoutMs` (default `100`). Deliver the new Orders image to every replica
+before enabling a positive shared cap. A reviewed, temporary test overlay can use
+a small cap to exercise controlled overload without raising cluster-wide load;
+the operator never patches the running Deployment outside GitOps. These controls
+do not create capacity or override the fault admission gate.
+
+The observed baseline and its remaining proof are recorded in
+[`baseline-2026-10-06.md`](baseline-2026-10-06.md).
+
 The optional Job requires a schedulable, untainted node with 50m/128Mi available
 requests and measured memory + 256Mi runner limit + 128Mi safety margin within
 allocatable. `--extra-memory-mib` only increases that bound: experiments must
 include proxy peak and any extra Orders rollout pod. This tool never reduces
 existing workloads or changes node sizes. At the observed 100–108% usage the
 cluster Job and fault gates are blocked.
+
+Jobs are constrained by node affinity to the nodes admitted by that preflight;
+the scheduler cannot place them on another node with insufficient measured
+headroom. A successful Job exit without the complete result ledger and final
+passing summary is reported as a failed, incomplete run.
 
 ```bash
 python3 scripts/reliability-runner.py preflight \
