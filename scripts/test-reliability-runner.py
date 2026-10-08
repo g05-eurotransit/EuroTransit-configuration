@@ -187,24 +187,6 @@ class RunnerTests(unittest.TestCase):
             r.Operator.db(op, 'orders_db', 'SELECT 1')
             self.assertIn('BEGIN READ ONLY; SET LOCAL statement_timeout=10000; SELECT 1; COMMIT;', op.k.call_args.kwargs['data'])
 
-    def test_orders_admission_can_be_configured_through_gitops(self):
-        import yaml
-        root = Path(__file__).resolve().parents[1]
-        base = ['helm', 'template', 'eurotransit', str(root / 'charts/eurotransit'),
-                '-f', str(root / 'charts/eurotransit/values-production.yaml')]
-        for extra, expected in [([], ('0', '8', '100')),
-                                (['--set', 'orders.admission.maxOutstanding=4',
-                                  '--set', 'orders.admission.maxConcurrent=2',
-                                  '--set', 'orders.admission.lockTimeoutMs=50'], ('4', '2', '50'))]:
-            result = subprocess.run(base + extra, capture_output=True, text=True)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            deployment = next(d for d in yaml.safe_load_all(result.stdout)
-                              if d and d.get('kind') == 'Deployment' and d['metadata']['name'] == 'orders')
-            env = {e['name']: e.get('value') for e in deployment['spec']['template']['spec']['containers'][0]['env']}
-            self.assertEqual(tuple(env[k] for k in ['ORDERS_ADMISSION_MAX_OUTSTANDING',
-                                                   'ORDERS_ADMISSION_MAX_CONCURRENT',
-                                                   'ORDERS_ADMISSION_LOCK_TIMEOUT_MS']), expected)
-
     def test_chart_opt_in_pinned_and_bounded(self):
         root = Path(__file__).resolve().parents[1]
         def render(*extra):

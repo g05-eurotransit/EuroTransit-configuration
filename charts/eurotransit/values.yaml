@@ -93,11 +93,6 @@ catalog:
   replicaCount: 2
   resources: {}
 orders:
-  admission:
-    # Enable the shared backlog cap only after all Orders replicas support it.
-    maxOutstanding: 0
-    maxConcurrent: 8
-    lockTimeoutMs: 100
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/orders
     tag: "98bedf2"
@@ -178,5 +173,5 @@ frontend:
 # Independent operational runner. Enabling this renders only a suspended template.
 reliabilityTests:
   enabled: false
-  image: "" # Immutable application load-tests image (commit SHA or digest).
+  image: "" # Immutable configuration load-tests image (commit SHA or digest).
   clientSecretName: eurotransit-load-test-credentials

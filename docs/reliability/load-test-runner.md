@@ -1,14 +1,15 @@
 # Load-test runner (issue #46, first tranche)
 
-The application repository owns scenarios and correctness assertions in
-[`load-tests`](https://github.com/g05-eurotransit/EuroTransit-application/tree/dev/load-tests).
-This repository owns admission checks, fixture ownership and operational evidence.
+This repository owns the complete operational harness in [`load-tests`](../../load-tests):
+k6 scenarios, finite fixtures, correctness assertions, image publication, launchers,
+capacity checks, fixture ownership, operational evidence, and reports. Application
+unit/integration tests and service instrumentation remain in the application repository.
 No HA expansion or resident chaos controller is part of this tranche.
 
 ## Workstation baseline
 
 Prefer the immutable harness container on a workstation, outside AKS. The image
-is built by the application CI; substitute its published commit SHA or digest.
+is built by the configuration CI; substitute its published commit SHA or digest.
 Install Python 3, Docker and kubectl; use an explicitly selected AKS context.
 Supply the existing technical client secret through the process environment,
 using a local secret manager or hidden interactive prompt. Never paste it into a
@@ -28,13 +29,13 @@ unset CLIENT_SECRET
 ```
 
 The output directory must not exist. Instead of `--image`, `--harness` can identify
-Application `load-tests/run.py` on a workstation with native k6. Docker mounts
+Configuration `load-tests/run.py` on a workstation with native k6. Docker mounts
 fixture input read-only and runs with the operator's UID to preserve owner-only
 output permissions. Tokens and credentials are passed by environment name, not
 in argv. A Docker administrator can inspect container environment: use only a
-trusted workstation. Public TLS verification is enabled by the application harness.
+trusted workstation. Public TLS verification is enabled by the configuration harness.
 
-Fixture format is the application contract: version 1 and a `fixtures` array
+Fixture format is the harness contract: version 1 and a `fixtures` array
 with `routeId`, `offerId`, `travelDate`, `seatId`, `unitPrice`. Select explicit unused
 sample seat/date combinations within the Inventory bootstrap horizon. Preflight
 queries only those slots and requires AVAILABLE. Persistent ConfigMaps claim each
@@ -58,14 +59,6 @@ containers and OOM kills in the previous ten minutes fail closed. Workstation
 mode may run only a sequential baseline of at most 20 attempts when measured
 usage exceeds allocatable. It declares saturation and prohibits fault experiments.
 These are tool admission bounds, not SLOs or a capacity certification.
-
-Orders admission settings are exposed as `orders.admission.maxOutstanding`
-(default `0`, shared cap disabled), `maxConcurrent` (default `8`) and
-`lockTimeoutMs` (default `100`). Deliver the new Orders image to every replica
-before enabling a positive shared cap. A reviewed, temporary test overlay can use
-a small cap to exercise controlled overload without raising cluster-wide load;
-the operator never patches the running Deployment outside GitOps. These controls
-do not create capacity or override the fault admission gate.
 
 The observed baseline and its remaining proof are recorded in
 [`baseline-2026-10-06.md`](baseline-2026-10-06.md).
@@ -108,7 +101,7 @@ stdout events remain available from completed pods without exec/cp or sidecars.
 ```bash
 python3 scripts/reliability-runner.py collect \
   --context eurotransit --output /absolute/path/results-new-run
-python3 ../EuroTransit-application/load-tests/verify.py \
+python3 load-tests/verify.py \
   --ledger /absolute/path/results-new-run/orders.jsonl \
   --evidence /absolute/path/results-new-run/evidence.json \
   --output /absolute/path/results-new-run/verification.json
@@ -128,7 +121,7 @@ is INCOMPLETE and no claim of no double-charge is made. `--provider-evidence` ac
 a separately collected provider audit `{runId, extraction: "COMPLETE", authorizations:
 [{order_id, provider_reference, status, amount, currency}]}` and hashes references before exporting.
 Its attribution/completeness must be verified at the provider; the collector only
-validates scope and shape. The application verifier determines the final result.
+validates scope and shape. The harness verifier determines the final result.
 
 `canonical-events.json` contains original order-placed outbox IDs, Kafka keys
 (`aggregate_id`) and payloads only for run Orders. It is owner-only and may contain
@@ -174,6 +167,6 @@ it is not used to manufacture provider effects. Other traffic during the window
 can therefore prevent a complete run attribution, even when checkout succeeded.
 
 After a complete audit, rerun `collect --provider-evidence <provider-audit.json>`
-and the Application verifier. Audit completeness applies to the bounded window,
+and the harness verifier. Audit completeness applies to the bounded window,
 not to future charges, historical charges outside the window or provider metadata
 that the current payment adapter does not supply. Record this limit in the report.
