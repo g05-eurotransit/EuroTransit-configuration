@@ -16,3 +16,10 @@ these entries and record its own verification before claiming team ownership.
 Raw evidence is access-restricted under `.resilience-evidence/chaos-20261012` in
 the workspace. This log does not turn missed injections or failed client runs
 into passing tests. Human verification and merge review remain outstanding.
+
+The live scrape audit also found that ServiceMonitor did not copy the Service
+`app` label, although dashboards, alerts and canary HTTP queries filtered by it.
+Actual samples carried `application="orders"` but no `app`; a healthy rule
+expression could therefore return no samples. The proposed fix adds
+`targetLabels: [app]` to every application ServiceMonitor. Its live effect must
+be checked after GitOps publication; rendering alone is not sufficient proof.
