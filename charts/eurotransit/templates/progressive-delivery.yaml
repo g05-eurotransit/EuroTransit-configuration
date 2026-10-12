@@ -44,97 +44,114 @@ spec:
   args:
     - name: canary-hash
   metrics:
-    # A promotion without samples is unsafe: this gate fails explicitly when
-    # k6 has not reached the canary ReplicaSet.
-    - name: canary-samples
-      initialDelay: {{ .Values.progressiveDelivery.analysis.initialDelay | quote }}
-      interval: 30s
-      count: 2
+    # Controlled demo policy: minimum evidence and absolute error budgets.
+    # Lifetime counters expose even a first scrape at 1; coverage rejects old
+    # images/missing metrics. These gates are not production percentage SLOs.
+    - name: canary-metric-coverage
+      initialDelay: {{ .Values.progressiveDelivery.analysis.orders.initialDelay | quote }}
+      interval: {{ .Values.progressiveDelivery.analysis.orders.interval | quote }}
+      count: {{ .Values.progressiveDelivery.analysis.orders.count }}
       failureLimit: 0
       provider:
         prometheus:
           address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
           query: |
-            sum(rate(http_server_requests_seconds_count{app="orders",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[1m])) or vector(0)
-      successCondition: len(result) > 0 && result[0] > 0
-    - name: http-5xx-rate
-      initialDelay: {{ .Values.progressiveDelivery.analysis.initialDelay | quote }}
-      interval: 30s
-      count: 2
+            ((count(max by (instance) (up{service=~"orders|orders-canary",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"})) or vector(0))
+            -
+            (count((max by (instance) (up{service=~"orders|orders-canary",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}) == 1)
+              and on (instance) (max by (instance) (orders_checkout_completed_total{result="confirmed",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}) >= 0)
+              and on (instance) (max by (instance) (orders_checkout_completed_total{result="failed",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}) >= 0)
+              and on (instance) (max by (instance) (orders_checkout_failed_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}) >= 0)
+              and on (instance) (count by (instance) (max by (instance, topic, failure_class) (orders_events_exhausted_total{topic=~"order-placed|refund-requested",failure_class=~"poison_payload|dependency_error|unknown",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"})) == 6)
+              and on (instance) (max by (instance) (process_start_time_seconds{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}) <= time() - {{ .Values.progressiveDelivery.analysis.orders.minProcessAgeSeconds }})
+            ) or vector(0)))
+            - ((count(max by (instance) (up{service=~"orders|orders-canary",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"})) or vector(0)) == bool 0)
+      successCondition: len(result) == 1 && result[0] == 0
+    - name: canary-http-samples
+      initialDelay: {{ .Values.progressiveDelivery.analysis.orders.initialDelay | quote }}
+      interval: {{ .Values.progressiveDelivery.analysis.orders.interval | quote }}
+      count: {{ .Values.progressiveDelivery.analysis.orders.count }}
       failureLimit: 0
       provider:
         prometheus:
           address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
           query: |
-            (
-              (sum(rate(http_server_requests_seconds_count{app="orders",status=~"5..",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])) or vector(0))
-              /
-              clamp_min(
-                (sum(rate(http_server_requests_seconds_count{app="orders",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])) or vector(0)),
-                1
-              )
-            )
-      successCondition: len(result) > 0 && result[0] < 0.02
+            sum(max by (instance, method, uri, status, outcome, exception) (increase(http_server_requests_seconds_count{app="orders",uri!~"/actuator.*",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.progressiveDelivery.analysis.orders.window }}]))) or vector(0)
+      successCondition: len(result) == 1 && result[0] >= {{ .Values.progressiveDelivery.analysis.orders.minHttpRequests }}
+    - name: http-5xx-count
+      initialDelay: {{ .Values.progressiveDelivery.analysis.orders.initialDelay | quote }}
+      interval: {{ .Values.progressiveDelivery.analysis.orders.interval | quote }}
+      count: {{ .Values.progressiveDelivery.analysis.orders.count }}
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            sum(max by (instance, method, uri, status, outcome, exception) (http_server_requests_seconds_count{app="orders",uri!~"/actuator.*",status=~"5..",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"})) or vector(0)
+      successCondition: len(result) == 1 && result[0] <= {{ .Values.progressiveDelivery.analysis.orders.maxHttp5xx }}
     - name: p95-latency-seconds
-      initialDelay: {{ .Values.progressiveDelivery.analysis.initialDelay | quote }}
-      interval: 30s
-      count: 2
+      initialDelay: {{ .Values.progressiveDelivery.analysis.orders.initialDelay | quote }}
+      interval: {{ .Values.progressiveDelivery.analysis.orders.interval | quote }}
+      count: {{ .Values.progressiveDelivery.analysis.orders.count }}
       failureLimit: 0
       provider:
         prometheus:
           address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
           query: |
-            histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{app="orders",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])))
-      successCondition: len(result) > 0 && result[0] < 1
-    # These counters are emitted by the pod that processes the Kafka record.
-    # They are version-specific, unlike the database-wide pipeline/reconciliation
-    # gauges, but HTTP traffic weight does not guarantee Kafka assignment.
-    - name: canary-terminal-checkout-samples
-      initialDelay: {{ .Values.progressiveDelivery.analysis.initialDelay | quote }}
-      interval: 30s
-      count: 2
+            histogram_quantile(0.95, sum by (le) (max by (instance, le, method, uri, status, outcome, exception) (rate(http_server_requests_seconds_bucket{app="orders",uri!~"/actuator.*",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.progressiveDelivery.analysis.orders.window }}]))))
+      successCondition: len(result) == 1 && result[0] < {{ .Values.progressiveDelivery.analysis.orders.maxP95Seconds }}
+    - name: canary-confirmed-checkouts
+      initialDelay: {{ .Values.progressiveDelivery.analysis.orders.initialDelay | quote }}
+      interval: {{ .Values.progressiveDelivery.analysis.orders.interval | quote }}
+      count: {{ .Values.progressiveDelivery.analysis.orders.count }}
       failureLimit: 0
       provider:
         prometheus:
           address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
           query: |
-            (
-              (sum(increase(orders_checkout_completed_total{result="confirmed",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])) or vector(0))
-              +
-              (sum(increase(orders_checkout_failed_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])) or vector(0))
-            )
-      successCondition: len(result) > 0 && result[0] > 0
-    - name: canary-checkout-failure-rate
-      initialDelay: {{ .Values.progressiveDelivery.analysis.initialDelay | quote }}
-      interval: 30s
-      count: 2
+            sum(max by (instance) (increase(orders_checkout_completed_total{result="confirmed",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.progressiveDelivery.analysis.orders.window }}]))) or vector(0)
+      successCondition: len(result) == 1 && result[0] >= {{ .Values.progressiveDelivery.analysis.orders.minConfirmedCheckouts }}
+    - name: canary-checkout-failures
+      initialDelay: {{ .Values.progressiveDelivery.analysis.orders.initialDelay | quote }}
+      interval: {{ .Values.progressiveDelivery.analysis.orders.interval | quote }}
+      count: {{ .Values.progressiveDelivery.analysis.orders.count }}
       failureLimit: 0
       provider:
         prometheus:
           address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
           query: |
-            (
-              (sum(increase(orders_checkout_failed_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])) or vector(0))
-              /
-              clamp_min(
-                (sum(increase(orders_checkout_completed_total{result="confirmed",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])) or vector(0))
-                +
-                (sum(increase(orders_checkout_failed_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])) or vector(0)),
-                1
-              )
-            )
-      successCondition: len(result) > 0 && result[0] < 0.02
-    - name: canary-dead-letter-events
-      initialDelay: {{ .Values.progressiveDelivery.analysis.initialDelay | quote }}
-      interval: 30s
-      count: 2
+            sum(max by (instance, reason) (orders_checkout_failed_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"})) or vector(0)
+      successCondition: len(result) == 1 && result[0] <= {{ .Values.progressiveDelivery.analysis.orders.maxCheckoutFailures }}
+    - name: canary-exhausted-events
+      initialDelay: {{ .Values.progressiveDelivery.analysis.orders.initialDelay | quote }}
+      interval: {{ .Values.progressiveDelivery.analysis.orders.interval | quote }}
+      count: {{ .Values.progressiveDelivery.analysis.orders.count }}
       failureLimit: 0
       provider:
         prometheus:
           address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
           query: |
-            sum(increase(orders_events_dlt_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[2m])) or vector(0)
-      successCondition: len(result) > 0 && result[0] == 0
+            sum(max by (instance, topic, failure_class) (orders_events_exhausted_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"})) or vector(0)
+      successCondition: len(result) == 1 && result[0] <= {{ .Values.progressiveDelivery.analysis.orders.maxExhaustedEvents }}
+    - name: canary-counter-continuity
+      initialDelay: {{ .Values.progressiveDelivery.analysis.orders.initialDelay | quote }}
+      interval: {{ .Values.progressiveDelivery.analysis.orders.interval | quote }}
+      count: {{ .Values.progressiveDelivery.analysis.orders.count }}
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: {{ .Values.progressiveDelivery.analysis.prometheusAddress | quote }}
+          query: |
+            (sum(changes(process_start_time_seconds{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.progressiveDelivery.analysis.orders.window }}])) or vector(0))
+            +
+            (sum(resets(orders_checkout_completed_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.progressiveDelivery.analysis.orders.window }}])) or vector(0))
+            +
+            (sum(resets(orders_checkout_failed_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.progressiveDelivery.analysis.orders.window }}])) or vector(0))
+            +
+            (sum(resets(orders_events_exhausted_total{rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.progressiveDelivery.analysis.orders.window }}])) or vector(0))
+            +
+            (sum(resets(http_server_requests_seconds_count{app="orders",uri!~"/actuator.*",rollouts_pod_template_hash="{{`{{args.canary-hash}}`}}"}[{{ .Values.progressiveDelivery.analysis.orders.window }}])) or vector(0))
+      successCondition: len(result) == 1 && result[0] == 0
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout

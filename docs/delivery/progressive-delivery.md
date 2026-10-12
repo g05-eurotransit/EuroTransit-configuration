@@ -32,7 +32,11 @@ kubectl -n eurotransit get deploy orders catalog
 
 Check that the Strimzi Entity Operator, actual Kafka topics and the Debezium
 Connectors are healthy, confirm one baseline checkout, and reserve capacity
-for one extra service pod plus the 256Mi test Job.  Do not overlap the Catalog
+for the actual stable/canary overlap plus the 256Mi test Job. Follow the
+[AKS resource preflight](../platform/aks-resource-budgets.md) and
+[memory reduction runbook](../platform/aks-memory-reduction-runbook.md): inspect
+per-node allocatable memory, requests and Pending/OOM events; aggregate headroom
+does not prove that another pod fits. Coordinate the cluster window with #46–#49.  Do not overlap the Catalog
 and Orders exercises on the small demo cluster.
 
 For AKS, generate the two namespace-bound ciphertexts for
@@ -97,10 +101,12 @@ small reviewed values change to an unused non-overlapping
 
 ## Demonstration procedure
 
-1. Start k6, then update the target Rollout while k6 continues generating
-   checkouts. Each analysis metric has a 90-second initial delay, allowing the
-   new hash to receive traffic, be scraped two or three times, and process
-   terminal checkout events before its first evaluation.
+1. Verify a compatible Orders image and fresh fixtures (below), start the #46
+   traffic harness, then update the target Rollout while traffic continues.
+   Orders waits five minutes before the first evaluation, then evaluates twice
+   60 seconds apart over a rolling five-minute evidence window. Catalog retains
+   its 90-second delay. Insufficient evidence aborts; gather more traffic or
+   tune the documented observation policy before retrying, never bypass a gate.
 2. For Catalog, update the Catalog image tag.  Verify preview health, inspect
    `catalog-preview`, then promote manually with `kubectl argo rollouts promote
    catalog -n eurotransit`.  The former revision stays available for 60 seconds;
@@ -125,43 +131,109 @@ kubectl -n eurotransit describe rollout orders
 kubectl -n eurotransit logs job/<k6-job>
 ```
 
-Save that output with Grafana/Prometheus screenshots for 5xx rate, p95,
-the canary pod's terminal checkout counters and dead-letter counter, and
+Save that output with Grafana/Prometheus screenshots for absolute 5xx count, p95,
+the canary pod's terminal checkout counters and exhausted-delivery counter, and
 Kafka lag. Before starting, verify that `/actuator/prometheus` is actually
 scrapable: the ServiceMonitor alone cannot make a security-denied endpoint
 observable.
 
 ## Promotion signals and guardrails
 
-`orders-canary-guardrails` queries only the latest
-`rollouts-pod-template-hash`. It requires HTTP samples (zero traffic fails),
-a 5xx rate below 2%, p95 below one second, at least one terminal checkout
-observed by that pod, a terminal checkout failure rate below 2%, and no
-dead-letter event emitted by that pod. ServiceMonitors retain the rollout hash
-as a Prometheus target label, so stable and canary measurements are distinct.
-Every Prometheus condition explicitly evaluates the returned vector
-(`len(result) > 0 && result[0] ...`). The HTTP error and counter queries use
-`or vector(0)` where an absent series represents zero; p95 deliberately does
-not, so an absent or non-numeric latency result fails safely.
+`orders-canary-guardrails` scopes evidence to the latest rollout hash. The
+`progressiveDelivery.analysis.orders` values declare a **controlled demo** policy:
 
-The k6 threshold requires all checks to pass and aborts the Job on the first
-failed check. A failed k6 Job is a failed demonstration input: do not promote
-the Rollout; inspect the Job logs and resolve the cause before restarting with
-an unused date block.
+| Gate | Default | Scope |
+| --- | --- | --- |
+| HTTP evidence | at least 4 requests | increase over 5 minutes |
+| Terminal evidence | at least 4 confirmed checkouts | increase over 5 minutes, Kafka processing pod |
+| HTTP errors | zero 5xx | current canary process lifetime |
+| Checkout failures | zero, every reason | current canary process lifetime |
+| Exhausted deliveries | zero | emitter process lifetime, all topics/classes |
+| Latency | p95 below 1 second | histogram rate over 5 minutes |
+| Observability | all scrape targets up; required counters present | every canary instance |
+| Continuity | no observed counter reset/process change; process age at least 300s | rolling window/current process |
 
-The terminal and dead-letter counters are emitted by the pod that processes a
-Kafka record. Traefik's HTTP weight does **not** select that Kafka consumer: a
-checkout accepted by the HTTP canary can be completed or failed by another pod
-in the consumer group. The guardrails therefore prove the health of the
-canary pod when it processes records; they do not claim end-to-end attribution
-of every weighted HTTP request. With `failureLimit: 0`, zero terminal samples
-make the AnalysisRun fail and the canary abort; continuous k6 checkout traffic
-is required before and throughout each analysis window. Operators must inspect the cross-pod business metrics,
-Kafka assignment/lag, and the k6 order outcomes before manually promoting.
-The former database-wide `orders_pipeline_inflight` and
-`orders_reconciliation_open` gauges are deliberately not rollout gates:
-filtering their replicated DB-wide values by a pod hash neither attributes an
-incident to that revision nor avoids replica multiplication.
+HTTP evidence excludes actuator endpoints, so scrape/health traffic cannot satisfy
+the request minimum. `increase()` produces extrapolated estimates rather than
+exact event counts; record raw counters and k6 outcomes alongside the estimates.
+
+This replaces percentage claims at tiny volumes. At 3–8 checkouts/minute,
+one of three Kafka partitions can yield roughly 5–13 terminal outcomes in five
+minutes; requiring four confirmations fits that illustrative exposure and the
+360-slot fixture. Assignment and actual outcomes must be checked; the estimate
+is not a guarantee. Three analyses take about 18 minutes plus manual pauses,
+within the default 45-minute job. Use the #46 harness measurements to tune the
+window/delay/sample requirement together. A job timeout is not approval.
+
+Zero failure is intentional for the existing success-only fixture: unused
+seat/date pairs and `tok_visa` should confirm. A payment decline or inventory
+refusal is an expected business outcome for some inputs, but invalidates this
+promotion experiment and must stop it. Inspect `reason` and k6 logs to separate
+fixture failure from application regression. Do not exclude business labels
+from the query: a regression can cause those same refusals. Run intentional
+negative scenarios separately with an explicit expected-result contract; they
+are not evidence that this success fixture should promote. This is not a
+production 2% checkout/HTTP SLO and does not replace application SLO alerts.
+
+HTTP series are lazily created on their first request. Lifetime counts expose a
+first 5xx scraped at 1, which `increase()` alone can miss. Exhaustion and failure
+counts also preserve the first observed error and reject errors from earlier
+steps on the same processes. Counters are deduplicated by instance and their
+semantic labels when both Services discover the same endpoint. A reset can
+erase lifetime history: the continuity gate rejects observed resets and young
+processes, but cannot reconstruct an error lost before any scrape, or a previous
+process that disappeared before observation. Record pod UIDs/restarts at each
+step and abort/retry on a restart or replacement; never present those runs as
+clean lifetime evidence. No Prometheus gate can prove events never scraped.
+
+The coverage query uses `up` targets from Services `orders`/`orders-canary`, with
+the rollout hash retained by the ServiceMonitor. Every discovered instance must
+export both completed result series, a failed-reason counter, the six registered
+exhaustion topic/class series and process start time; all targets must be up.
+An empty target set fails too. This deliberately fails on old images or missing
+metrics; `or vector(0)` in error queries cannot waive the independent coverage
+gate. Validate target labels and metric coverage in the actual cluster first.
+
+**Image prerequisite:** delivery remains disabled in the values files. Do not
+enable it on the pinned `98bedf2` image. Deploy a verified artifact containing
+application [#127](https://github.com/g05-eurotransit/EuroTransit-application/pull/127)
+and [#128](https://github.com/g05-eurotransit/EuroTransit-application/pull/128),
+verify its digest/provenance, and inspect its scraped series. Source merges
+`4389f4f` and `3f04bcb` on application `dev` establish code availability, not
+registry artifact availability. #127 emits `orders_events_exhausted_total`
+from the retry-exhausting pod; `orders_events_dlt_total` identifies the DLT
+reader and is not a rollout attribution signal. #128 registers checkout series
+at zero. Application contracts and failure taxonomy remain in the
+[application source](https://github.com/g05-eurotransit/EuroTransit-application/tree/dev/orders/src/main/kotlin/it/polito/cpo/service).
+
+### Kafka exposure and evidence
+
+HTTP weights do not determine Kafka exposure. Stable and canary join the same
+consumer group. With two consumers and three partitions a canary can own one
+or two partitions (roughly 33% or 67% of records for balanced partition traffic),
+regardless of a 10% HTTP weight; replicas, skew and rebalances can change this.
+A checkout accepted by one HTTP pod can finish on another Kafka consumer.
+Terminal metrics prove the processing revision's behavior, not end-to-end
+attribution of weighted requests. Database-wide pipeline/reconciliation gauges
+remain diagnostic, not version-specific promotion gates.
+
+For each 10/25/50% step, record the image digest, rollout hash, pod UIDs and
+restart counts; actual HTTP weight and HTTP samples; confirmed/failed outcomes
+by reason and pod; lifetime 5xx/exhaustion counts; and the consumer group members,
+assigned partitions for `order-placed` and `refund-requested`, lag and any
+rebalance. Collect assignments using the Kafka CLI `kafka-consumer-groups.sh
+--bootstrap-server <internal-bootstrap> --describe --group <actual-orders-group>
+--members --verbose`, with the cluster's configured authentication, or equivalent
+broker/operator evidence. Resolve the group ID from the deployed configuration;
+do not infer assignment from pod count or HTTP weights.
+
+The k6 Job must remain healthy. A failed check, unavailable fresh fixture, absent
+metric, insufficient samples, unobserved canary assignment or restart prevents
+manual promotion. Coordinate #46 for healthy and controlled regression runs;
+#49 collects the final promotion/abort/recovery evidence. The impossible-threshold
+exercise above proves controller wiring only; also show a genuine controlled
+error causes abort without editing the gate. Distributed tracing (#38) is a
+separate prerequisite for trace evidence and is not implemented by these gates.
 
 ## Strategies Not Used on the Critical Path
 
