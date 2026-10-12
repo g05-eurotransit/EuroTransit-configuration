@@ -64,6 +64,9 @@ The observed baseline and its remaining proof are recorded in
 [`baseline-2026-10-06.md`](baseline-2026-10-06.md). The subsequent successful
 five-order run with the new Orders instrumentation is recorded in
 [`baseline-2026-10-12.md`](baseline-2026-10-12.md).
+The five-attempt, two-VU single-seat correctness experiment is recorded in
+[`contention-2026-10-12.md`](contention-2026-10-12.md), including an independent
+Stripe sandbox audit and a passing correctness verifier.
 
 The optional Job requires a schedulable, untainted node with 50m/128Mi available
 requests and measured memory + 256Mi runner limit + 128Mi safety margin within
