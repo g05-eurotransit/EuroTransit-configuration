@@ -67,6 +67,9 @@ five-order run with the new Orders instrumentation is recorded in
 The five-attempt, two-VU single-seat correctness experiment is recorded in
 [`contention-2026-10-12.md`](contention-2026-10-12.md), including an independent
 Stripe sandbox audit and a passing correctness verifier.
+Sequential HTTP idempotency is recorded in
+[`request-replay-2026-10-12.md`](request-replay-2026-10-12.md), with replay
+identity, changed-payload conflicts and independently audited provider effects.
 
 The optional Job requires a schedulable, untainted node with 50m/128Mi available
 requests and measured memory + 256Mi runner limit + 128Mi safety margin within
