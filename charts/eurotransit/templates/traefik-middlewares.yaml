@@ -33,3 +33,27 @@ spec:
 {{- end }}
 {{- end }}
 
+
+{{- if and .Values.ingress.enabled .Values.ingress.checkoutRateLimit.enabled }}
+{{- $limit := .Values.ingress.checkoutRateLimit }}
+{{- if or (not (regexMatch "^[1-9][0-9]*$" (toString $limit.average))) (not (regexMatch "^[1-9][0-9]*$" (toString $limit.burst))) }}
+{{- fail "checkoutRateLimit average and burst must be positive integers" }}
+{{- end }}
+{{- if not (regexMatch "^[1-9][0-9]*(ms|s|m)$" (toString $limit.period)) }}
+{{- fail "checkoutRateLimit period must be a positive integer duration in ms, s or m" }}
+{{- end }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: eurotransit-checkout-rate-limit
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+spec:
+  rateLimit:
+    average: {{ $limit.average }}
+    period: {{ $limit.period | quote }}
+    burst: {{ $limit.burst }}
+    sourceCriterion:
+      requestHost: true
+{{- end }}

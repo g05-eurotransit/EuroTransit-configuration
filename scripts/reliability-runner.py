@@ -217,6 +217,8 @@ class Operator:
 
     def run(self):
         a = self.args
+        if os.environ.get('EXPECT_OVERLOAD', 'false') not in ('true', 'false'):
+            raise ValueError('EXPECT_OVERLOAD must be true or false')
         output = a.output.resolve()
         output.mkdir(mode=0o700, parents=True, exist_ok=False)
         fixtures = json.loads(a.fixtures.read_text())
@@ -259,6 +261,8 @@ class Operator:
             meta = {'runId': run_id, 'mode': a.mode, 'scenario': a.scenario, 'startedAt': utc().isoformat(), 'harness': a.image or str(a.harness), 'maxAttempts': a.max_attempts}
             write(output / 'run.json', meta)
             config = {'PUBLIC_URL': a.public_url, 'TOKEN_URL': a.issuer.rstrip('/') + '/protocol/openid-connect/token', 'CLIENT_ID': 'eurotransit-load-test', 'RUN_ID': run_id, 'SCENARIO': a.scenario, 'MAX_ATTEMPTS': str(a.max_attempts), 'MAX_VUS': str(a.max_vus), 'POLL_TIMEOUT_SECONDS': '30', 'OUTPUT_DIR': str(output), 'FIXTURES_FILE': str(a.fixtures.resolve())}
+            if 'EXPECT_OVERLOAD' in env:
+                config['EXPECT_OVERLOAD'] = env['EXPECT_OVERLOAD']
             if a.mode == 'workstation':
                 env.update(config)
                 with (output / 'runner.log').open('w') as log:

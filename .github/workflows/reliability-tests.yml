@@ -7,6 +7,7 @@ on:
       - 'scripts/reliability/**'
       - 'scripts/*reliability*'
       - 'scripts/*provider-audit*'
+      - 'scripts/test-checkout-load-shedding.py'
       - 'platform/reliability/**'
       - '.github/workflows/reliability-tests.yml'
   workflow_dispatch:
@@ -36,8 +37,11 @@ jobs:
         run: |
           python scripts/test-reliability-runner.py
           python scripts/test-provider-audit.py
+          python scripts/test-checkout-load-shedding.py
           python scripts/reliability/test-fault-contract.py
       - name: Validate constrained AKS chart
         run: helm lint charts/eurotransit -f charts/eurotransit/values-production.yaml
+      - name: Verify checkout refusal and recovery with local Traefik
+        run: python scripts/test-checkout-load-shedding.py --docker
       - name: Verify proxy delay, independent expiry, and neutral restart
         run: python scripts/reliability/test-proxy-local.py
