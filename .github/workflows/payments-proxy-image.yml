@@ -1,0 +1,39 @@
+name: Payments fault proxy image
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ${{ vars.ACR_REGISTRY }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify publication configuration
+        env:
+          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+        run: |
+          test -n "$REGISTRY" || { echo 'Set repository variable ACR_REGISTRY.'; exit 1; }
+          test -n "$ACR_USERNAME" && test -n "$ACR_PASSWORD" || { echo 'Set ACR_USERNAME and ACR_PASSWORD repository secrets.'; exit 1; }
+      - name: Verify fault contracts and independent proxy lease
+        run: |
+          python3 scripts/reliability/test-fault-contract.py
+          python3 scripts/reliability/test-proxy-local.py
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      - uses: docker/build-push-action@v6
+        id: publish
+        with:
+          context: platform/reliability/payments-proxy
+          push: true
+          tags: ${{ env.REGISTRY }}/eurotransit-payments-fault-proxy:sha-${{ github.sha }}
+      - name: Record immutable image reference
+        env:
+          DIGEST: ${{ steps.publish.outputs.digest }}
+        run: echo "$REGISTRY/eurotransit-payments-fault-proxy@$DIGEST" >> "$GITHUB_STEP_SUMMARY"

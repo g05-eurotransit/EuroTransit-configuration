@@ -39,3 +39,8 @@ kubeconfig
 
 # Isolated implementation checkouts
 .worktrees/
+
+# Local Python caches and operator-owned evidence
+__pycache__/
+*.py[cod]
+load-results/
