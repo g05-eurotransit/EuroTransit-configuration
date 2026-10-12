@@ -178,3 +178,6 @@ After a complete audit, rerun `collect --provider-evidence <provider-audit.json>
 and the harness verifier. Audit completeness applies to the bounded window,
 not to future charges, historical charges outside the window or provider metadata
 that the current payment adapter does not supply. Record this limit in the report.
+
+Bounded pacing experiments and their overload-proof limits are recorded in
+[`ramp-spike-2026-10-12.md`](ramp-spike-2026-10-12.md).
