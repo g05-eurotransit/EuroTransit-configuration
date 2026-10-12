@@ -24,6 +24,31 @@ spec:
       services:
         - name: catalog
           port: 8080
+    {{- if .Values.ingress.checkoutRateLimit.enabled }}
+    {{- $hosts := list .Values.global.domain }}
+    {{- if .Values.ingress.localhost.enabled }}
+    {{- $hosts = append $hosts "localhost" }}
+    {{- end }}
+    {{- range $host := uniq $hosts }}
+    - match: Host(`{{ $host }}`) && (Path(`/api/orders`) || Path(`/api/orders/`)) && Method(`POST`)
+      kind: Rule
+      priority: 1000
+      middlewares:
+        - name: eurotransit-secure-headers
+        - name: eurotransit-checkout-rate-limit
+        {{- if $.Values.ingress.forwardAuth.enabled }}
+        - name: eurotransit-forward-auth
+        {{- end }}
+      services:
+        {{- if $.Values.progressiveDelivery.enabled }}
+        - name: orders-weighted
+          kind: TraefikService
+        {{- else }}
+        - name: orders
+          port: 8080
+        {{- end }}
+    {{- end }}
+    {{- end }}
     - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/api/orders`)
       kind: Rule
       middlewares:
