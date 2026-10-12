@@ -52,7 +52,9 @@ The final audit uses a clearly labelled derived final-state ledger, based on
 fresh authenticated API observations after replay, and a single provider window
 covering both source runs and recovery. It does not turn either original load
 test into a passing harness result. Provider completeness applies to that bounded
-window, not future charges. Kafka lag telemetry remains unavailable.
+window, not future charges. The original collector did not capture Kafka lag;
+the later [Kafka audit](kafka-disruption-2026-10-12.md) identifies the existing
+client metric and documents the collector correction.
 
 ## Conclusion and follow-up
 
