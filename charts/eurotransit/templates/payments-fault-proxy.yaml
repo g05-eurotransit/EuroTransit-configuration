@@ -1,0 +1,66 @@
+{{- $proxy := get (.Values.reliability | default dict) "paymentsProxy" | default dict }}
+{{- if and (get $proxy "routeOrders") (not (get $proxy "enabled")) }}
+{{- fail "reliability.paymentsProxy.routeOrders requires enabled=true" }}
+{{- end }}
+{{- if get $proxy "enabled" }}
+{{- $image := required "paymentsProxy.image must contain a published immutable digest" (get $proxy "image") }}
+{{- if not (regexMatch "^[^[:space:]]+@sha256:[a-f0-9]{64}$" $image) }}
+{{- fail "paymentsProxy.image must be digest-pinned" }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payments-fault-proxy
+  labels: { app: payments-fault-proxy }
+data:
+  proxies.json: '[{"name":"payments","listen":"0.0.0.0:8080","upstream":"payments:8080","enabled":true}]'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-fault-proxy
+spec:
+  selector: { app: payments-fault-proxy }
+  ports:
+    - { name: http, port: 8080, targetPort: 8080 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-fault-proxy
+spec:
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels: { app: payments-fault-proxy }
+  template:
+    metadata:
+      labels: { app: payments-fault-proxy }
+    spec:
+      automountServiceAccountToken: false
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532 }
+      containers:
+        - name: proxy
+          image: {{ $image | quote }}
+          ports: [{ name: http, containerPort: 8080 }]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          resources:
+            requests: { cpu: 25m, memory: 32Mi }
+            limits: { cpu: 100m, memory: 64Mi }
+          readinessProbe:
+            exec:
+              command: [python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8474/health',timeout=2)"]
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            tcpSocket: { port: http }
+            periodSeconds: 10
+          volumeMounts:
+            - { name: config, mountPath: /config, readOnly: true }
+      volumes:
+        - name: config
+          configMap: { name: payments-fault-proxy }
+{{- end }}

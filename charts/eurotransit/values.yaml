@@ -109,7 +109,7 @@ catalog:
 orders:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/orders
-    tag: "98bedf2"
+    tag: "bad4c04"
   replicaCount: 2
   resources: {}
   database:
@@ -183,3 +183,9 @@ frontend:
     keycloakClientId: eurotransit-frontend
     apiBase: /api
     stripePublishableKey: pk_test_51TqEM0Jy7wiWeUdBtmQuEie1l4VxcLYC6LMJbAumROdVx89kWdB5LSWNn3DW2l1rxBCyZyUZwuRi4KElmUvx5yWb00aDZTVy9M
+
+# Independent operational runner. Enabling this renders only a suspended template.
+reliabilityTests:
+  enabled: false
+  image: "" # Immutable configuration load-tests image (commit SHA or digest).
+  clientSecretName: eurotransit-load-test-credentials

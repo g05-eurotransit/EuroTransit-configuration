@@ -92,7 +92,8 @@ spec:
             - name: EUROTRANSIT_SERVICES_INVENTORY_URL
               value: {{ .Values.orders.services.inventoryUrl | quote }}
             - name: EUROTRANSIT_SERVICES_PAYMENTS_URL
-              value: {{ .Values.orders.services.paymentsUrl | quote }}
+              {{- $proxy := get (.Values.reliability | default dict) "paymentsProxy" | default dict }}
+              value: {{ ternary "http://payments-fault-proxy:8080" .Values.orders.services.paymentsUrl (get $proxy "routeOrders" | default false) | quote }}
             - name: EUROTRANSIT_SERVICES_CATALOG_URL
               value: {{ .Values.orders.services.catalogUrl | quote }}
             - name: ORDERS_SERVICE_TOKEN_URI

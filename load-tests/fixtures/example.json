@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "fixtures": [
+    {
+      "routeId": "rt-to-mi-001",
+      "offerId": "of-001",
+      "travelDate": "2099-01-01",
+      "seatId": "1A",
+      "unitPrice": 24.90,
+      "currency": "EUR"
+    }
+  ]
+}
