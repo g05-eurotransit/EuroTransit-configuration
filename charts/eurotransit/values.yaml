@@ -95,7 +95,7 @@ catalog:
 orders:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/orders
-    tag: "98bedf2"
+    tag: "bad4c04"
   replicaCount: 2
   resources: {}
   database:
