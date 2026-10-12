@@ -397,7 +397,7 @@ class Operator:
             write(output / 'evidence.json', evidence)
 
     def telemetry(self, output, meta):
-        result = {'runId': meta['runId'], 'extraction': 'INCOMPLETE', 'attribution': 'namespace_and_time_window_not_exclusive_run', 'status': 'NOT_VERIFIED', 'missingSeries': [], 'queries': {}}
+        result = {'runId': meta['runId'], 'extraction': 'INCOMPLETE', 'attribution': 'namespace_and_time_window_not_exclusive_run', 'status': 'NOT_VERIFIED', 'missingSeries': [], 'queries': {}, 'querySources': {}}
         if not getattr(self.args, 'prometheus_url', None):
             result['reason'] = 'prometheus_url_not_supplied'
             write(output / 'telemetry.json', result)
@@ -424,6 +424,16 @@ class Operator:
                     data = json.load(response)
                 if data.get('status') != 'success':
                     raise ValueError('Prometheus query failed')
+                if name == 'kafka_lag' and not data['data'].get('result'):
+                    # Spring Kafka already exports per-consumer fetch-position lag.
+                    # This is not committed-offset lag and cannot cover a dead consumer.
+                    query = 'kafka_consumer_fetch_manager_records_lag{namespace=' + namespace + ',application=~"orders|notifications"}'
+                    params = urlencode({'query': query, 'start': meta['startedAt'], 'end': meta.get('finishedAt', utc().isoformat()), 'step': '30s'})
+                    with urlopen(self.args.prometheus_url.rstrip('/') + '/api/v1/query_range?' + params, timeout=10) as response:
+                        data = json.load(response)
+                    if data.get('status') != 'success':
+                        raise ValueError('Prometheus query failed')
+                result['querySources'][name] = query
                 result['queries'][name] = data['data']
                 if not data['data'].get('result'):
                     result['missingSeries'].append(name)

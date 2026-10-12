@@ -205,11 +205,12 @@ spec:
       canaryMetadata:
         labels:
           app.kubernetes.io/component: canary
-      canaryReplicaCount: 1
       trafficRouting:
         traefik:
           weightedTraefikServiceName: orders-weighted
       steps:
+        - setCanaryScale:
+            replicas: 1
         - setWeight: 10
         - analysis:
             templates:
