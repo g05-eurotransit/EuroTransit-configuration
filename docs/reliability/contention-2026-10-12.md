@@ -52,9 +52,8 @@ applies to the audited time window, not to future charges.
 
 Prometheus collection returned the checkout and breaker series, but telemetry
 remains `NOT_VERIFIED` because Kafka consumer lag was absent. This is separate
-from the passing per-order correctness audit. An initial unavailable local
-Prometheus connection was replaced by a temporary operator port-forward; the
-final collection used the original run window, without rerunning checkouts.
+from the passing per-order correctness audit. The final collection used the
+original run window, without rerunning checkouts.
 
 ## Evidence
 
