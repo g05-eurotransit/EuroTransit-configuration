@@ -27,3 +27,29 @@ This document owns the configuration-side threat model: the risk that an agent-g
 ## Worst Case Scenario
 
 An agent proposes a configuration change that is merged and reconciled by ArgoCD, exposing an internal service, weakening authentication, granting broad ServiceAccount permissions, breaking checkout routing, or disabling meaningful alerts. The controls are mandatory review, least-privilege RBAC, no direct agent cluster credentials, no plaintext secrets, and policy checks before merge.
+
+## Observed exception for the authorized test session — 2026-10-12
+
+The policy above describes the intended boundary. This session has a broader
+actual boundary: the user explicitly authorized autonomous AKS fault experiments
+and resource waivers, and the agent used the workstation's `eurotransit` kube
+context. It could delete targeted pods, cordon/uncordon a node, temporarily
+change CNPG instance count and an Argo Application policy, and create ephemeral
+containers with NET_ADMIN or KILL in a selected pod namespace. It also read
+load-client, service-client and Stripe sandbox credentials into memory for
+requests and independent audits. This is not evidence of least-privilege RBAC.
+
+Faults used UID conditions where applicable, bounded cleanup, no host networking
+and no SQL business correction. Raw credentials were not committed or printed;
+restricted local evidence contains order/provider metadata. Existing controller
+pause state was preserved. CNPG test setup separately saved and restored its
+Application policy and instance count. These measures bound individual tests
+but do not remove the broad credential blast radius: a bad action could disrupt
+checkout, expose secrets or change reconciled infrastructure. A dedicated,
+short-lived experiment identity and explicit RBAC review are still required.
+
+Remote Git push was denied by automatic approval review in this session. Local
+commits and reviewable PR drafts are allowed; publication and merge remain human
+steps. CI must continue to publish immutable images/update desired state without
+cluster credentials. Live fault injection is not proof of GitOps deployment.
+The team must review and own this exception and threat-model assessment.
