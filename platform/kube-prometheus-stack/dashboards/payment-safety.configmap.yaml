@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eurotransit-dashboard-payment-safety
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/part-of: eurotransit-marketplace
+data:
+  payment-safety.json: |
+    {
+      "title": "EuroTransit / Payment Safety",
+      "uid": "eurotransit-payment-safety",
+      "tags": ["eurotransit", "payments", "safety"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-1h", "to": "now" },
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": {},
+            "hide": 0,
+            "label": "Data source"
+          }
+        ]
+      },
+      "panels": [
+        {
+          "title": "Circuit Breaker State (Orders -> Payments)",
+          "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 6, "w": 24, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "resilience4j_circuitbreaker_state{namespace=\"eurotransit\", app=\"orders\", name=\"payments\"}",
+              "legendFormat": "{{state}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": { "text": "Inactive", "color": "transparent" },
+                    "1": { "text": "Active", "color": "green" }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Authorization Rate (2xx)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"eurotransit\", app=\"payments\", uri=\"/api/payments/authorize\", status=~\"2..\"}[5m]))",
+              "legendFormat": "Auths/s"
+            }
+          ]
+        },
+        {
+          "title": "Refund Rate (2xx)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"eurotransit\", app=\"payments\", uri=\"/api/payments/refund\", status=~\"2..\"}[5m]))",
+              "legendFormat": "Refunds/s"
+            }
+          ]
+        },
+        {
+          "title": "Declines and Failures (422 and 5xx)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"eurotransit\", app=\"payments\", status=~\"422|5..\"}[5m]))",
+              "legendFormat": "Errors/s"
+            }
+          ]
+        },
+        {
+          "title": "Idempotency Conflicts (409)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"eurotransit\", app=\"payments\", status=\"409\"}[5m]))",
+              "legendFormat": "Idempotency Conflicts/s"
+            }
+          ]
+        }
+      ]
+    }
