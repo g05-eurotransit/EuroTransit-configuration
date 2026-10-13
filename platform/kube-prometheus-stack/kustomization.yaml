@@ -5,4 +5,7 @@ resources:
   - dashboards/red-services.configmap.yaml
   - dashboards/checkout-slo.configmap.yaml
   - dashboards/infra-use.configmap.yaml
+  - dashboards/payment-safety.configmap.yaml
+  - dashboards/inventory-correctness.configmap.yaml
+  - dashboards/kafka-pipeline.configmap.yaml
 
