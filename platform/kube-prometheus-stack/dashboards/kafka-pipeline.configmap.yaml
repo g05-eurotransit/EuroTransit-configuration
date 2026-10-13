@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eurotransit-dashboard-kafka-pipeline
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/part-of: eurotransit-marketplace
+data:
+  kafka-pipeline.json: |
+    {
+      "title": "EuroTransit / Kafka Pipeline",
+      "uid": "eurotransit-kafka-pipeline",
+      "tags": ["eurotransit", "kafka", "pipeline", "async"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-1h", "to": "now" },
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": {},
+            "hide": 0,
+            "label": "Data source"
+          }
+        ]
+      },
+      "panels": [
+        {
+          "title": "Consumer Lag by Group",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum by (consumergroup) (kafka_consumergroup_lag{namespace=\"eurotransit\", consumergroup=~\"orders|notifications|orders-dlt\"})",
+              "legendFormat": "{{consumergroup}}"
+            }
+          ]
+        },
+        {
+          "title": "Oldest In-Flight Order (Seconds)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "max by (state) (orders_pipeline_oldest_age_seconds{namespace=\"eurotransit\", app=\"orders\"})",
+              "legendFormat": "{{state}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "fillOpacity": 10,
+                "lineWidth": 2
+              }
+            }
+          }
+        },
+        {
+          "title": "Checkout Outcomes",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum by (result) (rate(orders_checkout_completed_total{namespace=\"eurotransit\", app=\"orders\"}[5m]))",
+              "legendFormat": "{{result}}"
+            }
+          ]
+        },
+        {
+          "title": "DLT Exhausted Events (Permanent Failures)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum by (failure_class) (increase(orders_events_exhausted_total{namespace=\"eurotransit\", app=\"orders\"}[5m]))",
+              "legendFormat": "{{failure_class}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "color": { "mode": "palette-classic" } },
+            "overrides": [
+              {
+                "matcher": { "id": "byRegexp", "options": ".*" },
+                "properties": [ { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } } ]
+              }
+            ]
+          }
+        },
+        {
+          "title": "DLT Consumer Processing Outcomes",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum by (result) (increase(orders_events_dlt_total{namespace=\"eurotransit\", app=\"orders\"}[5m]))",
+              "legendFormat": "DLT Result: {{result}}"
+            }
+          ]
+        },
+        {
+          "title": "Open Reconciliation Records",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 7, "w": 12, "x": 0, "y": 16 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum by (kind) (orders_reconciliation_open{namespace=\"eurotransit\", app=\"orders\"})",
+              "legendFormat": "{{kind}}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 80 } } }
+        },
+        {
+          "title": "Oldest Reconciliation Incident Age (Seconds)",
+          "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 7, "w": 12, "x": 12, "y": 16 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "max(orders_reconciliation_oldest_age_seconds{namespace=\"eurotransit\", app=\"orders\"})",
+              "legendFormat": "Max Age"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 300 },
+                  { "color": "red", "value": 900 }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
