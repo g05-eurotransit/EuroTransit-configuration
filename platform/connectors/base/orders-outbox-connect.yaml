@@ -94,3 +94,9 @@ spec:
     transforms.outbox.table.expand.json.payload: true
     transforms.outbox.route.by.field: type
     transforms.outbox.route.topic.replacement: ${routedByValue}
+    # Copies the row's `traceparent` column into a record header of the same name, so the Orders
+    # consumer joins the trace of the span that wrote the row instead of starting its own: one trace
+    # per checkout across the Kafka hop (application #117/#126, `outbox_events.traceparent` from
+    # migration V17). Rows written before V17 carry NULL and simply get no header. Orders only: it is
+    # the only outbox that writes the column.
+    transforms.outbox.table.fields.additional.placement: "traceparent:header:traceparent"
