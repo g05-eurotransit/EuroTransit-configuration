@@ -6,6 +6,8 @@ Application behavior, API contracts, service design, authentication model, idemp
 
 ## Documentation Map
 
+- [Microservice architecture](../../EuroTransit-application/docs/design/architecture.md) explains application responsibilities; [Kind and AKS deployment](platform/deployment.md) shows configured infrastructure and environment differences with inline SVGs and optional interactive HTML.
+- [Shared documentation guide and templates](../../EuroTransit-application/docs/templates/README.md) define structure, ownership, report consolidation, and diagram conventions for both repositories.
 - `delivery/`: GitOps, CI/CD, kind smoke/e2e checks, progressive delivery, and delivery readiness.
 - `platform/`: Kubernetes networking, ingress, identity, secrets, observability stack, cluster bootstrap runbooks, and references to application contracts.
 - `reliability/`: SLOs, chaos experiment reports, and postmortems.

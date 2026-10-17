@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "EuroTransit AKS deployment",
+    "subtitle": "Declared environment topology; live health is unverified",
+    "output": "docs/diagrams/deployment/aks.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "repository": {
+      "url": "git@github.com:g05-eurotransit/EuroTransit-configuration.git",
+      "revision": "c1a5a47108a26dee46b8be5ebb1934d08b1931b6",
+      "link_mode": "local-only"
+    }
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Customer browser",
+      "sublabel": "Public HTTPS",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "charts/eurotransit/templates/ingressroutes.yaml",
+          "line": 1,
+          "end_line": 72
+        }
+      ]
+    },
+    {
+      "id": "ingress",
+      "type": "cloud",
+      "label": "Traefik",
+      "sublabel": "Azure LoadBalancer",
+      "pos": [
+        330,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/traefik/values-aks.yaml",
+          "line": 1,
+          "end_line": 14
+        },
+        {
+          "path": "charts/eurotransit/templates/ingressroutes.yaml",
+          "line": 11,
+          "end_line": 72
+        },
+        {
+          "path": "platform/keycloak/ingressroute.yaml",
+          "line": 9,
+          "end_line": 33
+        }
+      ]
+    },
+    {
+      "id": "workloads",
+      "type": "backend",
+      "label": "Marketplace pods",
+      "sublabel": "Frontend + five services",
+      "pos": [
+        620,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "charts/eurotransit/values-production.yaml",
+          "line": 17,
+          "end_line": 39
+        },
+        {
+          "path": "charts/eurotransit/templates/orders-deployment.yaml",
+          "line": 59,
+          "end_line": 110
+        }
+      ],
+      "tag": "1 replica each"
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "CloudNativePG",
+      "sublabel": "One PostgreSQL instance",
+      "pos": [
+        910,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/environments/aks/postgres-patch.yaml",
+          "line": 1,
+          "end_line": 6
+        },
+        {
+          "path": "platform/cloudnativepg/postgres-cluster.yaml",
+          "line": 21,
+          "end_line": 58
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "type": "security",
+      "label": "Keycloak",
+      "sublabel": "OIDC + service tokens",
+      "pos": [
+        910,
+        40
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/keycloak/keycloak.yaml",
+          "line": 9,
+          "end_line": 33
+        }
+      ]
+    },
+    {
+      "id": "kafka",
+      "type": "messagebus",
+      "label": "Strimzi Kafka",
+      "sublabel": "1 broker; ephemeral",
+      "pos": [
+        620,
+        510
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/environments/aks/kafka-nodepool-patch.yaml",
+          "line": 1,
+          "end_line": 5
+        },
+        {
+          "path": "platform/environments/aks/kafka-patch.yaml",
+          "line": 1,
+          "end_line": 11
+        },
+        {
+          "path": "platform/strimzi/kafka-cluster.yaml",
+          "line": 1,
+          "end_line": 14
+        }
+      ]
+    },
+    {
+      "id": "connect",
+      "type": "backend",
+      "label": "Debezium Connect",
+      "sublabel": "Three outbox connectors",
+      "pos": [
+        910,
+        510
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/connectors/base/kustomization.yaml",
+          "line": 1,
+          "end_line": 6
+        },
+        {
+          "path": "platform/connectors/base/orders-outbox-connect.yaml",
+          "line": 12,
+          "end_line": 33
+        },
+        {
+          "path": "platform/connectors/base/orders-outbox-connect.yaml",
+          "line": 69,
+          "end_line": 96
+        }
+      ]
+    },
+    {
+      "id": "argocd",
+      "type": "backend",
+      "label": "Argo CD",
+      "sublabel": "Platform + runtime sync",
+      "pos": [
+        40,
+        510
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 252,
+          "end_line": 275
+        },
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 315,
+          "end_line": 377
+        }
+      ]
+    },
+    {
+      "id": "monitoring",
+      "type": "backend",
+      "label": "Monitoring",
+      "sublabel": "Prometheus / Grafana",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 147,
+          "end_line": 176
+        },
+        {
+          "path": "charts/eurotransit/templates/servicemonitors.yaml",
+          "line": 1,
+          "end_line": 29
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-to-ingress",
+      "from": "client",
+      "to": "ingress",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ingress-to-workloads",
+      "from": "ingress",
+      "to": "workloads",
+      "label": "Public routes",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ingress-to-identity",
+      "from": "ingress",
+      "to": "identity",
+      "label": "OIDC routes",
+      "variant": "security"
+    },
+    {
+      "id": "workloads-to-postgres",
+      "from": "workloads",
+      "to": "postgres",
+      "label": "Owned DBs",
+      "variant": "default"
+    },
+    {
+      "id": "identity-to-postgres",
+      "from": "identity",
+      "to": "postgres",
+      "label": "keycloak_db",
+      "variant": "default"
+    },
+    {
+      "id": "postgres-to-connect",
+      "from": "postgres",
+      "to": "connect",
+      "label": "Outbox WAL",
+      "variant": "dashed"
+    },
+    {
+      "id": "connect-to-kafka",
+      "from": "connect",
+      "to": "kafka",
+      "label": "Relay events",
+      "variant": "dashed"
+    },
+    {
+      "id": "workloads-to-kafka",
+      "from": "workloads",
+      "to": "kafka",
+      "label": "Kafka clients",
+      "variant": "dashed"
+    },
+    {
+      "id": "argocd-to-workloads",
+      "from": "argocd",
+      "to": "workloads",
+      "label": "Reconcile",
+      "variant": "default"
+    },
+    {
+      "id": "monitoring-to-workloads",
+      "from": "monitoring",
+      "to": "workloads",
+      "label": "Metrics scrape",
+      "variant": "default"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Placement",
+      "items": [
+        "Application, PostgreSQL, Kafka and Connect: eurotransit.",
+        "Identity: keycloak; ingress: traefik; Argo CD: argocd.",
+        "Monitoring: monitoring namespace."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Availability constraints",
+      "items": [
+        "Single replicas and a single database instance.",
+        "Kafka has one broker and ephemeral storage."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Configuration only",
+      "items": [
+        "Forward-auth and trace export are disabled.",
+        "AKS PDBs disabled; Kind retains global minAvailable=1."
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "eurotransit namespace",
+      "wraps": [
+        "workloads",
+        "postgres",
+        "kafka",
+        "connect"
+      ],
+      "pad": 18
+    }
+  ]
+}
