@@ -1,0 +1,38 @@
+{
+  "runId": "et-pay-pure-74a6ce370600",
+  "faultIntervalUTC": [
+    "2026-10-17T08:56:36Z",
+    "2026-10-17T08:57:21Z"
+  ],
+  "delayMs": 4000,
+  "sourcePort": 8080,
+  "destinationScope": "captured Orders pod IPv4 /32",
+  "restartsBefore": 5,
+  "restartsAfter": 5,
+  "samples": 50,
+  "paymentsReadySamples": 50,
+  "catalogSuccessfulSamples": 50,
+  "catalogP95NearestRankMs": 145.82,
+  "breakerFirstOpen": "2026-10-17T08:57:01.260826+00:00",
+  "breakerFirstHalfOpen": "2026-10-17T08:57:18.261726+00:00",
+  "breakerFirstClosedAfterOpen": "2026-10-17T08:57:23.367987+00:00",
+  "finalConfirmed": 6,
+  "originalClientHarnessExit": 99,
+  "initialClientTimeouts": 2,
+  "eventReplayUsed": false,
+  "runOwnedIncidentRows": 0,
+  "verification": {
+    "verification": "VERIFIED",
+    "passed": true,
+    "violations": []
+  },
+  "providerExtraction": "COMPLETE",
+  "providerAllPagesRead": true,
+  "providerChargeCount": 6,
+  "providerUnmatchedCount": 0,
+  "sourceFilesSHA256": {
+    "payments-pure-latency-20261017T085630Z-final-audit-20261017T085745Z/verification.json": "5592ce5475368d5b6611ada26ea89250c0fa03a6a07e9795f09ac34afd79c26a",
+    "payments-pure-latency-20261017T085630Z-final-audit-20261017T085745Z/provider-audit.json": "eb60467c0a18fda16e5d8555cef388c780022072a5c64bce7e456fca87e0e8ea",
+    "payments-pure-latency-20261017T085630Z-final-audit-20261017T085745Z/evidence.json": "ce8393ed276dc779115630ffef1f54abf9c37b25cb403f7a0f78a16f20fa9dee"
+  }
+}
