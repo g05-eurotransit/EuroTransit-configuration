@@ -1,0 +1,17 @@
+# Same pinned chart as platform/argocd; isolated local proof, no AKS selection.
+installCRDs: true
+controller:
+  replicas: 1
+  # Controller 1.9.1 still defaults to Traefik v2's legacy API group.
+  extraArgs:
+    - --traefik-api-group=traefik.io
+    - --traefik-api-version=traefik.io/v1alpha1
+  nodeSelector:
+    kubernetes.io/hostname: eurotransit-control-plane
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 200m, memory: 192Mi}

@@ -1,0 +1,149 @@
+{
+  "runId": "et-kind-shedding-2447131d97",
+  "context": "kind-eurotransit",
+  "originalClientVerified": true,
+  "harnessExitCode": 0,
+  "attempts": 8,
+  "refused429": 3,
+  "confirmed": 5,
+  "recoveryConfirmed": 2,
+  "refusedKeysAbsent": true,
+  "refusedSeatsAvailable": true,
+  "independentProbes": {
+    "catalog": {
+      "total": 53,
+      "http200": 53
+    },
+    "order-poll": {
+      "total": 53,
+      "http200": 53
+    }
+  },
+  "restoredDisabled": true,
+  "providerAudit": {
+    "extraction": "COMPLETE",
+    "allPagesRead": true,
+    "unmatchedChargesCount": 0,
+    "authorizationsCount": 5
+  },
+  "verification": {
+    "verification": "VERIFIED",
+    "passed": true,
+    "violations": []
+  },
+  "checkoutSamples": [
+    {
+      "iteration": 0,
+      "httpStatus": 429,
+      "outcome": "overload_refusal",
+      "phase": "load",
+      "acceptanceMs": 0.795031,
+      "observedConfirmationMs": null
+    },
+    {
+      "iteration": 1,
+      "httpStatus": 202,
+      "outcome": "confirmed",
+      "phase": "load",
+      "acceptanceMs": 70.153715,
+      "observedConfirmationMs": 1667
+    },
+    {
+      "iteration": 2,
+      "httpStatus": 202,
+      "outcome": "confirmed",
+      "phase": "load",
+      "acceptanceMs": 32.752058,
+      "observedConfirmationMs": 1608
+    },
+    {
+      "iteration": 4,
+      "httpStatus": 429,
+      "outcome": "overload_refusal",
+      "phase": "recovery",
+      "acceptanceMs": 0.500052,
+      "observedConfirmationMs": null
+    },
+    {
+      "iteration": 3,
+      "httpStatus": 202,
+      "outcome": "confirmed",
+      "phase": "load",
+      "acceptanceMs": 15.699725,
+      "observedConfirmationMs": 1577
+    },
+    {
+      "iteration": 6,
+      "httpStatus": 429,
+      "outcome": "overload_refusal",
+      "phase": "recovery",
+      "acceptanceMs": 0.436658,
+      "observedConfirmationMs": null
+    },
+    {
+      "iteration": 5,
+      "httpStatus": 202,
+      "outcome": "confirmed",
+      "phase": "recovery",
+      "acceptanceMs": 27.081301,
+      "observedConfirmationMs": 1326
+    },
+    {
+      "iteration": 7,
+      "httpStatus": 202,
+      "outcome": "confirmed",
+      "phase": "recovery",
+      "acceptanceMs": 17.052542,
+      "observedConfirmationMs": 1332
+    }
+  ],
+  "refusalAudit": {
+    "refusedCount": 3,
+    "idempotencyRowsForRefusedKeys": 0,
+    "refusedSeatStates": [
+      {
+        "status": "AVAILABLE"
+      },
+      {
+        "status": "AVAILABLE"
+      },
+      {
+        "status": "AVAILABLE"
+      }
+    ]
+  },
+  "rateLimit": {
+    "average": 1,
+    "period": "1s",
+    "burst": 1,
+    "grouping": "requestHost",
+    "gatewayReplicas": 1
+  },
+  "rawArtifactSha256": {
+    "orders.json": "67352318266454e8424486a301cd74a227d77475e2dd36441d0096331ec93fdf",
+    "ingress-enabled.yaml": "4518e1a6a2239e080bd7000ee710a7f470d36aee149a3ebc91ce7dce1adbc4f9",
+    "evidence.json": "2598dfa410d5ed5b4b39e5b85c4b4418a64737fdd251403c84008fd7228d1121",
+    "ingress-restored.json": "b3fa63da4a8351fb741e12a65d0679d7cd90b7836eeb82a1de3fb02a33ff8fc1",
+    "summary.json": "32c9fbce45a9fe76226dcfcf29681354e263ace6e585257b3dd267be866e8c1a",
+    "canonical-events.json": "0f6b058fa0720e2ec39c5a5ed53e0f9ecf884f948f6b596bf01a11681b5f20f3",
+    "result.json": "ab8d8f4a0a89f8ad5ba674b73977d8e6a9c3e9db7ebbc05275810afaa47a0065",
+    "preflight.json": "dc0c560ab6a1e02426ae90eebdaef38cf40cc139bcfa24b6c30c4205124beaa8",
+    "helm-values-before.json": "ffe5b757410f19c372e726bdcaa00f89b09401097c8a1be398946dcf65fc9faa",
+    "verification.json": "5592ce5475368d5b6611ada26ea89250c0fa03a6a07e9795f09ac34afd79c26a",
+    "telemetry.json": "318c24e772ea3b8f6022426980d5f2ad6135dea2dc5163066ccc7dfff6cdd55f",
+    "traefik-access.log": "852f05956c6f433fc0f83fb973d2987602dcf469d5a538dc3a84ac37eaf6989d",
+    "run.json": "7b2a425c487ea83c49f1b1279ef11c8e99da823abd2cf94e8bf1bdee6fd8bd07",
+    "fixtures.json": "9f86d1b104cb60ae86e71ee24e6f775219c5728d3a2d2423bc7461537b919d33",
+    "ingress-before.json": "ac89ac3988ec9dfa9ac7d939189be076d515f8cafcbbff929e4a4f66ed37177a",
+    "events.json": "23e16e4c2f2f3a3b0a6b0015582bae49ca6685269721459822748ac4ac818226",
+    "after-pods.json": "52ec7feb43e076f1b0c22c3ae3de036eb5fcfc5f0bd0aa6815f23d586beefe22",
+    "provider-audit.json": "34de21ceaf92421686ebcb97f789e0c0b4afc1fe4f46a26c7bf3745ace87c2f0",
+    "refusal-audit.json": "8001c9ad05f724f32fdd3af59b242ba3d069d4fb828008655d432153a0a50b01",
+    "before-pods.json": "52ec7feb43e076f1b0c22c3ae3de036eb5fcfc5f0bd0aa6815f23d586beefe22",
+    "independent-probes.json": "628dc33d539f533f222171b3c381123e3746538397237c0325f9eab703c3d324",
+    "runner.log": "91eb2338b09dea17cfba8c04c1630ef7f3cdcf275060082f6e8f81c445f15ccf",
+    "ingress-enabled.json": "ec276f4fdffe5f7c6d63fe5071a827eac901019801055cb58b1912b4a25137a3",
+    "rate-limit-live.json": "5631e401cd1a1bf484153eda266f1f81f7f22767eeab41f50bdbf844207f7d89",
+    "orders.jsonl": "d90184643e80f5cad1a7d354c726d2522dd79e1e33bda4c4786d54b9a0b9b3d9"
+  }
+}

@@ -37,6 +37,15 @@ injecting failure; configured requests alone are not evidence of spare capacity.
   bounds `scheduled.rebalance.max.delay.ms` to 10000 (the default can defer task
   reassignment for five minutes) and flushes offsets every 5000 ms. These are
   local Connect settings, not application retry or timeout changes.
+  The HA overlay also provisions compacted heartbeat topics and bounded-retention
+  technical message topics. Every 10 seconds Debezium emits a transactional
+  logical message in each source database, so idle outbox slots can acknowledge
+  shared WAL without modifying application rows. The prefix is explicitly
+  included and these messages bypass the outbox transform. Both the technical
+  message and heartbeat topics must exist: Kafka automatic topic creation is
+  disabled. Do not infer progress from a `RUNNING` task; compare confirmed LSNs
+  during an interval with unchanged outbox counts. See the
+  [observed idle-slot repair](orders-shutdown-load-preflight-2026-10-17.md).
   The HA-only Strimzi values reconcile every 15 seconds so its existing finite
   connector auto-restart policy can observe failed tasks sooner. The policy's
   own backoff still applies; this is not a 15-second pipeline recovery guarantee.
@@ -124,6 +133,23 @@ python3 scripts/kind-ha-experiment.py fault --fault-mode worker-stop
 # A different failure, retained because it exposed unresolved recovery problems:
 # python3 scripts/kind-ha-experiment.py fault --fault-mode worker-freeze
 ```
+
+Additional sequential checks use the same fixed Kind context, sandbox provider
+credential, exclusive lock, fresh-seat claims and independent financial audit:
+
+```bash
+python3 scripts/kind-orders-shutdown.py
+python3 scripts/kind-checkout-load-shedding.py
+```
+
+The shutdown check holds one fresh seat with a finite, rolled-back row lock to
+observe a listener in flight, then normally deletes that Orders Pod and records
+readiness, endpoint withdrawal, drain and recovery. It makes at most four
+checkouts. The load-shedding check applies only rendered ingress/middleware
+objects with a deliberately low temporary limit of 1/s, burst 1, makes at most
+eight attempts and restores the ingress. It is direct local test configuration,
+not evidence of a GitOps delivery. Read the [shutdown report](orders-pod-shutdown-2026-10-17.md)
+and [429/recovery report](checkout-load-shedding-2026-10-17.md) for measured scope.
 
 The baseline makes two real sandbox checkouts. `warmup` checks the slot gate
 and executes at most four such batches, stopping immediately once all standby

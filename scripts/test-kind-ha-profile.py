@@ -69,15 +69,22 @@ class KindHAProfileTest(unittest.TestCase):
                 self.assertEqual(topic['spec']['replicas'], 3)
 
     def test_idle_heartbeat_is_ha_only_and_bypasses_outbox_routing(self):
+        topics = {d['spec']['topicName']: d['spec'] for d in self.connect
+                  if d and d['kind'] == 'KafkaTopic'}
+        self.assertEqual(set(topics), {topic for service in ('orders', 'inventory', 'payments')
+                                      for topic in ('__debezium-heartbeat.' + service, service + '.message')})
+        self.assertTrue(all(t['replicas'] == 3 and t['config']['min.insync.replicas'] == 2
+                            for t in topics.values()))
         for connector in (d for d in self.connect if d and d['kind'] == 'KafkaConnector'):
             config = connector['spec']['config']
             self.assertEqual(config['heartbeat.interval.ms'], 10000)
-            self.assertIn('pg_logical_emit_message(false,', config['heartbeat.action.query'])
-            self.assertEqual(config['message.prefix.exclude.list'], 'eurotransit_kind_heartbeat')
+            self.assertIn('pg_logical_emit_message(true,', config['heartbeat.action.query'])
+            self.assertEqual(config['message.prefix.include.list'], 'eurotransit_kind_heartbeat')
             self.assertEqual(config['transforms.outbox.predicate'], 'outboxTable')
             pattern = config['predicates.outboxTable.pattern']
             self.assertIsNotNone(re.fullmatch(pattern, config['topic.prefix'] + '.public.outbox_events'))
             self.assertIsNone(re.fullmatch(pattern, '__debezium-heartbeat.' + config['topic.prefix']))
+            self.assertIsNone(re.fullmatch(pattern, config['topic.prefix'] + '.message'))
         for profile in ('kind', 'aks'):
             docs = render('kubectl', 'kustomize', 'platform/connectors/environments/' + profile)
             for connector in (d for d in docs if d and d['kind'] == 'KafkaConnector'):
@@ -122,6 +129,26 @@ class KindHAProfileTest(unittest.TestCase):
                           '-f', 'charts/eurotransit/values-' + profile + '.yaml')
             container = resource(docs, 'Deployment', 'orders')['spec']['template']['spec']['containers'][0]
             self.assertFalse(any(e['name'].startswith('SPRING_R2DBC_POOL_') for e in container['env']))
+
+    def test_rollouts_retain_replica_count_and_use_supported_canary_scaling(self):
+        docs = render('helm', 'template', 'eurotransit', 'charts/eurotransit',
+                      '-f', 'charts/eurotransit/values-kind-ha.yaml',
+                      '--set', 'progressiveDelivery.enabled=true')
+        for service in ('orders', 'catalog'):
+            self.assertEqual(resource(docs, 'Rollout', service)['spec']['replicas'], 2)
+        canary = resource(docs, 'Rollout', 'orders')['spec']['strategy']['canary']
+        self.assertNotIn('canaryReplicaCount', canary)
+        self.assertEqual(canary['steps'][0]['setCanaryScale'], {'replicas': 1})
+
+    def test_pinned_rollouts_controller_uses_installed_traefik_api(self):
+        args = ['--traefik-api-group=traefik.io', '--traefik-api-version=traefik.io/v1alpha1']
+        ha = yaml.safe_load((ROOT / 'platform/argo-rollouts/values-kind-ha.yaml').read_text())
+        self.assertEqual(ha['controller']['extraArgs'], args)
+        apps = list(yaml.safe_load_all((ROOT / 'platform/argocd/base/platform-applications.yaml').read_text()))
+        app = resource(apps, 'Application', 'argo-rollouts')
+        self.assertEqual(app['spec']['source']['targetRevision'], '2.41.1')
+        values = yaml.safe_load(app['spec']['source']['helm']['values'])
+        self.assertEqual(values['controller']['extraArgs'], args)
 
     def test_shared_connect_cluster_is_redundant_with_all_credentials(self):
         clusters = [d for d in self.connect if d and d['kind'] == 'KafkaConnect']

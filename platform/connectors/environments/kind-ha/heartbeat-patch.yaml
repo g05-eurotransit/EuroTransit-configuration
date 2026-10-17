@@ -7,8 +7,8 @@ spec:
     # All three databases share WAL. Keep idle outbox slots advancing even when
     # only another database is active, without writing application rows.
     heartbeat.interval.ms: 10000
-    heartbeat.action.query: "SELECT pg_logical_emit_message(false, 'eurotransit_kind_heartbeat', '')"
-    message.prefix.exclude.list: eurotransit_kind_heartbeat
+    heartbeat.action.query: "SELECT pg_logical_emit_message(true, 'eurotransit_kind_heartbeat', '')"
+    message.prefix.include.list: eurotransit_kind_heartbeat
     # Heartbeat records have their own schema/topic and must bypass the outbox SMT.
     predicates: outboxTable
     predicates.outboxTable.type: org.apache.kafka.connect.transforms.predicates.TopicNameMatches

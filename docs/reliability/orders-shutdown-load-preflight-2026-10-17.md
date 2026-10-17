@@ -2,10 +2,12 @@
 
 ## Status
 
-**Orders Pod shutdown, cluster load shedding, canary and blue/green have not run
-in this sequence.** The initial healthy-state check stopped before fixture
+At the initial preflight, none of these experiments had run. The healthy-state check stopped before fixture
 allocation, checkout traffic, a seat lock or Pod deletion. No failed preflight is
-reported as a successful resilience experiment.
+reported as a successful resilience experiment. After explicit user
+authorization, the CDC baseline was repaired. [Orders shutdown](orders-pod-shutdown-2026-10-17.md)
+and [cluster load shedding](checkout-load-shedding-2026-10-17.md) subsequently
+passed; their evidence remains separate from this setup repair.
 
 ## Baseline failure
 
@@ -30,31 +32,41 @@ retained privately under `load-results/cdc-repair-20261017T205210Z`. The
 [sanitized evidence](evidence/2026-10-17/orders-shutdown-load-preflight.json)
 contains counts and artifact hashes without financial payloads or credentials.
 
-## Proposed restoration and prevention
+## Authorized restoration and prevention
 
-The prepared Kind-only procedure rechecks unchanged outbox IDs, terminal orders
-and empty reconciliation state, acquires the exclusive test lock, pauses
-connector reconciliation, stops the three connectors and archives their final
-source offsets. Only then would it remove the already-invalidated logical slots,
-clear their source offsets and initialize new streaming positions with a
+The Kind-only procedure rechecked unchanged outbox IDs, terminal orders
+and empty reconciliation state, acquired the exclusive test lock, paused
+connector reconciliation, stopped the three connectors and archived their final
+source offsets. It then removed the already-invalidated logical slots,
+cleared their source offsets and initialized new streaming positions with a
 one-time `snapshot.mode=no_data`. Existing business rows, Kafka records and
-application consumer offsets remain intact. After streaming offsets are
-committed, normal CR reconciliation resumes with the usual snapshot policy.
+application consumer offsets remained intact. After streaming offsets were
+committed, normal CR reconciliation resumed with the usual snapshot policy.
 
-This rebase would be a **manual baseline repair**, never evidence of automatic
+This rebase was a **manual baseline repair**, never evidence of automatic
 recovery or continuity through the lost WAL interval. Complete outbox-to-Kafka
 coverage is a prerequisite; a missing event or changed source blocks it.
-Automatic approval review rejected execution because dropping slots and clearing
-offsets are irreversible and require explicit user authorization. **No reset has
-been executed.** The prepared procedure is `/tmp/et-cdc-repair.py` on this host.
+Automatic approval review initially rejected execution because dropping slots
+and clearing offsets are irreversible. The user then explicitly authorized
+repair of this test cluster and execution proceeded. The procedure and original
+offsets remain in the private evidence; no second reset was needed.
 
-The proposed HA-only connector patch emits a filtered logical heartbeat every
+The HA-only connector patch now emits a transactional logical heartbeat every
 10 seconds without changing application tables. A topic predicate applies the
-outbox transform only to outbox events. Render checks pass; runtime heartbeat
-advancement is **not yet verified**. The default Kind and AKS profiles are
+outbox transform only to outbox events. The logical message prefix is explicitly
+included; technical message and heartbeat topics are provisioned with RF 3/min
+ISR 2 because Kafka disables automatic topic creation. A 35-second idle window
+verified advancement of all three confirmed slot positions with unchanged
+outbox counts (240/80/80 after the shutdown run).
+
+Two initial prevention checks failed and remain in the private evidence:
+missing heartbeat topics prevented offset persistence, and nontransactional
+logical messages did not advance confirmed LSNs over the sampled idle windows.
+Provisioning the topics and using transactional messages fixed the observed
+behavior. No failure was rewritten as a pass. The default Kind and AKS profiles are
 unchanged. Debezium documents the [idle database/shared WAL
 problem](https://debezium.io/documentation/reference/2.7/connectors/postgresql.html#postgresql-wal-disk-space),
-[logical message filtering](https://debezium.io/documentation/reference/2.7/connectors/postgresql.html#postgresql-property-message-prefix-exclude-list)
+[logical message filtering](https://debezium.io/documentation/reference/2.7/connectors/postgresql.html#postgresql-property-message-prefix-include-list)
 and [selective outbox transformation](https://debezium.io/documentation/reference/2.7/transformations/outbox-event-router.html#options-for-applying-the-transformation-selectively).
 
 ## Unaffected preparation
