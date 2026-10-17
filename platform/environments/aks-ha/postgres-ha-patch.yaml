@@ -1,0 +1,16 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: eurotransit-postgres
+  namespace: eurotransit
+spec:
+  instances: 2
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+  # Preserve today's asynchronous replication; no zero-RPO promise.
+  minSyncReplicas: 0
+  maxSyncReplicas: 0
+  enablePDB: true
+  failoverDelay: 0

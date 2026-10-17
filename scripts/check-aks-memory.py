@@ -51,11 +51,16 @@ def chart_index(cache):
     return result
 
 
-def render(root, env, charts):
+def render(root, env, charts, platform_profile='aks'):
     output = {}
     def kustomize(path):
         return documents(run(['kubectl', 'kustomize', root / path]))
     apps = kustomize('platform/argocd/environments/' + env)
+    if env == 'aks' and platform_profile != 'aks':
+        runtime = next(a for a in apps if a.get('kind') == 'Application'
+                       and a['metadata']['name'] == 'eurotransit-platform-runtime')
+        assert runtime['spec']['source']['path'] == 'platform/environments/aks'
+        runtime['spec']['source']['path'] = 'platform/environments/' + platform_profile
     output['argocd-applications'] = apps
     output['root-application'] = kustomize('apps/argocd-apps/environments/' + env)
     for app in apps:
@@ -110,6 +115,14 @@ def check_dashboard_preservation(current, baseline):
     before, after = dashboard_map(baseline), dashboard_map(current)
     assert after.keys() == before.keys(), 'dashboard ConfigMap set changed from baseline'
     assert after == before, 'dashboard content changed from baseline'
+
+
+def check_filter_preservation(current, previous):
+    # New proposals may use a baseline that already includes the drop filter.
+    expected = {'action': 'drop', 'sourceLabels': ['__name__'],
+                'regex': 'apiserver_(request_duration_seconds|request_body_size_bytes|request_sizes|response_sizes|response_size_bytes)_(bucket|sum|count)'}
+    assert current and current[-1] == expected, 'unexpected API server drop filter'
+    assert current == previous or current[:-1] == previous, 'chart default API server filter changed'
 
 
 def quantity(value, cpu=False):
@@ -302,7 +315,7 @@ def topology(rendered, baseline=None):
         apiserver = lambda docs: next(d for d in docs if d.get('kind') == 'ServiceMonitor' and 'apiserver' in d['metadata']['name'])
         previous = apiserver(old)['spec']['endpoints'][0]['metricRelabelings']
         current = apiserver(all_docs)['spec']['endpoints'][0]['metricRelabelings']
-        assert current[:-1] == previous, 'chart default API server filter changed'
+        check_filter_preservation(current, previous)
         drop = current[-1]
         assert drop['action'] == 'drop' and drop['sourceLabels'] == ['__name__']
         assert drop['regex'] == 'apiserver_(request_duration_seconds|request_body_size_bytes|request_sizes|response_sizes|response_size_bytes)_(bucket|sum|count)', 'unexpected API server drop families'
@@ -332,6 +345,8 @@ def main():
     p.add_argument('--baseline-root', type=Path)
     p.add_argument('--budgets', action='store_true')
     p.add_argument('--nodes', type=int, default=3)
+    p.add_argument('--platform-profile', choices=['aks', 'aks-ha'], default='aks',
+                   help='Offline AKS runtime source substitution only; does not modify GitOps owners')
     p.add_argument('--inventory-pods', type=Path)
     p.add_argument('--inventory-nodes', type=Path)
     args = p.parse_args()
@@ -343,7 +358,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True, mode=0o700)
     args.output.chmod(0o700)
     os.umask(0o077)
-    rendered = {env: render(args.root, env, charts) for env in ['aks', 'kind']}
+    rendered = {env: render(args.root, env, charts, args.platform_profile) for env in ['aks', 'kind']}
     for env, manifests in rendered.items():
         for owner, docs in manifests.items():
             (args.output / (env + '-' + owner + '.yaml')).write_text(yaml.dump_all(docs, sort_keys=False, Dumper=DUMPER))

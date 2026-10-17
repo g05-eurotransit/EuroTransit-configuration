@@ -18,6 +18,17 @@ def container(memory, restart=None):
 
 
 class SchedulingRequests(unittest.TestCase):
+    def test_filter_supports_current_baseline_without_allowing_default_changes(self):
+        default = {'action': 'keep', 'regex': 'required-default'}
+        drop = {'action': 'drop', 'sourceLabels': ['__name__'],
+                'regex': 'apiserver_(request_duration_seconds|request_body_size_bytes|request_sizes|response_sizes|response_size_bytes)_(bucket|sum|count)'}
+        audit.check_filter_preservation([default, drop], [default])
+        audit.check_filter_preservation([default, drop], [default, drop])
+        with self.assertRaisesRegex(AssertionError, 'chart default API server filter changed'):
+            audit.check_filter_preservation([drop], [default, drop])
+        with self.assertRaisesRegex(AssertionError, 'unexpected API server drop filter'):
+            audit.check_filter_preservation([default, {'action': 'drop', 'regex': '.*'}], [default])
+
     def test_init_maximum_and_overhead(self):
         self.assertEqual(audit.effective({'containers': [container('100Mi'), container('50Mi')], 'initContainers': [container('200Mi'), container('120Mi')], 'overhead': {'memory': '10Mi'}}), 210)
 

@@ -16,7 +16,7 @@ separate changes.
 | cert-manager controller; webhook | 32 / 128 each | `platform/cert-manager/values-aks.yaml` |
 | cert-manager cainjector | 64 / 192 | same Helm overlay |
 | CloudNativePG operator | 64 / 256 | `platform/cloudnativepg/values-aks.yaml` |
-| PostgreSQL | 192 / 512 | `platform/environments/aks/postgres-patch.yaml` |
+| PostgreSQL (one instance; HA profile is opt-in) | 192 / 512 per instance | `platform/environments/aks/postgres-patch.yaml` |
 | Kafka broker | 448 / 768 | `platform/environments/aks/kafka-nodepool-patch.yaml` |
 | Kafka Topic Operator | 192 / 384 | `platform/environments/aks/kafka-patch.yaml` |
 | Shared Kafka Connect worker | 512 / 768 | `platform/connectors/environments/aks/connect-patch.yaml` |
@@ -93,3 +93,9 @@ Use current metrics to revise budgets if necessary; no JVM or API tuning is
 part of this change. Revert the relevant AKS values/CR owner to roll back a
 resource-only change. Kafka Connect consolidation requires its offset-safe
 migration/rollback procedure before changing worker topology.
+
+The unselected [PostgreSQL HA proposal](../reliability/postgres-ha-proposal.md)
+adds one instance only when its runtime source is explicitly selected in Git.
+Use `scripts/check-aks-memory.py --platform-profile aks-ha` to audit it offline.
+Default totals remain unchanged; proposed steady requests increase from 5280Mi
+to 5472Mi. The current node memory measurements do not qualify activation.
