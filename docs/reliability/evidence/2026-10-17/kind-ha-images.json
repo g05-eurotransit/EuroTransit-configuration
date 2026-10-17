@@ -1,0 +1,58 @@
+{
+  "catalog": {
+    "localTag": "eurotransit/catalog:kind-ha",
+    "imageId": "sha256:daf6d996be2a0d53cead05ac6d549ca85e13a84ccaf1c2835de89ad655695fea",
+    "repoDigests": [
+      "eurotransit/catalog@sha256:daf6d996be2a0d53cead05ac6d549ca85e13a84ccaf1c2835de89ad655695fea",
+      "eurotransitregistry.azurecr.io/eurotransit/catalog@sha256:daf6d996be2a0d53cead05ac6d549ca85e13a84ccaf1c2835de89ad655695fea"
+    ]
+  },
+  "orders": {
+    "localTag": "eurotransit/orders:kind-ha",
+    "imageId": "sha256:8e142d64c8276d62e55688a5e1493904713070031fef28e29de193755b2198a5",
+    "repoDigests": [
+      "eurotransit/orders@sha256:8e142d64c8276d62e55688a5e1493904713070031fef28e29de193755b2198a5",
+      "eurotransitregistry.azurecr.io/eurotransit/orders@sha256:8e142d64c8276d62e55688a5e1493904713070031fef28e29de193755b2198a5"
+    ]
+  },
+  "inventory": {
+    "localTag": "eurotransit/inventory:kind-ha",
+    "imageId": "sha256:bc1c2c74eb2d2bf81d344424543ce5b2dd895108458ad509b841587c8d4e6227",
+    "repoDigests": [
+      "eurotransit/inventory@sha256:bc1c2c74eb2d2bf81d344424543ce5b2dd895108458ad509b841587c8d4e6227",
+      "eurotransitregistry.azurecr.io/eurotransit/inventory@sha256:bc1c2c74eb2d2bf81d344424543ce5b2dd895108458ad509b841587c8d4e6227"
+    ]
+  },
+  "payments": {
+    "localTag": "eurotransit/payments:kind-ha",
+    "imageId": "sha256:f5916811ede29ea422d924ba8f5138b9bdbec3af3bc1e211d867e353f5a931c3",
+    "repoDigests": [
+      "eurotransit/payments@sha256:f5916811ede29ea422d924ba8f5138b9bdbec3af3bc1e211d867e353f5a931c3",
+      "eurotransitregistry.azurecr.io/eurotransit/payments@sha256:f5916811ede29ea422d924ba8f5138b9bdbec3af3bc1e211d867e353f5a931c3"
+    ]
+  },
+  "notifications": {
+    "localTag": "eurotransit/notifications:kind-ha",
+    "imageId": "sha256:3695d554893f3972744addb345da8793214905696c3c3055964d96a5c59cdd04",
+    "repoDigests": [
+      "eurotransit/notifications@sha256:3695d554893f3972744addb345da8793214905696c3c3055964d96a5c59cdd04",
+      "eurotransitregistry.azurecr.io/eurotransit/notifications@sha256:3695d554893f3972744addb345da8793214905696c3c3055964d96a5c59cdd04"
+    ]
+  },
+  "frontend": {
+    "localTag": "eurotransit/frontend:kind-ha",
+    "imageId": "sha256:50d2d3fa895444c129811f5bab84f6dd6809a81a2da965fc0c361f407e59f64e",
+    "repoDigests": [
+      "eurotransit/frontend@sha256:50d2d3fa895444c129811f5bab84f6dd6809a81a2da965fc0c361f407e59f64e",
+      "eurotransitregistry.azurecr.io/eurotransit/frontend@sha256:50d2d3fa895444c129811f5bab84f6dd6809a81a2da965fc0c361f407e59f64e"
+    ]
+  },
+  "debezium-connect": {
+    "localTag": "eurotransit/debezium-connect:kind-ha",
+    "imageId": "sha256:976bd8c3b79b75a20258bec0b1a2351642c207d9b8e1f9f50d50c0a040294bb2",
+    "repoDigests": [
+      "eurotransit/debezium-connect@sha256:976bd8c3b79b75a20258bec0b1a2351642c207d9b8e1f9f50d50c0a040294bb2",
+      "eurotransitregistry.azurecr.io/eurotransit/debezium-connect@sha256:976bd8c3b79b75a20258bec0b1a2351642c207d9b8e1f9f50d50c0a040294bb2"
+    ]
+  }
+}

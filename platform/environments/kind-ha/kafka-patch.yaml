@@ -1,0 +1,32 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: dual-role
+  namespace: eurotransit
+spec:
+  storage:
+    type: persistent-claim
+    size: 2Gi
+    deleteClaim: false
+  template:
+    pod:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  strimzi.io/cluster: eurotransit-kafka
+                  strimzi.io/pool-name: dual-role
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: eurotransit-kafka
+  namespace: eurotransit
+spec:
+  kafka:
+    jvmOptions: {-Xms: 256m, -Xmx: 384m}
+    resources:
+      requests: {cpu: 100m, memory: 512Mi}
+      limits: {cpu: "1", memory: 768Mi}

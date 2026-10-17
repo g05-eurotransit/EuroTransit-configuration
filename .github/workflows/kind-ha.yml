@@ -1,0 +1,37 @@
+name: Kind HA profile checks
+on:
+  pull_request:
+    paths:
+      - 'platform/**'
+      - 'charts/eurotransit/**'
+      - 'scripts/kind-up.sh'
+      - 'scripts/kind-test.sh'
+      - 'scripts/render.sh'
+      - 'scripts/test-kind-ha-profile.py'
+      - '.github/workflows/kind-ha.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: azure/setup-helm@v4
+        with:
+          version: 'v4.2.3'
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.34.0'
+      - run: python -m pip install PyYAML==6.0.3
+      - name: Validate manifests and failure-domain invariants
+        run: |
+          bash -n scripts/kind-up.sh scripts/kind-test.sh scripts/render.sh
+          scripts/render.sh kind-ha
+          scripts/render.sh kind
+          helm lint charts/eurotransit -f charts/eurotransit/values-kind-ha.yaml
+          python scripts/test-kind-ha-profile.py

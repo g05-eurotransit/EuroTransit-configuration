@@ -1,0 +1,41 @@
+# Applied after values.yaml; independent from the single-node development profile.
+global:
+  domain: eurotransit.local
+  deployment:
+    topologySpreadConstraints:
+      whenUnsatisfiable: DoNotSchedule
+    podAntiAffinity:
+      type: required
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+monitoring:
+  serviceMonitors:
+    enabled: true
+catalog: &backend
+  image: {repository: eurotransit/catalog, tag: kind-ha}
+  replicaCount: 2
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {cpu: "1", memory: 512Mi}
+orders:
+  <<: *backend
+  image: {repository: eurotransit/orders, tag: kind-ha}
+inventory:
+  <<: *backend
+  image: {repository: eurotransit/inventory, tag: kind-ha}
+  bootstrap:
+    enabled: true
+payments:
+  <<: *backend
+  image: {repository: eurotransit/payments, tag: kind-ha}
+notifications:
+  <<: *backend
+  image: {repository: eurotransit/notifications, tag: kind-ha}
+  replicaCount: 1
+frontend:
+  image: {repository: eurotransit/frontend, tag: kind-ha}
+  replicaCount: 2
+  resources:
+    requests: {cpu: 25m, memory: 32Mi}
+    limits: {cpu: 250m, memory: 128Mi}

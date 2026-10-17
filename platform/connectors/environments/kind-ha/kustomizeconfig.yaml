@@ -1,0 +1,5 @@
+images:
+  - path: spec/image
+    group: kafka.strimzi.io
+    version: v1beta2
+    kind: KafkaConnect

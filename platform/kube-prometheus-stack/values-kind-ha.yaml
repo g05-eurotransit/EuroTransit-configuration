@@ -1,0 +1,30 @@
+# Keep observation outside the stopped worker; node exporters remain per node.
+prometheus:
+  prometheusSpec:
+    retention: 1d
+    resources:
+      requests: {cpu: 100m, memory: 256Mi}
+      limits: {cpu: "1", memory: 512Mi}
+    nodeSelector: &controlPlane
+      kubernetes.io/hostname: eurotransit-control-plane
+    tolerations: &controlPlaneTolerations
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+alertmanager:
+  alertmanagerSpec:
+    nodeSelector: *controlPlane
+    tolerations: *controlPlaneTolerations
+grafana:
+  admin:
+    existingSecret: ""
+    userKey: admin-user
+    passwordKey: admin-password
+  nodeSelector: *controlPlane
+  tolerations: *controlPlaneTolerations
+prometheusOperator:
+  nodeSelector: *controlPlane
+  tolerations: *controlPlaneTolerations
+kube-state-metrics:
+  nodeSelector: *controlPlane
+  tolerations: *controlPlaneTolerations

@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""Check rendered HA safety invariants without cluster credentials or a live cluster."""
+from pathlib import Path
+import subprocess
+import unittest
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def render(*args):
+    return list(yaml.safe_load_all(subprocess.check_output(args, cwd=ROOT, text=True)))
+
+
+def resource(docs, kind, name):
+    return next(d for d in docs if d and d['kind'] == kind and d['metadata']['name'] == name)
+
+
+class KindHAProfileTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.platform = render('kubectl', 'kustomize', 'platform/environments/kind-ha')
+        cls.connect = render('kubectl', 'kustomize', 'platform/connectors/environments/kind-ha')
+        cls.apps = render('helm', 'template', 'eurotransit', 'charts/eurotransit',
+                          '-f', 'charts/eurotransit/values.yaml',
+                          '-f', 'charts/eurotransit/values-kind-ha.yaml')
+
+    def test_three_workers_separate_from_control_plane(self):
+        config = yaml.safe_load((ROOT / 'platform/kind/kind-ha-config.yaml').read_text())
+        self.assertEqual([n['role'] for n in config['nodes']],
+                         ['control-plane', 'worker', 'worker', 'worker'])
+
+    def test_database_durability_and_failure_domains(self):
+        spec = resource(self.platform, 'Cluster', 'eurotransit-postgres')['spec']
+        self.assertEqual(spec['instances'], 3)
+        self.assertEqual(spec['postgresql']['synchronous'],
+                         {'method': 'any', 'number': 1, 'dataDurability': 'required'})
+        self.assertEqual(spec['affinity']['podAntiAffinityType'], 'required')
+        self.assertEqual(spec['affinity']['topologyKey'], 'kubernetes.io/hostname')
+        params = spec['postgresql']['parameters']
+        self.assertEqual(params['pg_failover_slots.standby_slots_min_confirmed'], '1')
+        self.assertEqual(len(params['pg_failover_slots.standby_slot_names'].split(',')), 3)
+        self.assertEqual(params['hot_standby_feedback'], 'on')
+
+    def test_kafka_survives_one_broker_loss(self):
+        pool = resource(self.platform, 'KafkaNodePool', 'dual-role')['spec']
+        self.assertEqual(pool['replicas'], 3)
+        self.assertEqual(pool['storage']['type'], 'persistent-claim')
+        self.assertTrue(pool['template']['pod']['affinity']['podAntiAffinity']
+                        ['requiredDuringSchedulingIgnoredDuringExecution'])
+        kafka = resource(self.platform, 'Kafka', 'eurotransit-kafka')['spec']['kafka']
+        self.assertEqual(kafka['config']['min.insync.replicas'], 2)
+        for topic in (d for d in self.platform if d and d['kind'] == 'KafkaTopic'):
+            with self.subTest(topic=topic['metadata']['name']):
+                self.assertEqual(topic['spec']['replicas'], 3)
+
+    def test_critical_backends_have_separate_replicas_and_budgets(self):
+        for name in ('catalog', 'orders', 'inventory', 'payments'):
+            with self.subTest(service=name):
+                deployment = resource(self.apps, 'Deployment', name)['spec']
+                self.assertEqual(deployment['replicas'], 2)
+                pod = deployment['template']['spec']
+                self.assertTrue(pod['affinity']['podAntiAffinity']
+                                ['requiredDuringSchedulingIgnoredDuringExecution'])
+                container = pod['containers'][0]
+                self.assertTrue(container['resources']['requests']['memory'])
+                self.assertTrue(container['resources']['limits']['memory'])
+                self.assertEqual(resource(self.apps, 'PodDisruptionBudget', name)
+                                 ['spec']['minAvailable'], 1)
+
+    def test_shared_connect_cluster_is_redundant_with_all_credentials(self):
+        clusters = [d for d in self.connect if d and d['kind'] == 'KafkaConnect']
+        self.assertEqual(len(clusters), 1)
+        spec = clusters[0]['spec']
+        self.assertEqual(spec['replicas'], 2)
+        self.assertEqual(spec['config']['offset.storage.replication.factor'], 3)
+        env = spec['template']['connectContainer']['env']
+        self.assertEqual({e['name'] for e in env},
+                         {'ORDERS_DB_PASSWORD', 'INVENTORY_DB_PASSWORD', 'PAYMENTS_DB_PASSWORD'})
+        connectors = [d for d in self.connect if d and d['kind'] == 'KafkaConnector']
+        self.assertEqual(len(connectors), 3)
+        self.assertTrue(all(d['metadata']['labels']['strimzi.io/cluster'] ==
+                            'orders-outbox-connect' for d in connectors))
+        self.assertTrue(spec['template']['pod']['affinity']['podAntiAffinity']
+                        ['requiredDuringSchedulingIgnoredDuringExecution'])
+
+    def test_dev_and_aks_remain_single_instance(self):
+        for environment in ('kind', 'aks'):
+            with self.subTest(environment=environment):
+                docs = render('kubectl', 'kustomize', 'platform/environments/' + environment)
+                self.assertEqual(resource(docs, 'Cluster', 'eurotransit-postgres')
+                                 ['spec']['instances'], 1)
+
+
+if __name__ == '__main__':
+    unittest.main()

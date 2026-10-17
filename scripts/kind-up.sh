@@ -2,7 +2,26 @@
 set -euo pipefail
 source "$(dirname "$0")/lib.sh"
 
-require_commands docker kind kubectl helm
+require_commands docker kind kubectl helm python3
+KIND_PROFILE="${KIND_PROFILE:-dev}"
+case "$KIND_PROFILE" in
+  dev) platform_profile=kind; app_values=values-kind.yaml; cluster_config=kind-config.yaml ;;
+  ha)
+    if [[ "$KIND_CLUSTER_NAME" != eurotransit ]]; then
+      echo "The HA placement rules currently require KIND_CLUSTER_NAME=eurotransit" >&2
+      exit 2
+    fi
+    platform_profile=kind-ha; app_values=values-kind-ha.yaml; cluster_config=kind-ha-config.yaml ;;
+  *) echo "KIND_PROFILE must be dev or ha" >&2; exit 2 ;;
+esac
+if [[ "$KIND_PROFILE" == ha ]]; then
+  KIND_IMAGE_TAG="${KIND_IMAGE_TAG:-kind-ha}"
+else
+  KIND_IMAGE_TAG="${KIND_IMAGE_TAG:-local}"
+fi
+# Every cluster operation is scoped even if another terminal switches context.
+kubectl() { command kubectl --context "kind-$KIND_CLUSTER_NAME" "$@"; }
+helm() { command helm --kube-context "kind-$KIND_CLUSTER_NAME" "$@"; }
 require_app_repo
 
 if [[ -z "${STRIPE_SECRET_KEY:-}" ]]; then
@@ -11,7 +30,7 @@ if [[ -z "${STRIPE_SECRET_KEY:-}" ]]; then
   exit 1
 fi
 
-if [[ "$STRIPE_SECRET_KEY" == sk_live_* ]]; then
+if [[ "$STRIPE_SECRET_KEY" != sk_test_* && "$STRIPE_SECRET_KEY" != rk_test_* ]]; then
   echo "Refusing to use a live Stripe key in the local Kind environment; use a test-mode key." >&2
   exit 1
 fi
@@ -24,45 +43,56 @@ docker_memory_bytes="$(docker info --format '{{.MemTotal}}')"
 # fi
 
 if ! kind get clusters | grep -qx "$KIND_CLUSTER_NAME"; then
-  kind create cluster --config "$ROOT_DIR/platform/kind/kind-config.yaml"
+  kind create cluster --name "$KIND_CLUSTER_NAME" --config "$ROOT_DIR/platform/kind/$cluster_config"
 fi
 kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
+if [[ "$KIND_PROFILE" == ha ]]; then
+  kubectl get nodes -o json | python3 -c '
+import json, sys
+nodes = json.load(sys.stdin)["items"]
+workers = [n for n in nodes if "node-role.kubernetes.io/control-plane" not in n["metadata"].get("labels", {})]
+if len(nodes) != 4 or len(workers) != 3:
+    sys.exit("HA requires one control plane and three workers; an existing dev cluster is not converted automatically")
+'
+fi
 
 services=(catalog orders inventory payments notifications)
 for service in "${services[@]}"; do
   if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
     docker build -f "$APP_DIR/Dockerfile" --build-arg "SERVICE=$service" \
-      -t "eurotransit/$service:local" "$APP_DIR"
-  elif ! docker image inspect "eurotransit/$service:local" >/dev/null 2>&1; then
-    echo "Missing eurotransit/$service:local while SKIP_BUILD=1" >&2
+      -t "eurotransit/$service:$KIND_IMAGE_TAG" "$APP_DIR"
+  elif ! docker image inspect "eurotransit/$service:$KIND_IMAGE_TAG" >/dev/null 2>&1; then
+    echo "Missing eurotransit/$service:$KIND_IMAGE_TAG while SKIP_BUILD=1" >&2
     exit 1
   fi
-  kind load docker-image --name "$KIND_CLUSTER_NAME" "eurotransit/$service:local"
+  kind load docker-image --name "$KIND_CLUSTER_NAME" "eurotransit/$service:$KIND_IMAGE_TAG"
 done
 
 if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
   docker build -f "$APP_DIR/frontend/Dockerfile" \
-    -t eurotransit/frontend:local "$APP_DIR/frontend"
-elif ! docker image inspect "eurotransit/frontend:local" >/dev/null 2>&1; then
-  echo "Missing eurotransit/frontend:local while SKIP_BUILD=1" >&2
+    -t eurotransit/frontend:$KIND_IMAGE_TAG "$APP_DIR/frontend"
+elif ! docker image inspect "eurotransit/frontend:$KIND_IMAGE_TAG" >/dev/null 2>&1; then
+  echo "Missing eurotransit/frontend:$KIND_IMAGE_TAG while SKIP_BUILD=1" >&2
   exit 1
 fi
-kind load docker-image --name "$KIND_CLUSTER_NAME" "eurotransit/frontend:local"
+kind load docker-image --name "$KIND_CLUSTER_NAME" "eurotransit/frontend:$KIND_IMAGE_TAG"
 
 if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
   docker build -f "$APP_DIR/connect/Dockerfile" \
-    -t eurotransit/debezium-connect:local "$APP_DIR"
-elif ! docker image inspect eurotransit/debezium-connect:local >/dev/null 2>&1; then
-  echo "Missing eurotransit/debezium-connect:local while SKIP_BUILD=1" >&2
+    -t eurotransit/debezium-connect:$KIND_IMAGE_TAG "$APP_DIR"
+elif ! docker image inspect eurotransit/debezium-connect:$KIND_IMAGE_TAG >/dev/null 2>&1; then
+  echo "Missing eurotransit/debezium-connect:$KIND_IMAGE_TAG while SKIP_BUILD=1" >&2
   exit 1
 fi
-kind load docker-image --name "$KIND_CLUSTER_NAME" eurotransit/debezium-connect:local
+kind load docker-image --name "$KIND_CLUSTER_NAME" eurotransit/debezium-connect:$KIND_IMAGE_TAG
 
 helm repo add traefik https://traefik.github.io/charts --force-update
 helm repo add jetstack https://charts.jetstack.io --force-update
 helm repo add cnpg https://cloudnative-pg.github.io/charts --force-update
 helm repo add strimzi https://strimzi.io/charts/ --force-update
 helm repo update
+platform_helm_args=()
+if [[ "$KIND_PROFILE" == ha ]]; then platform_helm_args=(-f "$ROOT_DIR/platform/kind/values-ha-controllers.yaml"); fi
 
 helm upgrade --install traefik traefik/traefik -n traefik --create-namespace \
   --version 36.3.0 -f "$ROOT_DIR/platform/traefik/values.yaml" \
@@ -72,10 +102,10 @@ helm upgrade --install cert-manager jetstack/cert-manager -n cert-manager --crea
   -f "$ROOT_DIR/platform/cert-manager/values-kind.yaml"
 helm upgrade --install cloudnativepg cnpg/cloudnative-pg -n cnpg-system --create-namespace \
   --version 0.24.0 -f "$ROOT_DIR/platform/cloudnativepg/values.yaml" \
-  -f "$ROOT_DIR/platform/cloudnativepg/values-kind.yaml"
+  -f "$ROOT_DIR/platform/cloudnativepg/values-kind.yaml" "${platform_helm_args[@]}"
 helm upgrade --install strimzi strimzi/strimzi-kafka-operator -n strimzi --create-namespace \
   --version 0.46.1 -f "$ROOT_DIR/platform/strimzi/values.yaml" \
-  -f "$ROOT_DIR/platform/strimzi/values-kind.yaml"
+  -f "$ROOT_DIR/platform/strimzi/values-kind.yaml" "${platform_helm_args[@]}"
 
 wait_for_deployments traefik
 wait_for_deployments cert-manager
@@ -113,7 +143,25 @@ kubectl -n keycloak create secret generic keycloak-db-credentials \
   --from-literal=username=keycloak --from-literal=password=password \
   --dry-run=client -o yaml | kubectl apply -f -
 
-kubectl apply -k "$ROOT_DIR/platform/environments/kind"
+# The load-test Keycloak bootstrap consumes this local-only technical credential.
+# Preserve it on repeated runs and copy it only between namespaces in this Kind.
+python3 - "$KIND_CLUSTER_NAME" <<'PY_LOCAL_CLIENT'
+import base64, json, secrets, subprocess, sys
+context = "kind-" + sys.argv[1]
+lookup = subprocess.run(["kubectl", "--context", context, "-n", "eurotransit",
+                         "get", "secret", "eurotransit-load-test-credentials",
+                         "--ignore-not-found", "-o", "json"], capture_output=True, text=True, check=True)
+value = (base64.b64decode(json.loads(lookup.stdout)["data"]["client-secret"]).decode()
+         if lookup.stdout.strip() else secrets.token_urlsafe(32))
+for namespace in ("eurotransit", "keycloak"):
+    secret = {"apiVersion": "v1", "kind": "Secret", "type": "Opaque",
+              "metadata": {"name": "eurotransit-load-test-credentials", "namespace": namespace},
+              "stringData": {"client-secret": value}}
+    subprocess.run(["kubectl", "--context", context, "apply", "-f", "-"],
+                   input=json.dumps(secret), text=True, check=True)
+PY_LOCAL_CLIENT
+
+kubectl apply -k "$ROOT_DIR/platform/environments/$platform_profile"
 kubectl -n eurotransit wait cluster/eurotransit-postgres --for=condition=Ready --timeout=8m
 kubectl -n eurotransit wait kafka/eurotransit-kafka --for=condition=Ready --timeout=10m
 
@@ -123,23 +171,28 @@ kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resourc
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.7.0/kubernetes/keycloaksamlclients.k8s.keycloak.org-v1.yml
 kubectl -n keycloak apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.7.0/kubernetes/kubernetes.yml
 kubectl -n keycloak rollout status deployment/keycloak-operator --timeout=5m
-kubectl apply -k "$ROOT_DIR/platform/environments/keycloak-kind"
+keycloak_profile=keycloak-kind
+if [[ "$KIND_PROFILE" == ha ]]; then keycloak_profile=keycloak-kind-ha; fi
+kubectl apply -k "$ROOT_DIR/platform/environments/$keycloak_profile"
 
 if [[ "${ENABLE_OBSERVABILITY:-0}" == "1" ]]; then
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts --force-update
+  observability_helm_args=()
+  if [[ "$KIND_PROFILE" == ha ]]; then observability_helm_args=(-f "$ROOT_DIR/platform/kube-prometheus-stack/values-kind-ha.yaml"); fi
   helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
     -n monitoring --create-namespace --version 75.15.1 \
     -f "$ROOT_DIR/platform/kube-prometheus-stack/values.yaml" \
     --set prometheus.prometheusSpec.retention=1d \
     --set prometheus.prometheusSpec.resources.requests.memory=256Mi \
     --set prometheus.prometheusSpec.resources.limits.memory=512Mi \
-    --set grafana.admin.existingSecret=""
+    --set grafana.admin.existingSecret="" "${observability_helm_args[@]}"
 fi
 
 kubectl -n keycloak wait keycloak/eurotransit-keycloak --for=condition=Ready --timeout=8m
 helm upgrade --install eurotransit "$ROOT_DIR/charts/eurotransit" -n eurotransit \
   -f "$ROOT_DIR/charts/eurotransit/values.yaml" \
-  -f "$ROOT_DIR/charts/eurotransit/values-kind.yaml" \
+  -f "$ROOT_DIR/charts/eurotransit/$app_values" \
+  --set-string catalog.image.tag="$KIND_IMAGE_TAG",orders.image.tag="$KIND_IMAGE_TAG",inventory.image.tag="$KIND_IMAGE_TAG",payments.image.tag="$KIND_IMAGE_TAG",notifications.image.tag="$KIND_IMAGE_TAG",frontend.image.tag="$KIND_IMAGE_TAG" \
   --wait --timeout 8m
 kubectl -n eurotransit rollout restart deployment/payments
 wait_for_deployments eurotransit
@@ -151,8 +204,10 @@ kubectl -n eurotransit delete \
   job/orders-outbox-connector-register job/inventory-outbox-connector-register \
   --ignore-not-found
 
-kubectl apply -k "$ROOT_DIR/platform/connectors/environments/kind"
-for connect in orders-outbox-connect inventory-outbox-connect payments-outbox-connect; do
+kubectl apply -k "$ROOT_DIR/platform/connectors/environments/$platform_profile"
+connects=(orders-outbox-connect inventory-outbox-connect payments-outbox-connect)
+if [[ "$KIND_PROFILE" == ha ]]; then connects=(orders-outbox-connect); fi
+for connect in "${connects[@]}"; do
   kubectl -n eurotransit wait "kafkaconnect/$connect" \
     --for=condition=Ready --timeout=8m
 done
