@@ -2,7 +2,7 @@
   "context": "kind-eurotransit",
   "runDirectory": "kind-progressive-20261017T210750Z",
   "controllerProof": "PASS with documented temporary overlap capacity exception",
-  "financialClosure": "PARTIAL: the original 50% provider audit is NOT_VERIFIED; no unknown successful effect was waived",
+  "financialClosure": "CLOSED WITH MANUAL OPERATOR CONFIRMATION for this run; original 50% automatic audit remains NOT_VERIFIED",
   "revisionType": "configuration-only Pod-template annotation; existing Orders artifact unchanged",
   "normalGateAnalysisRuns": [
     {
@@ -410,5 +410,11 @@
     "orders-adoption.yaml": "07aa4e5232b14e3336743e2201c69d2624c7a43879d396b3080670189768694a",
     "canary-abort-timeline.json": "42051146b6b39c3e015e1eb0737d809e85db09dd54f9a7ce6d97fb52222f9d8b",
     "orders-overlap-capacity-exception.json": "30f3980d85a517df7b68a82574032488babbe7467367dc7376206c63631ed2a3"
+  },
+  "manualFinancialReview": {
+    "basis": "Operator accepted the shared-sandbox explanation for the extra EUR 49.90 payment and confirmed no further investigation was needed",
+    "scope": "Run-scoped manual closure; external payment owner not independently established",
+    "originalAutomaticAudit": "NOT_VERIFIED; unchanged",
+    "auditorExemptionAdded": false
   }
 }

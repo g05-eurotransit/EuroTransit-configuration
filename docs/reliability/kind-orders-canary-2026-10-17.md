@@ -3,27 +3,29 @@
 ## Result
 
 **Controller/traffic proof passed with a documented capacity exception.
-Financial closure is PARTIAL.** Automatic abort and restoration to stable
+Run-scoped financial review is closed with manual operator confirmation.** Automatic abort and restoration to stable
 routing were observed, followed by successful ordinary analysis at 10%, 25%
 and 50%, a 100% read-only check and final `Healthy` promotion.
 
 All three checkout batches confirmed 30/30 orders, 90 total. The independent
-provider evidence differs by batch and must not be collapsed into one green
-result:
+provider evidence differs by batch; automatic results and manual review are
+reported separately:
 
 | Batch | Client outcomes | Independent provider/financial closure |
 | --- | --- | --- |
 | 10% | 30/30 confirmed | Original audit and verifier passed: 30 authorizations, no unmatched effect |
 | 25% | 30/30 confirmed | Original audit remained incomplete; separate follow-up verified 30 authorizations and explicitly recorded one declined, zero-effect attempt |
-| 50% | 30/30 confirmed | **NOT_VERIFIED:** 30 matching authorizations plus one unmatched successful €49.90 sandbox charge |
+| 50% | 30/30 confirmed | 30 matching authorizations; operator accepted the additional €49.90 shared-sandbox payment as outside this test. Original automatic audit remains **NOT_VERIFIED** |
 | 100% | 50/50 HTTP 200 reads | No additional checkout or payment created in this step |
 
-The unmatched successful charge was preserved as blocking for financial
-verification. Its request key/reference matched neither Kind nor the read-only
-AKS ledger lookup. Its origin remains unknown. No amount-based exemption,
-allowlist, success rewrite or monetary-state cleanup was used. Controller-only
-testing continued on the unchanged application artifact, with that limitation
-explicitly retained; this is not financial acceptance of a production release.
+The original automatic audit remains unchanged: it could not attribute the
+additional successful charge to Kind or the read-only AKS ledger lookup.
+Following review of the amount, timestamp and request key, the operator accepted
+the shared-sandbox explanation and confirmed that no further investigation was
+needed. This closes the run-scoped manual review; it is not independent proof
+of the external payment's owner. No auditor exemption or monetary-state cleanup
+was introduced. Controller-only testing had continued with the original finding
+still open at execution time.
 
 ## Method and observations
 
@@ -94,7 +96,7 @@ audits. The [25% follow-up](provider-audit-declined-attempt-2026-10-17.md) expla
 the separate declined-attempt correction; it did not exempt the successful
 unmatched charge at 50%.
 
-To close the full payment-sensitive release proof, attribute that successful
-charge or repeat in an isolated sandbox/account window. A subsequent reviewed
-GitOps release must also demonstrate real immutable application-version
-delivery; configuration-only Kind revisions do not supply that history.
+The operator confirmation closes the shared-sandbox finding for this test; it
+does not turn the original automatic audit into a pass. A subsequent reviewed
+GitOps release must demonstrate real immutable application-version delivery;
+configuration-only Kind revisions do not supply that history.
