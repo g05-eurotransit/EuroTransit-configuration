@@ -2,6 +2,10 @@
 
 Status: platform deployed; combined worker-loss/checkout proof **not executed**.
 
+This is the initial preparation snapshot. See the later
+[executed experiment report](kind-ha-worker-postgres-2026-10-17.md) for results
+and corrections discovered under failure.
+
 The previous single-node local cluster was deleted with explicit user approval.
 The replacement `eurotransit` cluster runs Kubernetes v1.34.0 with one control
 plane and three Ready workers. All deployment commands target

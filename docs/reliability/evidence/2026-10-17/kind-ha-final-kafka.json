@@ -1,0 +1,23 @@
+{
+  "observedAt": "2026-10-17T14:42:20.460079+00:00",
+  "context": "kind-eurotransit",
+  "partitionCount": 194,
+  "underReplicatedPartitions": 0,
+  "allPartitionsReplicationFactor3": true,
+  "consumerGroups": {
+    "notifications": {
+      "partitions": 3,
+      "totalLag": 0,
+      "maximumPartitionLag": 0
+    },
+    "orders": {
+      "partitions": 3,
+      "totalLag": 0,
+      "maximumPartitionLag": 0
+    }
+  },
+  "unmeasurableGroupPartitions": 9,
+  "lagIsPrometheusMetric": false,
+  "scope": "Post-recovery CLI snapshots in isolated diagnostic Pods, not a during-fault maximum or continuous lag SLI.",
+  "partitionsWithoutCommittedOffsetOnEmptyTopics": 9
+}

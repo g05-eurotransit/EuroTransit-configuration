@@ -1,0 +1,1108 @@
+{
+  "context": "kind-eurotransit",
+  "workstationOnly": true,
+  "runs": [
+    {
+      "runId": "et-kind-fault-f910496a33",
+      "faultMode": "worker-freeze",
+      "startedAt": "2026-10-17T13:13:36.955034+00:00",
+      "verdict": "FAILED_RECOVERY_WHILE_WORKER_DOWN",
+      "originalHarnessExitCode": 99,
+      "clientAttempts": 8,
+      "clientHttpStatuses": {
+        "202": 1,
+        "0": 4,
+        "500": 3
+      },
+      "clientOutcomes": {
+        "confirmed": 1,
+        "technical_failure": 7
+      },
+      "catalog": {
+        "samples": 179,
+        "errors": 0,
+        "p95Ms": 6.16
+      },
+      "secondsFromInjection": {
+        "worker_paused": 0.0,
+        "node_not_ready": 47.566,
+        "primary_changed": 49.657,
+        "worker_unpaused": 90.655
+      },
+      "timeline": [
+        {
+          "at": "2026-10-17T13:13:40.273592+00:00",
+          "event": "client_order",
+          "iteration": 0,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T13:13:40.342372+00:00",
+          "event": "worker_paused",
+          "worker": "eurotransit-worker2",
+          "primary": "eurotransit-postgres-1",
+          "deadlineSeconds": 90
+        },
+        {
+          "at": "2026-10-17T13:14:04.057151+00:00",
+          "event": "client_order",
+          "iteration": 1,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T13:14:25.600391+00:00",
+          "event": "client_order",
+          "iteration": 2,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T13:14:27.908735+00:00",
+          "event": "node_not_ready",
+          "worker": "eurotransit-worker2"
+        },
+        {
+          "at": "2026-10-17T13:14:29.999282+00:00",
+          "event": "primary_changed",
+          "primary": "eurotransit-postgres-2",
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T13:14:47.151207+00:00",
+          "event": "client_order",
+          "iteration": 3,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T13:15:08.694556+00:00",
+          "event": "client_order",
+          "iteration": 4,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T13:15:10.997435+00:00",
+          "event": "worker_unpaused",
+          "worker": "eurotransit-worker2"
+        },
+        {
+          "at": "2026-10-17T13:15:21.726863+00:00",
+          "event": "client_order",
+          "iteration": 5,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T13:15:32.609199+00:00",
+          "event": "client_order",
+          "iteration": 6,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T13:15:45.563913+00:00",
+          "event": "client_order",
+          "iteration": 7,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T13:16:41.604938+00:00",
+          "event": "harness_finished",
+          "exitCode": 99
+        },
+        {
+          "at": "2026-10-17T13:16:47.514398+00:00",
+          "event": "audit_finished",
+          "accepted": 1,
+          "confirmed": 1,
+          "clientOutcomes": {
+            "technical_failure": 7,
+            "confirmed": 1
+          },
+          "finalAuditVerified": true,
+          "originalClientVerified": false
+        }
+      ],
+      "minimumAvailableHostMiB": 3556.67,
+      "confirmedDuringWorkerFault": 0,
+      "financialAudit": {
+        "moneyPathInvariantsVerified": true,
+        "providerCharges": 1,
+        "databaseCommitted": 1,
+        "confirmed": 1
+      },
+      "telemetryStatus": {
+        "status": "NOT_VERIFIED",
+        "missingSeries": [
+          "kafka_lag"
+        ],
+        "reason": "metric_series_missing"
+      },
+      "hostInotifyLimits": null,
+      "declaredFaultSeconds": 90,
+      "sourceConfigHashes": {},
+      "rawEvidenceSha256": {
+        "run.json": "2e3ec221334e88769fd1cc88a96ee3bf717ce8be123875e35ee75a85a7b491e0",
+        "orders.jsonl": "54bbd6d3148cf9ea748f1c7bdca449960c7adce25f092a557a469eef9e7c0eb3",
+        "timeline.json": "9b45d1899e5120331fab8d61238da9ce96e25fe70bbd54a3710c1d9b9e786614",
+        "experiment-result.json": "1bf788b4f66fb5075f09f08693dc63d7f98b8e0bd38e8783c696df75c7c4556f",
+        "evidence.json": "9c6034116e5237bc38427fe3764dc769dcdc33fcc7499d6dd9fb1c5c3cc79363",
+        "provider-audit.json": "bf7817bdcea9b60b860744624d498b62d0b0ca817d3f4fd93f4dcd9353cc04a5",
+        "verification.json": "8262f31e0f9a0765874de904f1436d74221126e1d00b9d09270ba7ead7c604df"
+      }
+    },
+    {
+      "runId": "et-kind-fault-a7fe5c86db",
+      "faultMode": "worker-freeze",
+      "startedAt": "2026-10-17T13:45:27.666509+00:00",
+      "verdict": "FAILED_RECOVERY_WHILE_WORKER_DOWN",
+      "originalHarnessExitCode": 99,
+      "clientAttempts": 8,
+      "clientHttpStatuses": {
+        "202": 3,
+        "500": 2,
+        "0": 3
+      },
+      "clientOutcomes": {
+        "confirmed": 3,
+        "technical_failure": 5
+      },
+      "catalog": {
+        "samples": 139,
+        "errors": 8,
+        "p95Ms": 5000.26
+      },
+      "secondsFromInjection": {
+        "worker_paused": 0.0,
+        "node_not_ready": 47.606,
+        "primary_changed": 51.851,
+        "worker_unpaused": 90.69
+      },
+      "timeline": [
+        {
+          "at": "2026-10-17T13:45:34.157435+00:00",
+          "event": "client_order",
+          "iteration": 0,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T13:45:34.203680+00:00",
+          "event": "worker_paused",
+          "worker": "eurotransit-worker",
+          "primary": "eurotransit-postgres-2",
+          "deadlineSeconds": 90
+        },
+        {
+          "at": "2026-10-17T13:45:53.615870+00:00",
+          "event": "client_order",
+          "iteration": 1,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T13:46:10.879290+00:00",
+          "event": "client_order",
+          "iteration": 2,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T13:46:21.809438+00:00",
+          "event": "node_not_ready",
+          "worker": "eurotransit-worker"
+        },
+        {
+          "at": "2026-10-17T13:46:26.054702+00:00",
+          "event": "primary_changed",
+          "primary": "eurotransit-postgres-1",
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T13:46:43.222936+00:00",
+          "event": "client_order",
+          "iteration": 3,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T13:47:04.791766+00:00",
+          "event": "client_order",
+          "iteration": 4,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T13:47:04.893780+00:00",
+          "event": "worker_unpaused",
+          "worker": "eurotransit-worker"
+        },
+        {
+          "at": "2026-10-17T13:47:26.458415+00:00",
+          "event": "client_order",
+          "iteration": 5,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T13:47:48.024399+00:00",
+          "event": "client_order",
+          "iteration": 6,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T13:48:00.984303+00:00",
+          "event": "client_order",
+          "iteration": 7,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T13:48:33.302864+00:00",
+          "event": "harness_finished",
+          "exitCode": 99
+        },
+        {
+          "at": "2026-10-17T13:48:37.269365+00:00",
+          "event": "audit_finished",
+          "accepted": 3,
+          "confirmed": 3,
+          "clientOutcomes": {
+            "technical_failure": 5,
+            "confirmed": 3
+          },
+          "finalAuditVerified": false,
+          "originalClientVerified": false
+        }
+      ],
+      "minimumAvailableHostMiB": 3543.97,
+      "confirmedDuringWorkerFault": 0,
+      "financialAudit": {
+        "clientAcknowledged": 3,
+        "databaseCommitted": 6,
+        "confirmed": 6,
+        "committedWithoutClientOrderId": 3,
+        "providerCharges": 6,
+        "providerAuditComplete": true,
+        "moneyPathInvariantsVerified": true,
+        "clientProofPassed": false,
+        "note": "HTTP failures are unchanged; database commitment is not a successful client response."
+      },
+      "telemetryStatus": {
+        "status": "NOT_VERIFIED",
+        "missingSeries": [
+          "kafka_lag"
+        ],
+        "reason": "metric_series_missing"
+      },
+      "hostInotifyLimits": null,
+      "declaredFaultSeconds": 90,
+      "sourceConfigHashes": {
+        "scripts/kind-ha-experiment.py": "4e9320b6a67a68e647fbf80bc066c7bf635e586d30685d816c21df684175c8a4",
+        "load-tests/kind-ha.js": "3f2844435207bd874eaa87b235b46d271ff04f1b6a6e526dd3dc2f09bfb65199",
+        "load-tests/checkout.js": "3b28fe743132f01c221bd4279efddf137b35bd5fe3096816ab08c033b991ccdb",
+        "charts/eurotransit/values-kind-ha.yaml": "3922ed15684c2dce2c24630f48e0e87cb24b804689186f1d1b51d83fa806c76d",
+        "charts/eurotransit/templates/_r2dbc-pool.tpl": "8afd7a3a211ba7a986232fa81ce8725cb0f687f95f54f194d82e1736ebcacb3d",
+        "platform/connectors/environments/kind-ha/shared-ha-patch.yaml": "175080526b65cf71b5cafab176923a8d879a539d6fd3c070134dace59be76770"
+      },
+      "rawEvidenceSha256": {
+        "run.json": "319f2626ce379eef9b84e0d44d0e76bdf76e95dd2c6efeb3298789683a6df058",
+        "orders.jsonl": "4002f177be4b2529a6140a34a6217e0cd6b609cafd6797f08fadd2b45fd0cc92",
+        "timeline.json": "a6758ed92cc8dc6c3f621d1ecfb677c37b28308abcc23e307a40c99a864071cf",
+        "experiment-result.json": "5210b3b7fc7fbed44a05424eaa7b4f62339a247e337047be9d461252d3124ca4",
+        "evidence.json": "9762d06a6c841beeb2f09586c9dce506dc459a5867360c1ea7938f97f4cbdb82",
+        "provider-audit.json": "1980bb48a21c28c761d94277b10d5d6e3a19ef46faf0d659912704d8e2fb9d1f",
+        "verification.json": "1c799e7a65fcf774034f2a462407a9c02d7639be8519472a9bd3043df7082e27",
+        "server-attribution/evidence.json": "0f2d3007ad0e20ccb56ff62bc301421e92029ca93748813b9f8a8ae87d3652cf",
+        "server-attribution/provider-audit.json": "b6ba887145849fd06bfe3a5cf1b527c455ac16e376879113aa3ae8c9d8c4162a",
+        "server-attribution/verification.json": "77f78f80deca55ac1abb404239d95998f7807960072604138893558613a83ee9"
+      }
+    },
+    {
+      "runId": "et-kind-fault-1d68d06bdb",
+      "faultMode": "worker-freeze",
+      "startedAt": "2026-10-17T14:00:07.620848+00:00",
+      "verdict": "FAILED_RECOVERY_WHILE_WORKER_DOWN",
+      "originalHarnessExitCode": 99,
+      "clientAttempts": 8,
+      "clientHttpStatuses": {
+        "202": 3,
+        "500": 1,
+        "0": 4
+      },
+      "clientOutcomes": {
+        "confirmed": 3,
+        "technical_failure": 5
+      },
+      "catalog": {
+        "samples": 179,
+        "errors": 0,
+        "p95Ms": 4.43
+      },
+      "secondsFromInjection": {
+        "worker_paused": 0.0,
+        "node_not_ready": 47.574,
+        "primary_changed": 51.814,
+        "worker_unpaused": 90.799
+      },
+      "timeline": [
+        {
+          "at": "2026-10-17T14:00:14.109908+00:00",
+          "event": "client_order",
+          "iteration": 0,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T14:00:14.376545+00:00",
+          "event": "worker_paused",
+          "worker": "eurotransit-worker2",
+          "primary": "eurotransit-postgres-1",
+          "deadlineSeconds": 90
+        },
+        {
+          "at": "2026-10-17T14:00:33.772148+00:00",
+          "event": "client_order",
+          "iteration": 1,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:00:55.337337+00:00",
+          "event": "client_order",
+          "iteration": 2,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:01:01.950852+00:00",
+          "event": "node_not_ready",
+          "worker": "eurotransit-worker2"
+        },
+        {
+          "at": "2026-10-17T14:01:06.190432+00:00",
+          "event": "primary_changed",
+          "primary": "eurotransit-postgres-2",
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:01:17.047621+00:00",
+          "event": "client_order",
+          "iteration": 3,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:01:38.603686+00:00",
+          "event": "client_order",
+          "iteration": 4,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:01:45.175085+00:00",
+          "event": "worker_unpaused",
+          "worker": "eurotransit-worker2"
+        },
+        {
+          "at": "2026-10-17T14:02:00.241425+00:00",
+          "event": "client_order",
+          "iteration": 5,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T14:02:15.417140+00:00",
+          "event": "client_order",
+          "iteration": 6,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T14:02:28.400656+00:00",
+          "event": "client_order",
+          "iteration": 7,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T14:03:13.675270+00:00",
+          "event": "harness_finished",
+          "exitCode": 99
+        },
+        {
+          "at": "2026-10-17T14:03:20.695813+00:00",
+          "event": "audit_finished",
+          "accepted": 3,
+          "confirmed": 3,
+          "clientOutcomes": {
+            "technical_failure": 5,
+            "confirmed": 3
+          },
+          "finalAuditVerified": false,
+          "originalClientVerified": false
+        }
+      ],
+      "minimumAvailableHostMiB": 2986.03,
+      "confirmedDuringWorkerFault": 0,
+      "financialAudit": {
+        "clientAcknowledged": 3,
+        "databaseCommitted": 6,
+        "confirmed": 6,
+        "committedWithoutClientOrderId": 3,
+        "providerCharges": 6,
+        "providerAuditComplete": true,
+        "moneyPathInvariantsVerified": true,
+        "clientProofPassed": false,
+        "note": "HTTP failures are unchanged; database commitment is not a successful client response."
+      },
+      "telemetryStatus": {
+        "status": "NOT_VERIFIED",
+        "missingSeries": [
+          "kafka_lag"
+        ],
+        "reason": "metric_series_missing"
+      },
+      "hostInotifyLimits": null,
+      "declaredFaultSeconds": 90,
+      "sourceConfigHashes": {
+        "scripts/kind-ha-experiment.py": "c95131923709af30ddbead1973bbbece72b4ef7ac279ba1ea73adf50fff308bc",
+        "load-tests/kind-ha.js": "3f2844435207bd874eaa87b235b46d271ff04f1b6a6e526dd3dc2f09bfb65199",
+        "load-tests/checkout.js": "3b28fe743132f01c221bd4279efddf137b35bd5fe3096816ab08c033b991ccdb",
+        "charts/eurotransit/values-kind-ha.yaml": "09c6fa525e2653f86f94eee5bce62b73e6c469e928ec7e8fec209632c1a11e83",
+        "charts/eurotransit/templates/_r2dbc-pool.tpl": "8afd7a3a211ba7a986232fa81ce8725cb0f687f95f54f194d82e1736ebcacb3d",
+        "platform/connectors/environments/kind-ha/shared-ha-patch.yaml": "175080526b65cf71b5cafab176923a8d879a539d6fd3c070134dace59be76770"
+      },
+      "rawEvidenceSha256": {
+        "run.json": "bf3814ffd62d13b1087edf94699245668d4b267ba029f9832f9b82c5414f27cb",
+        "orders.jsonl": "768ef4f596cd9a2c2eac0b62249f649ab8acaba890e10ab31e18569bede5fbe5",
+        "timeline.json": "85c55e70a13bed438f95796701b05772b40f3e4e7119103f9c8d3d0814d7dab3",
+        "experiment-result.json": "f6b52d72f2be5ca0c7f57bdf40401763e064371c447b00c1a8a37ae7c9d1f6b9",
+        "evidence.json": "358b774fd6b2d36385ef27051abbc0fe736c0b5ae63ffb8357e97aad736c80eb",
+        "provider-audit.json": "0311925faddce15d8049a7fecef965f575fdd01309396280b17e0c211d46c93d",
+        "verification.json": "685e91984e6f76b0e5a914ac3ac3cdd92719616964d8e9dfbe8591074a3d08ed",
+        "server-attribution/evidence.json": "26db64064525cc2fc7d00138ec618ec331060c272f5c882a4004148a7dbae9d2",
+        "server-attribution/provider-audit.json": "7bb026880571a723fc694c69c868f3a2af95e7e9b49d04b565cd76fc07502fb5",
+        "server-attribution/verification.json": "77f78f80deca55ac1abb404239d95998f7807960072604138893558613a83ee9"
+      }
+    },
+    {
+      "runId": "et-kind-fault-9e174ad41d",
+      "faultMode": "worker-freeze",
+      "startedAt": "2026-10-17T14:15:40.956782+00:00",
+      "verdict": "FAILED_RECOVERY_WHILE_WORKER_DOWN",
+      "originalHarnessExitCode": 99,
+      "clientAttempts": 8,
+      "clientHttpStatuses": {
+        "202": 3,
+        "500": 3,
+        "0": 2
+      },
+      "clientOutcomes": {
+        "confirmed": 3,
+        "technical_failure": 5
+      },
+      "catalog": {
+        "samples": 161,
+        "errors": 10,
+        "p95Ms": 1001.23
+      },
+      "secondsFromInjection": {
+        "worker_paused": 0.0,
+        "node_not_ready": 54.045,
+        "primary_changed": 56.141,
+        "worker_unpaused": 92.046
+      },
+      "timeline": [
+        {
+          "at": "2026-10-17T14:15:49.400475+00:00",
+          "event": "client_order",
+          "iteration": 0,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T14:15:49.657554+00:00",
+          "event": "worker_paused",
+          "worker": "eurotransit-worker",
+          "primary": "eurotransit-postgres-2",
+          "deadlineSeconds": 90
+        },
+        {
+          "at": "2026-10-17T14:16:06.898362+00:00",
+          "event": "client_order",
+          "iteration": 1,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:16:26.300401+00:00",
+          "event": "client_order",
+          "iteration": 2,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:16:43.549364+00:00",
+          "event": "client_order",
+          "iteration": 3,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:16:43.702956+00:00",
+          "event": "node_not_ready",
+          "worker": "eurotransit-worker"
+        },
+        {
+          "at": "2026-10-17T14:16:45.798224+00:00",
+          "event": "primary_changed",
+          "primary": "eurotransit-postgres-1",
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:17:06.233472+00:00",
+          "event": "client_order",
+          "iteration": 4,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": true
+        },
+        {
+          "at": "2026-10-17T14:17:21.703617+00:00",
+          "event": "worker_unpaused",
+          "worker": "eurotransit-worker"
+        },
+        {
+          "at": "2026-10-17T14:17:28.106472+00:00",
+          "event": "client_order",
+          "iteration": 5,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T14:17:43.217717+00:00",
+          "event": "client_order",
+          "iteration": 6,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T14:17:56.174606+00:00",
+          "event": "client_order",
+          "iteration": 7,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerPaused": false
+        },
+        {
+          "at": "2026-10-17T14:18:47.864521+00:00",
+          "event": "harness_finished",
+          "exitCode": 99
+        },
+        {
+          "at": "2026-10-17T14:18:54.900568+00:00",
+          "event": "audit_finished",
+          "accepted": 3,
+          "confirmed": 3,
+          "clientOutcomes": {
+            "confirmed": 3,
+            "technical_failure": 5
+          },
+          "finalAuditVerified": false,
+          "originalClientVerified": false
+        }
+      ],
+      "minimumAvailableHostMiB": 3030.22,
+      "confirmedDuringWorkerFault": 0,
+      "financialAudit": {
+        "clientAcknowledged": 3,
+        "databaseCommitted": 5,
+        "confirmed": 5,
+        "committedWithoutClientOrderId": 2,
+        "providerCharges": 5,
+        "providerAuditComplete": true,
+        "moneyPathInvariantsVerified": true,
+        "clientProofPassed": false,
+        "note": "HTTP failures are unchanged; database commitment is not a successful client response."
+      },
+      "telemetryStatus": {
+        "status": "NOT_VERIFIED",
+        "missingSeries": [
+          "kafka_lag"
+        ],
+        "reason": "metric_series_missing"
+      },
+      "hostInotifyLimits": null,
+      "declaredFaultSeconds": 90,
+      "sourceConfigHashes": {
+        "scripts/kind-ha-experiment.py": "bd16a9730121b531fb2974f084d68e0f5c0849db846555530aa908597be84c69",
+        "load-tests/kind-ha.js": "3f2844435207bd874eaa87b235b46d271ff04f1b6a6e526dd3dc2f09bfb65199",
+        "load-tests/checkout.js": "3b28fe743132f01c221bd4279efddf137b35bd5fe3096816ab08c033b991ccdb",
+        "charts/eurotransit/values-kind-ha.yaml": "09c6fa525e2653f86f94eee5bce62b73e6c469e928ec7e8fec209632c1a11e83",
+        "charts/eurotransit/templates/_r2dbc-pool.tpl": "8afd7a3a211ba7a986232fa81ce8725cb0f687f95f54f194d82e1736ebcacb3d",
+        "platform/cloudnativepg/values-kind-ha.yaml": "b8478ec2a9fe232ed24352ee91280de4836940bb7d9b55db95509cd2bd96cfcf",
+        "charts/eurotransit/templates/catalog-failover.yaml": "e88df25affa104a940cf797d20b78e0fd5d4d7ebc46ddd8b305d4eae7491c011",
+        "platform/connectors/environments/kind-ha/shared-ha-patch.yaml": "175080526b65cf71b5cafab176923a8d879a539d6fd3c070134dace59be76770"
+      },
+      "rawEvidenceSha256": {
+        "run.json": "461e0f10da75bd05605dfb7afe5d47ec1ea95e23655c941e229793ba1e93a07f",
+        "orders.jsonl": "cf53392c7626fdfaa464f90e309cdccae4d85c4ee0681a430e6977954a77e2e9",
+        "timeline.json": "d96f1a3a474d5b13653a53c392cda8f423bf3c2924ebd064e5a00c14fddc7691",
+        "experiment-result.json": "a6edeb3dee4edfe4d359dd979b122bd2f41d08e1e5af853f7547a15f3dfbdee7",
+        "evidence.json": "83e59cfc205697afed7806701eb9de79e9523d0f8dbe30c433b2790a64145b65",
+        "provider-audit.json": "230279e2f07feb7b15e5cab82fe78148c956c5808c4c3d14abb0ac9a47f3f96a",
+        "verification.json": "399b8f4bdb8d3e1238558becba79b2b9a49f8dc1c1f04e93d865aae3cec2b1aa",
+        "server-attribution/evidence.json": "8ccb7a2a8512bace4beda1cfbd3831d0038a9d6154b3641b64e59f74b12a1348",
+        "server-attribution/provider-audit.json": "1ac360f9060e66adc2b860afea666e146df32998d072715ffc1a88defc1be368",
+        "server-attribution/verification.json": "e04e12cdfabf82cd9442e7dac4c6d6006582a2478109d80e78134a17dd9c0d40"
+      }
+    },
+    {
+      "runId": "et-kind-fault-7788dd4e18",
+      "faultMode": "worker-stop",
+      "startedAt": "2026-10-17T14:23:11.430530+00:00",
+      "verdict": "FAILED_RECOVERY_WHILE_WORKER_DOWN",
+      "originalHarnessExitCode": 99,
+      "clientAttempts": 8,
+      "clientHttpStatuses": {
+        "202": 5,
+        "500": 2,
+        "0": 1
+      },
+      "clientOutcomes": {
+        "confirmed": 1,
+        "technical_failure": 3,
+        "timeout": 4
+      },
+      "catalog": {
+        "samples": 180,
+        "errors": 0,
+        "p95Ms": 3.98
+      },
+      "secondsFromInjection": {
+        "worker_stopped": 0.0,
+        "node_not_ready": 45.393,
+        "primary_changed": 47.491,
+        "worker_started": 90.465
+      },
+      "timeline": [
+        {
+          "at": "2026-10-17T14:23:17.883275+00:00",
+          "event": "client_order",
+          "iteration": 0,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerUnavailable": false
+        },
+        {
+          "at": "2026-10-17T14:23:18.509906+00:00",
+          "event": "worker_stopped",
+          "worker": "eurotransit-worker2",
+          "primary": "eurotransit-postgres-1",
+          "deadlineSeconds": 90
+        },
+        {
+          "at": "2026-10-17T14:23:35.741951+00:00",
+          "event": "client_order",
+          "iteration": 1,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:23:59.451272+00:00",
+          "event": "client_order",
+          "iteration": 2,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 0,
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:24:03.902779+00:00",
+          "event": "node_not_ready",
+          "worker": "eurotransit-worker2"
+        },
+        {
+          "at": "2026-10-17T14:24:06.000763+00:00",
+          "event": "primary_changed",
+          "primary": "eurotransit-postgres-2",
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:24:11.035193+00:00",
+          "event": "client_order",
+          "iteration": 3,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:24:48.975352+00:00",
+          "event": "worker_started",
+          "worker": "eurotransit-worker2"
+        },
+        {
+          "at": "2026-10-17T14:24:53.263785+00:00",
+          "event": "client_order",
+          "iteration": 4,
+          "status": "ACCEPTED",
+          "outcome": "timeout",
+          "httpStatus": 202,
+          "workerUnavailable": false
+        },
+        {
+          "at": "2026-10-17T14:25:34.767015+00:00",
+          "event": "client_order",
+          "iteration": 5,
+          "status": "ACCEPTED",
+          "outcome": "timeout",
+          "httpStatus": 202,
+          "workerUnavailable": false
+        },
+        {
+          "at": "2026-10-17T14:26:18.129251+00:00",
+          "event": "client_order",
+          "iteration": 6,
+          "status": "ACCEPTED",
+          "outcome": "timeout",
+          "httpStatus": 202,
+          "workerUnavailable": false
+        },
+        {
+          "at": "2026-10-17T14:26:59.239358+00:00",
+          "event": "client_order",
+          "iteration": 7,
+          "status": "ACCEPTED",
+          "outcome": "timeout",
+          "httpStatus": 202,
+          "workerUnavailable": false
+        },
+        {
+          "at": "2026-10-17T14:27:12.187160+00:00",
+          "event": "harness_finished",
+          "exitCode": 99
+        },
+        {
+          "at": "2026-10-17T14:29:19.118253+00:00",
+          "event": "audit_finished",
+          "accepted": 5,
+          "confirmed": 1,
+          "clientOutcomes": {
+            "technical_failure": 3,
+            "confirmed": 1,
+            "timeout": 4
+          },
+          "finalAuditVerified": false,
+          "originalClientVerified": false
+        }
+      ],
+      "minimumAvailableHostMiB": 4315.62,
+      "confirmedDuringWorkerFault": 0,
+      "financialAudit": {
+        "clientAcknowledged": 5,
+        "databaseCommitted": 5,
+        "confirmed": 1,
+        "committedWithoutClientOrderId": 0,
+        "providerCharges": 1,
+        "providerAuditComplete": false,
+        "moneyPathInvariantsVerified": false,
+        "clientProofPassed": false,
+        "note": "HTTP failures are unchanged; database commitment is not a successful client response."
+      },
+      "telemetryStatus": {
+        "status": "NOT_VERIFIED",
+        "missingSeries": [
+          "kafka_lag"
+        ],
+        "reason": "metric_series_missing"
+      },
+      "hostInotifyLimits": null,
+      "declaredFaultSeconds": 90,
+      "sourceConfigHashes": {
+        "scripts/kind-ha-experiment.py": "e49e5ee40641a8a9b849d3bd37fa50946c0c517d8c922a6d40c9565ddd4f4f3b",
+        "load-tests/kind-ha.js": "3f2844435207bd874eaa87b235b46d271ff04f1b6a6e526dd3dc2f09bfb65199",
+        "load-tests/checkout.js": "3b28fe743132f01c221bd4279efddf137b35bd5fe3096816ab08c033b991ccdb",
+        "charts/eurotransit/values-kind-ha.yaml": "09c6fa525e2653f86f94eee5bce62b73e6c469e928ec7e8fec209632c1a11e83",
+        "charts/eurotransit/templates/_r2dbc-pool.tpl": "8afd7a3a211ba7a986232fa81ce8725cb0f687f95f54f194d82e1736ebcacb3d",
+        "platform/cloudnativepg/values-kind-ha.yaml": "b8478ec2a9fe232ed24352ee91280de4836940bb7d9b55db95509cd2bd96cfcf",
+        "charts/eurotransit/templates/catalog-failover.yaml": "e88df25affa104a940cf797d20b78e0fd5d4d7ebc46ddd8b305d4eae7491c011",
+        "platform/connectors/environments/kind-ha/shared-ha-patch.yaml": "175080526b65cf71b5cafab176923a8d879a539d6fd3c070134dace59be76770"
+      },
+      "rawEvidenceSha256": {
+        "run.json": "44376e37567693e9147b8ea583a1e4ac30258f40f53edb1e4b7d5f9325adf6ab",
+        "orders.jsonl": "fd8b1f472a24adc3297a49a85e9c7bda8857f95b9ccc032d2f09b5a750d725d3",
+        "timeline.json": "209d8872ea270d24df2755d166d14326a10d7a31ef235f96ec9ebdf2c16be4e3",
+        "experiment-result.json": "5fd18cbd76c2b6b178f6d106d2c35dbb75da39f1e906f30221a81129f639d01d",
+        "evidence.json": "d452bedba1d8b6fd294d3225b9f5b7f731e1fc0f5e4326b19e619c4813a81f5b",
+        "provider-audit.json": "88e66854f5d598813615a9d9404af54a97f4c7d0dbb302ce97323a295cbbc3b7",
+        "verification.json": "832236398c06d0f8b58ec50956af1ad7c78914f0c3178c2f3be55f7207f65d98",
+        "server-attribution/evidence.json": "8de2994d21c1fb77542c295de74c68d7b5373898999f339c0781472e1367bfdb",
+        "server-attribution/provider-audit.json": "d4ce5f92f0235b738b84829c2323771230dcd809b5aea908af2ee7e9c9334be0",
+        "server-attribution/verification.json": "832236398c06d0f8b58ec50956af1ad7c78914f0c3178c2f3be55f7207f65d98"
+      }
+    },
+    {
+      "runId": "et-kind-fault-30677fd63d",
+      "faultMode": "worker-stop",
+      "startedAt": "2026-10-17T14:34:38.034344+00:00",
+      "verdict": "CHECKOUT_RECOVERED_WITH_CATALOG_ERRORS",
+      "originalHarnessExitCode": 99,
+      "clientAttempts": 8,
+      "clientHttpStatuses": {
+        "202": 5,
+        "500": 3
+      },
+      "clientOutcomes": {
+        "confirmed": 3,
+        "technical_failure": 3,
+        "timeout": 2
+      },
+      "catalog": {
+        "samples": 251,
+        "errors": 1,
+        "p95Ms": 615.43
+      },
+      "secondsFromInjection": {
+        "worker_stopped": 0.0,
+        "node_not_ready": 47.602,
+        "primary_changed": 51.858,
+        "worker_started": 181.864
+      },
+      "timeline": [
+        {
+          "at": "2026-10-17T14:34:44.635948+00:00",
+          "event": "client_order",
+          "iteration": 0,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerUnavailable": false
+        },
+        {
+          "at": "2026-10-17T14:34:45.173962+00:00",
+          "event": "worker_stopped",
+          "worker": "eurotransit-worker",
+          "primary": "eurotransit-postgres-2",
+          "deadlineSeconds": 180
+        },
+        {
+          "at": "2026-10-17T14:35:04.591520+00:00",
+          "event": "client_order",
+          "iteration": 1,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:35:24.010095+00:00",
+          "event": "client_order",
+          "iteration": 2,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:35:32.776318+00:00",
+          "event": "node_not_ready",
+          "worker": "eurotransit-worker"
+        },
+        {
+          "at": "2026-10-17T14:35:37.031953+00:00",
+          "event": "primary_changed",
+          "primary": "eurotransit-postgres-1",
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:35:39.675838+00:00",
+          "event": "client_order",
+          "iteration": 3,
+          "status": null,
+          "outcome": "technical_failure",
+          "httpStatus": 500,
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:36:21.883866+00:00",
+          "event": "client_order",
+          "iteration": 4,
+          "status": "ACCEPTED",
+          "outcome": "timeout",
+          "httpStatus": 202,
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:37:02.256331+00:00",
+          "event": "client_order",
+          "iteration": 5,
+          "status": "ACCEPTED",
+          "outcome": "timeout",
+          "httpStatus": 202,
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:37:44.792338+00:00",
+          "event": "client_order",
+          "iteration": 6,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerUnavailable": true
+        },
+        {
+          "at": "2026-10-17T14:37:47.037740+00:00",
+          "event": "worker_started",
+          "worker": "eurotransit-worker"
+        },
+        {
+          "at": "2026-10-17T14:37:57.802621+00:00",
+          "event": "client_order",
+          "iteration": 7,
+          "status": "CONFIRMED",
+          "outcome": "confirmed",
+          "httpStatus": 202,
+          "workerUnavailable": false
+        },
+        {
+          "at": "2026-10-17T14:39:13.646334+00:00",
+          "event": "harness_finished",
+          "exitCode": 99
+        },
+        {
+          "at": "2026-10-17T14:39:22.987098+00:00",
+          "event": "audit_finished",
+          "accepted": 5,
+          "confirmed": 5,
+          "clientOutcomes": {
+            "timeout": 2,
+            "confirmed": 3,
+            "technical_failure": 3
+          },
+          "finalAuditVerified": true,
+          "originalClientVerified": false
+        }
+      ],
+      "minimumAvailableHostMiB": 3529.81,
+      "confirmedDuringWorkerFault": 1,
+      "financialAudit": {
+        "clientAcknowledged": 5,
+        "databaseCommitted": 5,
+        "confirmed": 5,
+        "committedWithoutClientOrderId": 0,
+        "providerCharges": 5,
+        "providerAuditComplete": true,
+        "moneyPathInvariantsVerified": true,
+        "clientProofPassed": true,
+        "note": "HTTP failures are unchanged; database commitment is not a successful client response."
+      },
+      "telemetryStatus": {
+        "status": "NOT_VERIFIED",
+        "missingSeries": [
+          "kafka_lag"
+        ],
+        "reason": "metric_series_missing"
+      },
+      "hostInotifyLimits": {
+        "max_user_instances": 1024,
+        "max_user_watches": 524288
+      },
+      "declaredFaultSeconds": 180,
+      "sourceConfigHashes": {
+        "scripts/kind-ha-experiment.py": "e318f00628f6de1e4da56af3f445562480aff8010f0b2e2749581b5744e80b3c",
+        "load-tests/kind-ha.js": "3f2844435207bd874eaa87b235b46d271ff04f1b6a6e526dd3dc2f09bfb65199",
+        "load-tests/checkout.js": "3b28fe743132f01c221bd4279efddf137b35bd5fe3096816ab08c033b991ccdb",
+        "charts/eurotransit/values-kind-ha.yaml": "09c6fa525e2653f86f94eee5bce62b73e6c469e928ec7e8fec209632c1a11e83",
+        "charts/eurotransit/templates/_r2dbc-pool.tpl": "8afd7a3a211ba7a986232fa81ce8725cb0f687f95f54f194d82e1736ebcacb3d",
+        "platform/cloudnativepg/values-kind-ha.yaml": "b8478ec2a9fe232ed24352ee91280de4836940bb7d9b55db95509cd2bd96cfcf",
+        "charts/eurotransit/templates/catalog-failover.yaml": "e88df25affa104a940cf797d20b78e0fd5d4d7ebc46ddd8b305d4eae7491c011",
+        "platform/strimzi/values-kind-ha.yaml": "04823be0a99e9b64806b239735711cce7c4e7490d891e37f803a76268144a0c9",
+        "platform/connectors/environments/kind-ha/shared-ha-patch.yaml": "175080526b65cf71b5cafab176923a8d879a539d6fd3c070134dace59be76770"
+      },
+      "rawEvidenceSha256": {
+        "run.json": "df6bd82980c70ec7ed30e5960393b708b6b177033f0aece7f69f575c7b5b57c5",
+        "orders.jsonl": "859264da65c825d36f47f3de916c3db914bdcf190371eb74360a80233f22ae75",
+        "timeline.json": "e79f0b008298f2116291ac5427e348c68c5d5856790b1b394cde1bc2aa17a973",
+        "experiment-result.json": "acb2993453a6ca0cec8ad290fa341b7061624baeb60b201ee97a2a0d5a6789aa",
+        "evidence.json": "39a896111abf562a13c1fdc04c30a7e25df21635ba4a06a9eeba01506819b547",
+        "provider-audit.json": "69cd4a9a4c1e4fbc3900c352f91323164447263fb183ef184cd18789da629c0f",
+        "verification.json": "010096dea026d04e299c8140ccad5e0a189f620c8be7f627056032a6c5cab218",
+        "server-attribution/evidence.json": "6dd61a94facca2a7c2ccfad80f1b0fdb5908f0a42456a96e80505eb5d81aff7f",
+        "server-attribution/provider-audit.json": "da41cc37319c0236c554f3c0b5ac7d02acbc07132d89c242d8bec1feed9f0e3b",
+        "server-attribution/verification.json": "5592ce5475368d5b6611ada26ea89250c0fa03a6a07e9795f09ac34afd79c26a"
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "at": "2026-10-17T14:42:19.842784+00:00",
+  "context": "kind-eurotransit",
+  "memory": {
+    "availableMiB": 3486.28,
+    "swapUsedMiB": 926.5
+  },
+  "hostInotifyLimits": {
+    "max_user_instances": 1024,
+    "max_user_watches": 524288
+  },
+  "primary": "eurotransit-postgres-1",
+  "physicalReplication": [
+    {
+      "application_name": "eurotransit-postgres-6",
+      "state": "streaming",
+      "sync_state": "quorum",
+      "replay_lag_bytes": 0
+    },
+    {
+      "application_name": "eurotransit-postgres-2",
+      "state": "streaming",
+      "sync_state": "quorum",
+      "replay_lag_bytes": 0
+    }
+  ],
+  "cdcBarrier": "_cnpg_eurotransit_postgres_1,_cnpg_eurotransit_postgres_2,_cnpg_eurotransit_postgres_6",
+  "noFaultActive": true
+}

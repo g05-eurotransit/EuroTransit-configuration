@@ -1,6 +1,14 @@
 # Applied after values.yaml; independent from the single-node development profile.
 global:
   domain: eurotransit.local
+  database:
+    r2dbcPool:
+      # Fail acquisition explicitly and retire sessions pinned to an unreachable primary.
+      enabled: true
+      maxAcquireTime: 3s
+      maxCreateConnectionTime: 3s
+      maxValidationTime: 1s
+      maxIdleTime: 10s
   deployment:
     topologySpreadConstraints:
       whenUnsatisfiable: DoNotSchedule
@@ -9,6 +17,9 @@ global:
   podDisruptionBudget:
     enabled: true
     minAvailable: 1
+ingress:
+  catalogFailover:
+    enabled: true
 monitoring:
   serviceMonitors:
     enabled: true

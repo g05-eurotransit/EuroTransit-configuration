@@ -30,6 +30,19 @@ class KindHAProfileTest(unittest.TestCase):
         self.assertEqual([n['role'] for n in config['nodes']],
                          ['control-plane', 'worker', 'worker', 'worker'])
 
+    def test_standby_tcp_timeout_is_ha_only(self):
+        ha = yaml.safe_load((ROOT / 'platform/cloudnativepg/values-kind-ha.yaml').read_text())
+        self.assertEqual(ha['config']['data']['STANDBY_TCP_USER_TIMEOUT'], '5000')
+        for name in ('values.yaml', 'values-kind.yaml'):
+            default = yaml.safe_load((ROOT / 'platform/cloudnativepg' / name).read_text())
+            self.assertNotIn('STANDBY_TCP_USER_TIMEOUT', default.get('config', {}).get('data', {}))
+
+    def test_connector_restart_policy_has_bounded_detection(self):
+        ha = yaml.safe_load((ROOT / 'platform/strimzi/values-kind-ha.yaml').read_text())
+        self.assertEqual(ha['fullReconciliationIntervalMs'], 15000)
+        for connector in (d for d in self.connect if d and d['kind'] == 'KafkaConnector'):
+            self.assertEqual(connector['spec']['autoRestart'], {'enabled': True, 'maxRestarts': 10})
+
     def test_database_durability_and_failure_domains(self):
         spec = resource(self.platform, 'Cluster', 'eurotransit-postgres')['spec']
         self.assertEqual(spec['instances'], 3)
@@ -68,12 +81,40 @@ class KindHAProfileTest(unittest.TestCase):
                 self.assertEqual(resource(self.apps, 'PodDisruptionBudget', name)
                                  ['spec']['minAvailable'], 1)
 
+    def test_catalog_failover_retries_only_get(self):
+        route = resource(self.apps, 'IngressRoute', 'eurotransit-public-api')
+        retried = [r for r in route['spec']['routes'] if any(m['name']=='eurotransit-catalog-failover' for m in r.get('middlewares',[]))]
+        self.assertEqual(len(retried), 1)
+        self.assertIn('Method(`GET`)', retried[0]['match'])
+        self.assertIn('/api/catalog', retried[0]['match'])
+        self.assertEqual(resource(self.apps,'Middleware','eurotransit-catalog-failover')['spec']['retry']['attempts'],2)
+        for profile in ('kind','production'):
+            docs = render('helm','template','eurotransit','charts/eurotransit','-f','charts/eurotransit/values.yaml','-f','charts/eurotransit/values-'+profile+'.yaml')
+            self.assertFalse(any(d and d.get('kind') in ('Middleware','ServersTransport') and d['metadata']['name']=='eurotransit-catalog-failover' for d in docs))
+
+    def test_database_pool_settings_are_opt_in(self):
+        for name in ('orders', 'inventory', 'payments'):
+            container = resource(self.apps, 'Deployment', name)['spec']['template']['spec']['containers'][0]
+            env = {e['name']: e.get('value') for e in container['env']}
+            self.assertEqual(env['SPRING_R2DBC_POOL_MAX_ACQUIRE_TIME'], '3s')
+            self.assertEqual(env['SPRING_R2DBC_POOL_MAX_VALIDATION_TIME'], '1s')
+            self.assertEqual(env['SPRING_R2DBC_POOL_VALIDATION_QUERY'], 'SELECT 1')
+            self.assertEqual(env['SPRING_R2DBC_POOL_MAX_IDLE_TIME'], '10s')
+        for profile in ('kind', 'production'):
+            docs = render('helm', 'template', 'eurotransit', 'charts/eurotransit',
+                          '-f', 'charts/eurotransit/values.yaml',
+                          '-f', 'charts/eurotransit/values-' + profile + '.yaml')
+            container = resource(docs, 'Deployment', 'orders')['spec']['template']['spec']['containers'][0]
+            self.assertFalse(any(e['name'].startswith('SPRING_R2DBC_POOL_') for e in container['env']))
+
     def test_shared_connect_cluster_is_redundant_with_all_credentials(self):
         clusters = [d for d in self.connect if d and d['kind'] == 'KafkaConnect']
         self.assertEqual(len(clusters), 1)
         spec = clusters[0]['spec']
         self.assertEqual(spec['replicas'], 2)
         self.assertEqual(spec['config']['offset.storage.replication.factor'], 3)
+        self.assertEqual(spec['config']['scheduled.rebalance.max.delay.ms'], 10000)
+        self.assertEqual(spec['config']['offset.flush.interval.ms'], 5000)
         env = spec['template']['connectContainer']['env']
         self.assertEqual({e['name'] for e in env},
                          {'ORDERS_DB_PASSWORD', 'INVENTORY_DB_PASSWORD', 'PAYMENTS_DB_PASSWORD'})

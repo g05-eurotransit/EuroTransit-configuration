@@ -92,7 +92,13 @@ helm repo add cnpg https://cloudnative-pg.github.io/charts --force-update
 helm repo add strimzi https://strimzi.io/charts/ --force-update
 helm repo update
 platform_helm_args=()
-if [[ "$KIND_PROFILE" == ha ]]; then platform_helm_args=(-f "$ROOT_DIR/platform/kind/values-ha-controllers.yaml"); fi
+cnpg_ha_args=()
+strimzi_ha_args=()
+if [[ "$KIND_PROFILE" == ha ]]; then
+  platform_helm_args=(-f "$ROOT_DIR/platform/kind/values-ha-controllers.yaml")
+  cnpg_ha_args=(-f "$ROOT_DIR/platform/cloudnativepg/values-kind-ha.yaml")
+  strimzi_ha_args=(-f "$ROOT_DIR/platform/strimzi/values-kind-ha.yaml")
+fi
 
 helm upgrade --install traefik traefik/traefik -n traefik --create-namespace \
   --version 36.3.0 -f "$ROOT_DIR/platform/traefik/values.yaml" \
@@ -102,10 +108,10 @@ helm upgrade --install cert-manager jetstack/cert-manager -n cert-manager --crea
   -f "$ROOT_DIR/platform/cert-manager/values-kind.yaml"
 helm upgrade --install cloudnativepg cnpg/cloudnative-pg -n cnpg-system --create-namespace \
   --version 0.24.0 -f "$ROOT_DIR/platform/cloudnativepg/values.yaml" \
-  -f "$ROOT_DIR/platform/cloudnativepg/values-kind.yaml" "${platform_helm_args[@]}"
+  -f "$ROOT_DIR/platform/cloudnativepg/values-kind.yaml" "${platform_helm_args[@]}" "${cnpg_ha_args[@]}"
 helm upgrade --install strimzi strimzi/strimzi-kafka-operator -n strimzi --create-namespace \
   --version 0.46.1 -f "$ROOT_DIR/platform/strimzi/values.yaml" \
-  -f "$ROOT_DIR/platform/strimzi/values-kind.yaml" "${platform_helm_args[@]}"
+  -f "$ROOT_DIR/platform/strimzi/values-kind.yaml" "${platform_helm_args[@]}" "${strimzi_ha_args[@]}"
 
 wait_for_deployments traefik
 wait_for_deployments cert-manager

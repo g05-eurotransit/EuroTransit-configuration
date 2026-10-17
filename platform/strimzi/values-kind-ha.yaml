@@ -1,0 +1,2 @@
+# Bound detection of failed Debezium tasks by the existing finite autoRestart policy.
+fullReconciliationIntervalMs: 15000

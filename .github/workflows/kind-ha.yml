@@ -8,6 +8,9 @@ on:
       - 'scripts/kind-test.sh'
       - 'scripts/render.sh'
       - 'scripts/test-kind-ha-profile.py'
+      - 'scripts/test-kind-ha-audit.py'
+      - 'scripts/kind-ha-experiment.py'
+      - 'load-tests/**'
       - '.github/workflows/kind-ha.yml'
   workflow_dispatch:
 permissions:
@@ -35,3 +38,6 @@ jobs:
           scripts/render.sh kind
           helm lint charts/eurotransit -f charts/eurotransit/values-kind-ha.yaml
           python scripts/test-kind-ha-profile.py
+          python -m py_compile scripts/kind-ha-experiment.py
+          python scripts/test-kind-ha-audit.py
+          python -m unittest discover -s load-tests/tests -p test_verify.py
