@@ -11,6 +11,12 @@ patches:
       kind: KafkaConnector
       labelSelector: app.kubernetes.io/part-of=eurotransit-marketplace
   - path: shared-ha-patch.yaml
+  - path: heartbeat-patch.yaml
+    target:
+      group: kafka.strimzi.io
+      version: v1beta2
+      kind: KafkaConnector
+      labelSelector: app.kubernetes.io/part-of=eurotransit-marketplace
 images:
   - name: eurotransit/debezium-connect
     newTag: kind-ha

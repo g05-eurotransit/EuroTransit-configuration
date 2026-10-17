@@ -3,6 +3,7 @@
 from pathlib import Path
 import subprocess
 import unittest
+import re
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,6 +67,21 @@ class KindHAProfileTest(unittest.TestCase):
         for topic in (d for d in self.platform if d and d['kind'] == 'KafkaTopic'):
             with self.subTest(topic=topic['metadata']['name']):
                 self.assertEqual(topic['spec']['replicas'], 3)
+
+    def test_idle_heartbeat_is_ha_only_and_bypasses_outbox_routing(self):
+        for connector in (d for d in self.connect if d and d['kind'] == 'KafkaConnector'):
+            config = connector['spec']['config']
+            self.assertEqual(config['heartbeat.interval.ms'], 10000)
+            self.assertIn('pg_logical_emit_message(false,', config['heartbeat.action.query'])
+            self.assertEqual(config['message.prefix.exclude.list'], 'eurotransit_kind_heartbeat')
+            self.assertEqual(config['transforms.outbox.predicate'], 'outboxTable')
+            pattern = config['predicates.outboxTable.pattern']
+            self.assertIsNotNone(re.fullmatch(pattern, config['topic.prefix'] + '.public.outbox_events'))
+            self.assertIsNone(re.fullmatch(pattern, '__debezium-heartbeat.' + config['topic.prefix']))
+        for profile in ('kind', 'aks'):
+            docs = render('kubectl', 'kustomize', 'platform/connectors/environments/' + profile)
+            for connector in (d for d in docs if d and d['kind'] == 'KafkaConnector'):
+                self.assertNotIn('heartbeat.action.query', connector['spec']['config'])
 
     def test_critical_backends_have_separate_replicas_and_budgets(self):
         for name in ('catalog', 'orders', 'inventory', 'payments'):
