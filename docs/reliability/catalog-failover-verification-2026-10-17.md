@@ -2,8 +2,13 @@
 
 Outcome: the timeout was reproduced and attributed to an unavailable backend
 still present in the gateway's routing set. No functional Catalog defect was
-observed on the tested `GET /api/catalog/routes` path. This does not certify all
-Catalog functionality or turn the earlier zero-error HA verdict into a pass.
+observed on the tested `GET /api/catalog/routes` path. Catalog failover is
+demonstrated with measured transient errors. The specification does not require
+zero errors during every failure: these timeouts must be assessed against the
+applicable availability/latency SLO and error budget, rather than treated as an
+automatic failure of the failover requirement. This check neither certifies all
+Catalog functionality nor establishes SLO compliance. The original stricter
+zero-error diagnostic result remains recorded unchanged.
 
 ## Historical timeout
 

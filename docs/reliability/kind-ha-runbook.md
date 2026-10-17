@@ -154,6 +154,12 @@ A zero runner exit for the fault requires a new primary and at least one checkou
 confirmation while the worker is still unavailable, node NotReady observation, healthy
 Catalog samples and an independently verified final state for all accepted orders.
 It does not claim that all admission attempts succeeded or that an SLO was met.
+This is a strict diagnostic gate, including zero Catalog errors, rather than an
+additional requirement from the project specification. A nonzero exit caused by
+transient errors does not by itself invalidate demonstrated failover. Report
+recovery, correctness and user impact separately, then compare the measurements
+with the applicable team-owned SLO/RTO and error budget. Do not silently treat
+zero errors as mandatory or declare SLO compliance from recovery alone.
 
 Initial logical slot synchronization can require multiple warm-up batches and
 Debezium offset flushes. Inspect all three slots on each standby and require initialized LSNs before

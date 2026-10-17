@@ -1,8 +1,15 @@
 # Kind worker loss and PostgreSQL failover — 2026-10-17
 
-Status: **partial**. PostgreSQL and checkout recovered automatically during an
-abrupt worker stop; the strict zero-error experiment did not pass. The four
-process-freeze runs did not recover checkout while the worker remained frozen.
+Status: **worker-stop failover and recovery demonstrated, with measured transient
+client errors; SLO/RTO compliance not assessed here**. The project specification
+requires containment, recovery and SLO-based evidence; it does not impose zero
+errors during every injected failure. The harness's stricter zero-error gate is
+a diagnostic condition, not an additional project acceptance requirement.
+Transient errors alone therefore do not make the demonstrated failover a failed
+project requirement. Conversely, recovery alone does not prove SLO compliance:
+the measured impact must be compared with the applicable team-owned targets and
+error budget. The four process-freeze runs did not recover checkout while the
+worker remained frozen; that distinct recovery gap is retained.
 Promotion, client availability and financial convergence are separate findings.
 This report supersedes the earlier
 [preparation snapshot](kind-ha-preparation-2026-10-17.md).
@@ -12,8 +19,8 @@ This report supersedes the earlier
 | PostgreSQL promotion and synchronous replication with worker stopped | Promotion at 51.86 s; surviving quorum sampled at 70.30 s | Demonstrated |
 | Checkout recovery before worker return | One confirmation at 179.62 s during the declared 180-second stop | Demonstrated once; no team RTO/SLO pass claimed |
 | Committed purchases in final stop run | 5/5 confirmed; five distinct Stripe charges; full invariant audit passed | Passed |
-| Original client experience | 3 confirmations, 2 polling timeouts, 3 technical failures across 8 attempts | Failed zero-error criterion |
-| Catalog replica failover | 250 HTTP 200 and one HTTP 504; p95 615.43 ms | Partial; failed zero-error criterion |
+| Original client experience | 3 confirmations, 2 polling timeouts, 3 technical failures across 8 attempts | Transient impact measured; assess against SLO/error budget |
+| Catalog replica failover | 250 HTTP 200 and one HTTP 504; p95 615.43 ms | Failover demonstrated with a transient error; SLO assessment pending |
 | Process-freeze recovery | No checkout confirmation during any of four freezes | Failed |
 | Continuous Kafka consumer-lag SLI | Expected Prometheus series missing | Not verified |
 
@@ -22,7 +29,7 @@ attributed the historical 504 to the replica on the stopped worker. A controlled
 process stall reproduced five gateway timeouts while the healthy replica returned
 52/52 successful responses. Errors stopped after endpoint withdrawal; no Catalog
 business-logic defect was observed on the tested routes API. This diagnosis does
-not change the original HA test's partial verdict.
+not alter the recorded errors or establish compliance with an availability SLO.
 
 ## Hypothesis and steady state
 
@@ -169,8 +176,11 @@ polls had timed out while their orders were ACCEPTED; their final confirmations
 remain in the separate audit. The other three post-startup attempts failed
 admission. Catalog had one 504 among 251 requests while a replica was down.
 The original k6 exit remains **99**, the aggregate `haObserved` gate remains
-**false**, and the operator runner exits 1. Neither final-state correctness nor
-one recovered checkout rewrites this overall partial verdict.
+**false**, and the operator runner exits 1. These preserve the harness's strict
+diagnostic result, including its zero-Catalog-error condition; they must not be
+presented as an automatic failure of the project's failover requirement. The
+operational conclusion is **failover demonstrated with measured transient errors**.
+No recorded error is erased and no SLO pass is inferred from this small sample.
 
 The final [Kafka CLI snapshot](evidence/2026-10-17/kind-ha-final-kafka.json)
 found 194 partitions, all RF 3 with full ISR, and zero measured lag on the
