@@ -61,6 +61,12 @@ ingress:
     enabled: true
   tls:
     secretName: eurotransit-local-tls
+  checkoutRateLimit:
+    # Per request host and Traefik replica; these are initial values, not measured capacity.
+    enabled: false
+    average: 10
+    period: 1s
+    burst: 20
   forwardAuth:
     enabled: false
     address: http://keycloak-forward-auth.eurotransit.svc.cluster.local:4181

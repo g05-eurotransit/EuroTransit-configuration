@@ -18,6 +18,46 @@ def inventory(used='1000Mi'):
 
 
 class RunnerTests(unittest.TestCase):
+    def test_expect_overload_reaches_native_and_docker_wrapper(self):
+        for image in ('', 'registry/harness:abcdef1'):
+            with self.subTest(image=image), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                fixtures = root / 'fixtures.json'
+                r.write(fixtures, {'version': 1, 'fixtures': [
+                    {'routeId': 'route', 'travelDate': '2099-01-01', 'seatId': '1A'}]})
+                args = SimpleNamespace(context='test', namespace='test', output=root / 'results',
+                    fixtures=fixtures, scenario='spike', max_attempts=1, image=image,
+                    mode='workstation', max_vus=1, run_id='overload-run', harness=root / 'run.py',
+                    public_url='https://example.invalid', issuer='https://example.invalid/realm', deadline=60)
+                op = r.Operator(args)
+                op.preflight = Mock(return_value={'errors': [], 'saturated': False})
+                op.get = Mock(return_value={'items': [
+                    {'metadata': {'name': name}, 'status': {'availableReplicas': 1}}
+                    for name in ('catalog', 'orders', 'inventory', 'payments')]})
+                op.available_fixtures = Mock()
+                op.snapshot = Mock()
+                op.cm = Mock()
+                op.k = Mock()
+                def execute(argv, env, log, *_args):
+                    self.assertEqual(env['EXPECT_OVERLOAD'], 'true')
+                    if image:
+                        self.assertIn(['--env', 'EXPECT_OVERLOAD'], [argv[i:i+2] for i in range(len(argv)-1)])
+                    log.write('\n'.join('ET_RESULT ' + json.dumps(event) for event in [
+                        {'type': 'order_result', 'runId': args.run_id, 'orderId': 'one'},
+                        {'type': 'run_summary', 'runId': args.run_id},
+                        {'type': 'runner_finished', 'runId': args.run_id, 'passed': True}]))
+                    return 0
+                with patch.dict(r.os.environ, {'CLIENT_SECRET': 'unit-secret', 'EXPECT_OVERLOAD': 'true'}), \
+                     patch.object(r, 'command'), patch.object(r, 'bounded_process', side_effect=execute):
+                    self.assertEqual(op.run(), 0)
+
+    def test_invalid_overload_expectation_fails_before_cluster_actions(self):
+        op = r.Operator(SimpleNamespace(context='test', namespace='test'))
+        with patch.dict(r.os.environ, {'EXPECT_OVERLOAD': 'yes'}), patch.object(r, 'command') as cmd:
+            with self.assertRaisesRegex(ValueError, 'EXPECT_OVERLOAD must be true or false'):
+                op.run()
+            cmd.assert_not_called()
+
     def test_command_timeout_is_bounded_and_redacted(self):
         with patch.object(r.subprocess, 'run', side_effect=subprocess.TimeoutExpired(
                 ['tool', 'secret-argument'], 30, output='secret-output', stderr='secret-error')) as run:
@@ -64,7 +104,8 @@ class RunnerTests(unittest.TestCase):
                     {'type': 'runner_finished', 'runId': args.run_id, 'passed': True}])
                 op.k = Mock(side_effect=lambda *argv, **kwargs: events if argv[0] == 'logs' else '')
                 if valid:
-                    self.assertEqual(op.run(), 0)
+                    with patch.dict(r.os.environ, {'EXPECT_OVERLOAD': 'true'}):
+                        self.assertEqual(op.run(), 0)
                     creation = next(call for call in op.k.call_args_list if call.args[0] == 'create')
                     job = json.loads(creation.kwargs['data'])
                     env = job['spec']['template']['spec']['containers'][0]['env']

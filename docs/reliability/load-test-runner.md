@@ -6,6 +6,9 @@ capacity checks, fixture ownership, operational evidence, and reports. Applicati
 unit/integration tests and service instrumentation remain in the application repository.
 No HA expansion or resident chaos controller is part of this tranche.
 
+Optional checkout-only ingress refusal and its separate live-proof procedure
+are described in [checkout-load-shedding.md](checkout-load-shedding.md).
+
 ## Workstation baseline
 
 Prefer the immutable harness container on a workstation, outside AKS. The image
