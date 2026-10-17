@@ -37,10 +37,48 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(result['extraction'], 'INCOMPLETE')
         self.assertEqual(result['unmatchedChargesHashes'], [a.sha('ch_unknown')])
         self.assertNotIn('ch_unknown', str(result))
+        held = dict(extra, captured=False, amount_captured=0,
+                    amount_refunded=0, balance_transaction=None)
+        self.assertEqual(self.run_audit([charge, held])['extraction'], 'INCOMPLETE')
 
     def test_duplicate_reference_rejected(self):
         _, _, charge = self.fixture()
         self.assertEqual(self.run_audit([charge, charge])['reason'], 'duplicate_provider_reference')
+
+    def test_unattributed_decline_is_recorded_with_explicit_zero_effect(self):
+        _, _, charge = self.fixture()
+        decline = dict(charge, id='ch_declined', status='failed', paid=False,
+                       captured=False, amount_captured=0, amount_refunded=0,
+                       balance_transaction=None)
+        result = self.run_audit([charge, decline])
+        self.assertEqual(result['extraction'], 'COMPLETE')
+        self.assertEqual(len(result['authorizations']), 1)
+        self.assertEqual(result['unmatchedChargesHashes'], [])
+        self.assertEqual(result['unattributedFailedAttempts'][0]['provider_reference_hash'], a.sha('ch_declined'))
+        self.assertNotIn('ch_declined', str(result))
+        self.assertNotIn('DO NOT EXPORT', str(result))
+
+    def test_failed_status_cannot_hide_money_or_missing_proof(self):
+        _, _, charge = self.fixture()
+        decline = dict(charge, id='ch_declined', status='failed', paid=False,
+                       captured=False, amount_captured=0, amount_refunded=0,
+                       balance_transaction=None)
+        for changes in ({'paid': True}, {'captured': True}, {'amount_captured': 1},
+                        {'amount_refunded': 1}, {'amount_captured': False},
+                        {'balance_transaction': 'txn_unknown'}):
+            with self.subTest(changes=changes):
+                self.assertEqual(self.run_audit([charge, dict(decline, **changes)])['extraction'], 'INCOMPLETE')
+        for field in ('captured', 'amount_captured', 'amount_refunded', 'balance_transaction'):
+            incomplete = decline.copy()
+            del incomplete[field]
+            with self.subTest(missing=field):
+                self.assertEqual(self.run_audit([charge, incomplete])['extraction'], 'INCOMPLETE')
+
+    def test_zero_effect_decline_does_not_replace_expected_authorization(self):
+        _, _, charge = self.fixture()
+        decline = dict(charge, status='failed', paid=False, captured=False,
+                       amount_captured=0, amount_refunded=0, balance_transaction=None)
+        self.assertEqual(self.run_audit([decline])['reason'], 'authorized_effect_missing_from_window')
 
     def test_missing_success_rejected(self):
         self.assertEqual(self.run_audit([])['reason'], 'authorized_effect_missing_from_window')
