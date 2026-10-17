@@ -30,3 +30,23 @@ spec:
     resources:
       requests: {cpu: 100m, memory: 512Mi}
       limits: {cpu: "1", memory: 768Mi}
+  kafkaExporter:
+    groupRegex: '^(orders|notifications|orders-dlt)$'
+    topicRegex: '^(order-placed|notification-requested|refund-requested|order-placed-dlt|refund-requested-dlt)$'
+    resources:
+      requests: {cpu: 20m, memory: 32Mi}
+      limits: {cpu: 200m, memory: 128Mi}
+    template:
+      pod:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values: [eurotransit-control-plane]
+        tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+            effect: NoSchedule

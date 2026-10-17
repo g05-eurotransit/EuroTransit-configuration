@@ -192,6 +192,10 @@ if [[ "${ENABLE_OBSERVABILITY:-0}" == "1" ]]; then
     --set prometheus.prometheusSpec.resources.requests.memory=256Mi \
     --set prometheus.prometheusSpec.resources.limits.memory=512Mi \
     --set grafana.admin.existingSecret="" "${observability_helm_args[@]}"
+  if [[ "$KIND_PROFILE" == ha ]]; then
+    kubectl wait --for=condition=Established crd/podmonitors.monitoring.coreos.com --timeout=90s
+    kubectl apply -f "$ROOT_DIR/platform/kube-prometheus-stack/kafka-exporter-podmonitor-kind-ha.yaml"
+  fi
 fi
 
 kubectl -n keycloak wait keycloak/eurotransit-keycloak --for=condition=Ready --timeout=8m

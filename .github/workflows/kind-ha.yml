@@ -10,6 +10,8 @@ on:
       - 'scripts/test-kind-ha-profile.py'
       - 'scripts/test-kind-ha-audit.py'
       - 'scripts/kind-ha-experiment.py'
+      - 'scripts/kind-orders-shutdown.py'
+      - 'scripts/kind-checkout-load-shedding.py'
       - 'load-tests/**'
       - '.github/workflows/kind-ha.yml'
   workflow_dispatch:
@@ -38,6 +40,6 @@ jobs:
           scripts/render.sh kind
           helm lint charts/eurotransit -f charts/eurotransit/values-kind-ha.yaml
           python scripts/test-kind-ha-profile.py
-          python -m py_compile scripts/kind-ha-experiment.py
+          python -m py_compile scripts/kind-ha-experiment.py scripts/kind-orders-shutdown.py scripts/kind-checkout-load-shedding.py
           python scripts/test-kind-ha-audit.py
           python -m unittest discover -s load-tests/tests -p test_verify.py

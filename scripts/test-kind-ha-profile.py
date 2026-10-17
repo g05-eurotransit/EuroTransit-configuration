@@ -68,6 +68,21 @@ class KindHAProfileTest(unittest.TestCase):
             with self.subTest(topic=topic['metadata']['name']):
                 self.assertEqual(topic['spec']['replicas'], 3)
 
+    def test_committed_lag_exporter_is_ha_only_and_scraped(self):
+        spec = resource(self.platform, 'Kafka', 'eurotransit-kafka')['spec']['kafkaExporter']
+        for group in ('orders', 'notifications', 'orders-dlt'):
+            self.assertIsNotNone(re.fullmatch(spec['groupRegex'], group))
+        self.assertIsNone(re.search(spec['groupRegex'], 'orders-outbox-connect'))
+        self.assertEqual(spec['resources']['limits']['memory'], '128Mi')
+        monitor = yaml.safe_load((ROOT / 'platform/kube-prometheus-stack/kafka-exporter-podmonitor-kind-ha.yaml').read_text())
+        self.assertEqual(monitor['spec']['namespaceSelector']['matchNames'], ['eurotransit'])
+        self.assertEqual(monitor['spec']['selector']['matchLabels']['strimzi.io/name'],
+                         'eurotransit-kafka-kafka-exporter')
+        self.assertEqual(monitor['spec']['podMetricsEndpoints'][0]['port'], 'tcp-prometheus')
+        for profile in ('kind', 'aks'):
+            docs = render('kubectl', 'kustomize', 'platform/environments/' + profile)
+            self.assertNotIn('kafkaExporter', resource(docs, 'Kafka', 'eurotransit-kafka')['spec'])
+
     def test_idle_heartbeat_is_ha_only_and_bypasses_outbox_routing(self):
         topics = {d['spec']['topicName']: d['spec'] for d in self.connect
                   if d and d['kind'] == 'KafkaTopic'}

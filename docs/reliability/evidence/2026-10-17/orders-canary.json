@@ -1,0 +1,414 @@
+{
+  "context": "kind-eurotransit",
+  "runDirectory": "kind-progressive-20261017T210750Z",
+  "controllerProof": "PASS with documented temporary overlap capacity exception",
+  "financialClosure": "PARTIAL: the original 50% provider audit is NOT_VERIFIED; no unknown successful effect was waived",
+  "revisionType": "configuration-only Pod-template annotation; existing Orders artifact unchanged",
+  "normalGateAnalysisRuns": [
+    {
+      "name": "orders-69475d8bcc-3-2",
+      "phase": "Successful",
+      "metrics": [
+        {
+          "name": "http-5xx-count",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-checkout-failures",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-exhausted-events",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-counter-continuity",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "p95-latency-seconds",
+          "phase": "Successful",
+          "values": [
+            "[0.016942503524349988]",
+            "[0.012303289800000002]"
+          ]
+        },
+        {
+          "name": "canary-confirmed-checkouts",
+          "phase": "Successful",
+          "values": [
+            "[5]",
+            "[5.555555555555555]"
+          ]
+        },
+        {
+          "name": "canary-http-samples",
+          "phase": "Successful",
+          "values": [
+            "[73.70865238095239]",
+            "[75.55555555555557]"
+          ]
+        },
+        {
+          "name": "canary-metric-coverage",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "orders-69475d8bcc-3-5",
+      "phase": "Successful",
+      "metrics": [
+        {
+          "name": "canary-http-samples",
+          "phase": "Successful",
+          "values": [
+            "[188.8888888888889]",
+            "[191.11111111111111]"
+          ]
+        },
+        {
+          "name": "http-5xx-count",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "p95-latency-seconds",
+          "phase": "Successful",
+          "values": [
+            "[0.007130316099999994]",
+            "[0.007130316099999993]"
+          ]
+        },
+        {
+          "name": "canary-checkout-failures",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-metric-coverage",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-exhausted-events",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-counter-continuity",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-confirmed-checkouts",
+          "phase": "Successful",
+          "values": [
+            "[4.444444444444445]",
+            "[4.444444444444445]"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "orders-69475d8bcc-3-8",
+      "phase": "Successful",
+      "metrics": [
+        {
+          "name": "canary-counter-continuity",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "http-5xx-count",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-metric-coverage",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-exhausted-events",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "p95-latency-seconds",
+          "phase": "Successful",
+          "values": [
+            "[0.005584411551714675]",
+            "[0.005523589364949883]"
+          ]
+        },
+        {
+          "name": "canary-confirmed-checkouts",
+          "phase": "Successful",
+          "values": [
+            "[5.555555555555555]",
+            "[4.444444444444445]"
+          ]
+        },
+        {
+          "name": "canary-checkout-failures",
+          "phase": "Successful",
+          "values": [
+            "[0]",
+            "[0]"
+          ]
+        },
+        {
+          "name": "canary-http-samples",
+          "phase": "Successful",
+          "values": [
+            "[380.00000000000006]",
+            "[378.8888888888889]"
+          ]
+        }
+      ]
+    }
+  ],
+  "httpRoutingCounts": {
+    "10": {
+      "stable": 1018,
+      "canary": 109,
+      "unknown": 0
+    },
+    "25": {
+      "stable": 800,
+      "canary": 267,
+      "unknown": 0
+    },
+    "50": {
+      "stable": 529,
+      "canary": 526,
+      "unknown": 0
+    },
+    "100": {
+      "stable": 0,
+      "canary": 50,
+      "unknown": 0
+    }
+  },
+  "explicit100PercentReadProbeBackends": {
+    "canary": 50
+  },
+  "clientBatches": [
+    {
+      "stage": 10,
+      "runId": "et-kind-canary10-27cabb94",
+      "attempts": 30,
+      "confirmed": 30,
+      "originalVerified": true
+    },
+    {
+      "stage": 25,
+      "runId": "et-kind-canary25-aaa4c2d2",
+      "attempts": 30,
+      "confirmed": 30,
+      "originalVerified": false,
+      "followupFinancialVerified": true,
+      "auditDirectory": "et-kind-canary25-aaa4c2d2/provider-followup"
+    },
+    {
+      "stage": 50,
+      "runId": "et-kind-canary50-5d5366a7",
+      "attempts": 30,
+      "confirmed": 30,
+      "originalVerified": false,
+      "financialClosure": "INCOMPLETE: one successful sandbox charge not attributed to Kind or AKS; unchanged"
+    }
+  ],
+  "automaticAbort": {
+    "observed": true,
+    "timeline": [
+      {
+        "at": "2026-10-17T21:11:11.910811+00:00",
+        "event": "negative_candidate_requested",
+        "stableHash": "6c86b9d4f",
+        "imageUnchanged": true
+      },
+      {
+        "at": "2026-10-17T21:12:30.659433+00:00",
+        "event": "automatic_abort_and_stable_routing_observed"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "at": "2026-10-17T21:13:13.352436+00:00",
+      "event": "positive_candidate_requested",
+      "originalGateThresholdsPreserved": true,
+      "imageUnchanged": true
+    },
+    {
+      "at": "2026-10-17T21:13:31.971769+00:00",
+      "event": "batch_setup",
+      "stage": 10,
+      "runId": "et-kind-canary10-27cabb94",
+      "attempts": 30
+    },
+    {
+      "at": "2026-10-17T21:20:39.188874+00:00",
+      "event": "batch_verified",
+      "stage": 10,
+      "runId": "et-kind-canary10-27cabb94",
+      "attempts": 30,
+      "confirmed": 30,
+      "originalVerified": true
+    },
+    {
+      "at": "2026-10-17T21:20:39.501297+00:00",
+      "event": "normal_gates_passed_at_pause",
+      "weight": 10
+    },
+    {
+      "at": "2026-10-17T21:20:39.710429+00:00",
+      "event": "manual_promotion",
+      "fromWeight": 10
+    },
+    {
+      "at": "2026-10-17T21:20:41.840929+00:00",
+      "event": "batch_setup",
+      "stage": 25,
+      "runId": "et-kind-canary25-aaa4c2d2",
+      "attempts": 30
+    },
+    {
+      "at": "2026-10-17T21:34:03.323164+00:00",
+      "event": "financial_followup_verified_and_resuming",
+      "weight": 25,
+      "originalGateThresholdsPreserved": true,
+      "originalIncompleteAuditPreserved": true
+    },
+    {
+      "at": "2026-10-17T21:34:03.548028+00:00",
+      "event": "manual_promotion",
+      "fromWeight": 25
+    },
+    {
+      "at": "2026-10-17T21:34:05.685612+00:00",
+      "event": "batch_setup",
+      "stage": 50,
+      "runId": "et-kind-canary50-5d5366a7",
+      "attempts": 30
+    },
+    {
+      "at": "2026-10-17T21:45:38.542033+00:00",
+      "event": "normal_gates_passed_at_pause",
+      "weight": 50,
+      "financialAudit": "NOT_VERIFIED",
+      "controllerOnlyTestContinues": true,
+      "newCheckouts": 0
+    },
+    {
+      "at": "2026-10-17T21:45:38.694849+00:00",
+      "event": "manual_promotion",
+      "fromWeight": 50
+    },
+    {
+      "at": "2026-10-17T21:45:39.876930+00:00",
+      "event": "canary_100_percent_observed",
+      "newCheckouts": 0
+    },
+    {
+      "at": "2026-10-17T21:45:43.647721+00:00",
+      "event": "canary_100_reads_verified",
+      "http200": 50,
+      "newCheckouts": 0
+    },
+    {
+      "at": "2026-10-17T21:47:55.716239+00:00",
+      "event": "final_promotion_healthy",
+      "stableHash": "69475d8bcc",
+      "financialClosure": "PARTIAL: original 50% provider audit remains NOT_VERIFIED"
+    }
+  ],
+  "capacityException": {
+    "at": "2026-10-17T21:47:36.453046+00:00",
+    "pod": "orders-69475d8bcc-rxmpl",
+    "uid": "16e72d45-4530-49d8-badf-069e2a2308ee",
+    "change": "Temporary control-plane toleration on this Pod only; ReplicaSet/Deployment template and node taints unchanged",
+    "restore": "Normally delete this Pod after final promotion; replacement uses the original worker-only template",
+    "restoredAt": "2026-10-17T21:49:02.202107+00:00",
+    "restoredWorkerNodes": [
+      "eurotransit-worker",
+      "eurotransit-worker3"
+    ],
+    "temporaryPodDeleted": true
+  },
+  "rawArtifactSha256": {
+    "original-orders-steps.json": "1ef22f3f5d6bfcbae23d320609e5f18fc651328976ad03c451a3c89024cb1d0e",
+    "canary-positive-timeline.json": "f3fae9a5d60328820309a9d5dc4dbffbef7a8966dc80ba65a205eed743776080",
+    "orders-adopted.json": "cbc8e8e6e974985a58d61b91d4958ce1f49db193ac418156fd0d8e908f0cd544",
+    "orders-ip-map-during-canary.json": "c345fd1655703a79c3d4f7dcd73560aad066cd2a282990328407ed6d563c2fdc",
+    "orders-pause-10.json": "e8ad28f176ccbb4c026656e20cddbe969df130bc0c94a1812c89051db2b291dd",
+    "canary-100-read-only-probes.json": "174d3a80925db86cb37f1a3c8e518fa7065da11f45e000229397ac9bee442253",
+    "orders-aborted.json": "6d64c701610d5d37df6cafb117876e572421e0c6a979e92548e43e6c85ef7aec",
+    "canary-abort-samples.json": "3eecdb7dcb0aaa666884aa46d2f26314e53aaeaf3d0ed3b7a32adcd390bb6694",
+    "canary-abort-probes.json": "bb8c6b9d25cc579fcdcefe60e578312425159eacc65486676d691b607f10fbe1",
+    "orders-at-100-percent.json": "0a3a83794db8c5f9db6c6c07b8cf40e3a9570881553643a00a0667cb1df51b28",
+    "canary-traffic-midpoint.log": "f0e3ac6a4b487b07c26fc34aa6b9220de25235a4e7d69f9a1eb195c74eef0f8f",
+    "canary-positive-samples.json": "b8e0b4c9ae66f4c30408b72a4bdf91a93a7c00392e5cd47812025083f928147a",
+    "canary-abort-analysisruns.json": "2e5c0828cc5004194a3d072e0caa91afdd536fe26d3d51f9148044fe8c67ffad",
+    "orders-canary-traefik-access.log": "3813c985e5b20bf8787f438cbb1fc367abd08fefbb547354f2fdd7c73a6c1200",
+    "canary-positive-analysisruns.json": "6da28b8db3862baed3becbb8c413fb5be1d6250c0b5b7ba5435995f810929366",
+    "canary-10-http-routing-counts.json": "39b508767e81bd5789e51870e552aefb7f1dab78eaf444fde9b6b4ce6501d57e",
+    "canary-positive-batches.json": "753ccbab2b823a54a7651f02d39859066b8ed76fb3db92aa0c05d20bc023d83e",
+    "canary-25-provider-followup-result.json": "2f06ef9754f43e2bbb8c7f73cfa41b95f7c8c853011716b8d5b710539117722b",
+    "orders-promoted.json": "45fac5b6246d88b7b4584e6c676d767cb1cc77fb73a5beeed6fc204eb675cf89",
+    "canary-early-real-gate-values.json": "039da360932966c86ad2d4717265cb09c4d5393df151a59959dc0952101b5d59",
+    "canary-positive-probes.json": "2a37a797b11f81c3f8bdfe3defca2d7c19115efa6c3fdf4112ca560d844cfa81",
+    "orders-adoption.yaml": "07aa4e5232b14e3336743e2201c69d2624c7a43879d396b3080670189768694a",
+    "canary-abort-timeline.json": "42051146b6b39c3e015e1eb0737d809e85db09dd54f9a7ce6d97fb52222f9d8b",
+    "orders-overlap-capacity-exception.json": "30f3980d85a517df7b68a82574032488babbe7467367dc7376206c63631ed2a3"
+  }
+}
