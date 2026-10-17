@@ -8,8 +8,8 @@ a diagnostic condition, not an additional project acceptance requirement.
 Transient errors alone therefore do not make the demonstrated failover a failed
 project requirement. Conversely, recovery alone does not prove SLO compliance:
 the measured impact must be compared with the applicable team-owned targets and
-error budget. The four process-freeze runs did not recover checkout while the
-worker remained frozen; that distinct recovery gap is retained.
+error budget. Process-freeze experiments below are optional diagnostic history,
+outside the required-test checklist and its remaining closure items.
 Promotion, client availability and financial convergence are separate findings.
 This report supersedes the earlier
 [preparation snapshot](kind-ha-preparation-2026-10-17.md).
@@ -21,7 +21,6 @@ This report supersedes the earlier
 | Committed purchases in final stop run | 5/5 confirmed; five distinct Stripe charges; full invariant audit passed | Passed |
 | Original client experience | 3 confirmations, 2 polling timeouts, 3 technical failures across 8 attempts | Transient impact measured; assess against SLO/error budget |
 | Catalog replica failover | 250 HTTP 200 and one HTTP 504; p95 615.43 ms | Failover demonstrated with a transient error; SLO assessment pending |
-| Process-freeze recovery | No checkout confirmation during any of four freezes | Failed |
 | Continuous Kafka consumer-lag SLI | Expected Prometheus series missing | Not verified |
 
 A later [Catalog-only verification](catalog-failover-verification-2026-10-17.md)
@@ -63,7 +62,11 @@ check Stripe, reservations, sold seats and amounts. An important correction afte
 run 2 was to require **actual physical streaming**, not merely PostgreSQL Ready
 3/3. Run 3 also verified zero replay lag on both standbys at injection.
 
-## Method and original results
+## Optional process-freeze diagnostics and original results
+
+These additional experiments are not a separate project requirement. Their
+original outcomes are retained for diagnosis; the required node-disruption
+evidence is the worker-termination experiment in the next section.
 
 The [runner](../../scripts/kind-ha-experiment.py) reuses the existing k6 checkout,
 collector, provider auditor and invariant verifier. Each fault run attempts eight
