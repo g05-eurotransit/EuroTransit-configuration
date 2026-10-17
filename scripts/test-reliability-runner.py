@@ -228,6 +228,29 @@ class RunnerTests(unittest.TestCase):
             r.Operator.db(op, 'orders_db', 'SELECT 1')
             self.assertIn('BEGIN READ ONLY; SET LOCAL statement_timeout=10000; SELECT 1; COMMIT;', op.k.call_args.kwargs['data'])
 
+    def test_lag_fallback_preserves_source_and_missing_evidence(self):
+        from urllib.parse import urlsplit, parse_qs
+        for exporter, consumer in [(True, True), (False, True), (False, False)]:
+            with self.subTest(exporter=exporter, consumer=consumer), tempfile.TemporaryDirectory() as temp:
+                queries = []
+                def response(url, **kwargs):
+                    query = parse_qs(urlsplit(url).query)['query'][0]
+                    queries.append(query)
+                    available = (exporter if query.startswith('kafka_consumergroup_lag') else
+                                 consumer if query.startswith('kafka_consumer_fetch_manager_records_lag') else True)
+                    payload = {'status': 'success', 'data': {'resultType': 'matrix', 'result':
+                               [{'metric': {}, 'values': [[1, '0']]}] if available else []}}
+                    import io
+                    return io.BytesIO(json.dumps(payload).encode())
+                op = r.Operator(SimpleNamespace(context='test', namespace='test', prometheus_url='http://localhost:9090'))
+                with patch.object(r, 'urlopen', side_effect=response):
+                    op.telemetry(Path(temp), {'runId': 'run', 'startedAt': '2026-10-12T22:20:00Z', 'finishedAt': '2026-10-12T22:22:00Z'})
+                result = json.loads((Path(temp) / 'telemetry.json').read_text())
+                self.assertEqual(result['status'], 'COLLECTED' if exporter or consumer else 'NOT_VERIFIED')
+                self.assertEqual('kafka_lag' in result['missingSeries'], not (exporter or consumer))
+                self.assertEqual(result['querySources']['kafka_lag'].startswith('kafka_consumergroup_lag'), exporter)
+                self.assertEqual(any(q.startswith('kafka_consumer_fetch_manager_records_lag') for q in queries), not exporter)
+
     def test_chart_opt_in_pinned_and_bounded(self):
         root = Path(__file__).resolve().parents[1]
         def render(*extra):

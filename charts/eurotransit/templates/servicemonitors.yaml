@@ -10,6 +10,10 @@ metadata:
     app.kubernetes.io/part-of: eurotransit-marketplace
     release: {{ $.Values.monitoring.serviceMonitors.releaseLabel | quote }}
 spec:
+  # Preserve the Service identity used by RED dashboards, alerts and canary gates.
+  # Prometheus does not copy Service labels into samples unless requested here.
+  targetLabels:
+    - app
   namespaceSelector:
     matchNames:
       - {{ $.Release.Namespace }}
