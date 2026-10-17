@@ -1,0 +1,80 @@
+{
+  "context": "kind-eurotransit",
+  "initialHash": "7d4f57fb57",
+  "candidateHash": "6579f67b8f",
+  "imageChanged": false,
+  "revisionType": "Pod template configuration annotation",
+  "replicasPerRevisionDuringOverlap": 1,
+  "finalActiveReplicas": 2,
+  "requests": {
+    "public": {
+      "samples": 1316,
+      "http200ValidBody": 1316
+    },
+    "preview": {
+      "samples": 1042,
+      "http200ValidBody": 1042
+    }
+  },
+  "rollbackObserved": true,
+  "timeline": [
+    {
+      "at": "2026-10-17T21:50:49.185130+00:00",
+      "event": "catalog_adoption_requested",
+      "replicasPerRevision": 1,
+      "reason": "Three workers with required app-wide anti-affinity cannot host four Catalog pods; restore two active replicas after rollback"
+    },
+    {
+      "at": "2026-10-17T21:50:49.448553+00:00",
+      "event": "catalog_adopted",
+      "activeHash": "7d4f57fb57"
+    },
+    {
+      "at": "2026-10-17T21:51:01.453793+00:00",
+      "event": "preview_ready_active_unchanged",
+      "activeHash": "7d4f57fb57",
+      "previewHash": "6579f67b8f"
+    },
+    {
+      "at": "2026-10-17T21:53:01.350673+00:00",
+      "event": "preview_gate_successful",
+      "activeHash": "7d4f57fb57",
+      "previewHash": "6579f67b8f"
+    },
+    {
+      "at": "2026-10-17T21:53:02.961900+00:00",
+      "event": "bluegreen_promoted",
+      "activeHash": "6579f67b8f",
+      "previousHash": "7d4f57fb57",
+      "previousReady": true
+    },
+    {
+      "at": "2026-10-17T21:53:12.537589+00:00",
+      "event": "bluegreen_rollback_healthy",
+      "activeHash": "7d4f57fb57",
+      "elapsedSeconds": 1.575
+    }
+  ],
+  "publicBackendCounts": {
+    "6579f67b8f": 83,
+    "7d4f57fb57": 1233
+  },
+  "firstPublicCandidateAt": "2026-10-17T21:53:02+00:00",
+  "publicInitialRevisionAfterRollback": 72,
+  "rollbackSeconds": 1.575,
+  "previousRevisionReadyAtPromotion": true,
+  "rawArtifactSha256": {
+    "catalog-rolled-back.json": "862cf9064c25b08caca5e706dbab76ad7b4df512c746dd42349ac3a9b679dca5",
+    "catalog-adopted.json": "07bb6ed08cf1196765a409f5570fe23bceca514a5d5702cf70bc158787f57dc3",
+    "bluegreen-requests.json": "7a9c50a390134e44d6045e2aa169536f4cc033415fc408f6ee3b13bf4c3fe194",
+    "bluegreen-traefik-access.log": "2bd006d0781289f8a78cd8f709b4bfab46e884cf1def2e7cce3a027ef61161bd",
+    "catalog-preview-analysisruns.json": "1553957ddaa9c28ae14aad2a16c555439a3eb150312dcb3e2f89c253be852800",
+    "bluegreen-result.json": "b9f8ffede68cfd1de67fdea6069cd94cf9584f441d39e03dcb932b644550b0ed",
+    "catalog-promoted.json": "7edf3af20dcdd006892e2d0af9aa9c6c98230ec80019606a6460a010d4bd541a",
+    "bluegreen-observations.json": "5248f612adc4b1f652525dc92c81786e10fa097c62eede9544143d2618d23e93",
+    "bluegreen-timeline.json": "9814a8adfda030e0e2138cbde149ff744fb03a44dc475630abc229d0923589d9",
+    "bluegreen-attempt1/bluegreen-requests.json": "4f5172355d39b6932c8a21615d4bfe32d1d9bfa10b9bba613cf336efe45c8349",
+    "bluegreen-attempt1/bluegreen-observations.json": "a7562aab69320c45484a7ba41f0fa19ad8e273392ff0c09ee17743886ce28f0e",
+    "bluegreen-attempt1/bluegreen-timeline.json": "152fc9152939b2442955d83657c54def3387d0f0de6ae5bd76d9f81b47b57ac9"
+  }
+}

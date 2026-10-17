@@ -1,0 +1,45 @@
+{
+  "context": "kind-eurotransit",
+  "observedAt": "2026-10-17T20:53:15.463247+00:00",
+  "testStatus": {
+    "ordersPodShutdown": "NOT RUN: CDC preflight failed before fixture allocation or traffic",
+    "loadSheddingOnCluster": "NOT RUN",
+    "canaryBlueGreen": "NOT RUN"
+  },
+  "cdc": {
+    "logicalSlotsLost": 3,
+    "ordersConfirmed": 76,
+    "ordersNonterminal": 0,
+    "outboxEvents": 380,
+    "kafkaMatchedOutboxIds": 380,
+    "missingOutboxIds": 0,
+    "consumedOrderPlacedPartitions": 3,
+    "consumedNotificationPartitions": 3,
+    "committedLag": 0,
+    "emptyRefundAndDltPartitionsHaveNoOffset": true,
+    "resetExecuted": false,
+    "runtimeHeartbeatApplied": false
+  },
+  "localValidation": {
+    "kindHAProfileTests": 11,
+    "reliabilityRunnerTests": 19,
+    "loadSheddingRenderContracts": "PASS",
+    "traefik343MockStableAndProgressive429Recovery": "PASS"
+  },
+  "rawArtifactSha256": {
+    "connectors-before.json": "138a45312b7a3a7339d00603f55300a812ae8eb887c60f12408a3e582c852c49",
+    "consumer-groups-before.txt": "fe842562f54bf2ffebc42037e9a45789585a212bad49006763d1e3c4dad034a1",
+    "coverage.json": "6ebd24a4b8fc470a5b5527339462b63a71debff29b8797f828312b0890c12fe6",
+    "inventory-outbox-connector-offsets-before.json": "3effd286be2e7422b33705e8cb525c8cc37fcf1dad038893d458a6c86f8b4028",
+    "inventory-outbox-connector-status-before.json": "9e3de51626af873568c19057a23ac3aaad35bf1614fe450a6f195b98de9de186",
+    "kafka-outbox-headers.txt": "22a9a5ae190cfbe35a02feb812c80f734cc391dd4e772a5ce51c4f5e1fbe3043",
+    "orders-before.json": "9b8248b79dbd657e3c48b065f30d5115e1f305d57040bc33826e152a0809d622",
+    "orders-outbox-connector-offsets-before.json": "aa4a5f3169447a9f824deb99539d97c8b8d52dd2a71d7a688b089c10fb84ca1a",
+    "orders-outbox-connector-status-before.json": "12148662a1227558ddabb26524fb5f49d3ba531b095fc115d5f5324b23c3a524",
+    "outbox-before.json": "0e5aef92aa4a403db4e5ca205ba980c8f7383247755041bfae0d0f93f079e9ce",
+    "payments-outbox-connector-offsets-before.json": "e43a6069e7ceed75bfd552defb2dc38ddbdc443d87fbca2a476d741343ffa73d",
+    "payments-outbox-connector-status-before.json": "83317fd72b29925891d99258b1a496f73594aaef7164b51055d8b0f27faf53dd",
+    "slots-before.json": "e38d0b113fc01397088d76523e93ec91f1f551040fe9b376fec9d30645603a39"
+  },
+  "preparedRepairSha256": "06a8739fed4bc8b619d09e72814e9908d5fee0f7e4475737da35875b034aa39e"
+}

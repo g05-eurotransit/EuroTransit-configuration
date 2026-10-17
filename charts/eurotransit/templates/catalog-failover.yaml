@@ -1,0 +1,20 @@
+{{- $failover := get .Values.ingress "catalogFailover" | default dict -}}
+{{- if and .Values.ingress.enabled (get $failover "enabled" | default false) }}
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: eurotransit-catalog-failover
+spec:
+  forwardingTimeouts:
+    dialTimeout: 500ms
+    responseHeaderTimeout: 1s
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: eurotransit-catalog-failover
+spec:
+  retry:
+    attempts: 2
+    initialInterval: 100ms
+{{- end }}

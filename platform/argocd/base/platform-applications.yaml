@@ -294,6 +294,10 @@ spec:
         installCRDs: true
         controller:
           replicas: 1
+          # Pinned controller 1.9.1 defaults to the legacy Traefik v2 API.
+          extraArgs:
+            - --traefik-api-group=traefik.io
+            - --traefik-api-version=traefik.io/v1alpha1
           resources:
             requests:
               cpu: 50m

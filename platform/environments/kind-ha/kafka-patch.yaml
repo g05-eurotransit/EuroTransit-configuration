@@ -1,0 +1,52 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: dual-role
+  namespace: eurotransit
+spec:
+  storage:
+    type: persistent-claim
+    size: 2Gi
+    deleteClaim: false
+  template:
+    pod:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  strimzi.io/cluster: eurotransit-kafka
+                  strimzi.io/pool-name: dual-role
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: eurotransit-kafka
+  namespace: eurotransit
+spec:
+  kafka:
+    jvmOptions: {-Xms: 256m, -Xmx: 384m}
+    resources:
+      requests: {cpu: 100m, memory: 512Mi}
+      limits: {cpu: "1", memory: 768Mi}
+  kafkaExporter:
+    groupRegex: '^(orders|notifications|orders-dlt)$'
+    topicRegex: '^(order-placed|notification-requested|refund-requested|order-placed-dlt|refund-requested-dlt)$'
+    resources:
+      requests: {cpu: 20m, memory: 32Mi}
+      limits: {cpu: 200m, memory: 128Mi}
+    template:
+      pod:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values: [eurotransit-control-plane]
+        tolerations:
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+            effect: NoSchedule

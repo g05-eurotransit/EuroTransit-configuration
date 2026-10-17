@@ -56,6 +56,7 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
+            {{- include "eurotransit.r2dbcPoolEnv" . | nindent 12 }}
             - name: SERVER_PORT
               value: "8080"
             - name: SPRING_PROFILES_ACTIVE

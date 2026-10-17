@@ -161,6 +161,7 @@ metadata:
     app: catalog
     app.kubernetes.io/part-of: eurotransit-marketplace
 spec:
+  replicas: {{ .Values.catalog.replicaCount }}
   {{- if .Values.progressiveDelivery.workloadRef }}
   workloadRef:
     apiVersion: apps/v1
@@ -191,6 +192,7 @@ metadata:
     app: orders
     app.kubernetes.io/part-of: eurotransit-marketplace
 spec:
+  replicas: {{ .Values.orders.replicaCount }}
   {{- if .Values.progressiveDelivery.workloadRef }}
   workloadRef:
     apiVersion: apps/v1

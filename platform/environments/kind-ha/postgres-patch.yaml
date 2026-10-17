@@ -1,0 +1,36 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: eurotransit-postgres
+  namespace: eurotransit
+spec:
+  instances: 3
+  storage:
+    size: 3Gi
+  enablePDB: true
+  failoverDelay: 0
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+  resources:
+    requests: {cpu: 100m, memory: 192Mi}
+    limits: {cpu: "1", memory: 512Mi}
+  postgresql:
+    synchronous:
+      method: any
+      number: 1
+      dataDurability: required
+    parameters:
+      shared_buffers: 64MB
+      max_slot_wal_keep_size: 1GB
+      hot_standby_feedback: "on"
+      pg_failover_slots.synchronize_slot_names: name_like:%_outbox
+      pg_failover_slots.worker_nap_time: "1000"
+      # CNPG's three stable instance slot names; allow CDC with either surviving standby.
+      pg_failover_slots.standby_slot_names: _cnpg_eurotransit_postgres_1,_cnpg_eurotransit_postgres_2,_cnpg_eurotransit_postgres_3
+      pg_failover_slots.standby_slots_min_confirmed: "1"
+    pg_hba:
+      - hostssl orders_db streaming_replica all cert
+      - hostssl inventory_db streaming_replica all cert
+      - hostssl payments_db streaming_replica all cert

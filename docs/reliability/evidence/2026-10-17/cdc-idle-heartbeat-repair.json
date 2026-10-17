@@ -1,0 +1,69 @@
+{
+  "at": "2026-10-17T21:03:48.500455+00:00",
+  "resetExecuted": true,
+  "idleHeartbeatAdvancementVerified": true,
+  "outboxCountsBefore": {
+    "orders_db": 240,
+    "inventory_db": 80,
+    "payments_db": 80
+  },
+  "outboxCountsAfter": {
+    "orders_db": 240,
+    "inventory_db": 80,
+    "payments_db": 80
+  },
+  "connectorReconciliationResumed": true,
+  "slots": [
+    {
+      "slot_name": "orders_outbox",
+      "active": true,
+      "restart_lsn": "0/8D045F50",
+      "confirmed_flush_lsn": "0/8D046020",
+      "wal_status": "reserved"
+    },
+    {
+      "slot_name": "payments_outbox",
+      "active": true,
+      "restart_lsn": "0/8D045F50",
+      "confirmed_flush_lsn": "0/8D046120",
+      "wal_status": "reserved"
+    },
+    {
+      "slot_name": "inventory_outbox",
+      "active": true,
+      "restart_lsn": "0/8D045F50",
+      "confirmed_flush_lsn": "0/8D0460A0",
+      "wal_status": "reserved"
+    }
+  ],
+  "manualRepairNotAutomaticRecovery": true,
+  "rawArtifactSha256": {
+    "payments-outbox-connector-offsets-stopped.json": "e43a6069e7ceed75bfd552defb2dc38ddbdc443d87fbca2a476d741343ffa73d",
+    "heartbeat-after.json": "f01b176402a6ed883ac107b649cb909d56acf410fa8e3ec34f7fa4afd8f0f830",
+    "payments-outbox-connector-offsets-rebased.json": "3e42282b2355b50b2dfee4fe362c0b2099da4c7fdaeb8250711be0002f161030",
+    "orders-outbox-connector-status-before.json": "12148662a1227558ddabb26524fb5f49d3ba531b095fc115d5f5324b23c3a524",
+    "connectors-before.json": "138a45312b7a3a7339d00603f55300a812ae8eb887c60f12408a3e582c852c49",
+    "orders-outbox-connector-offsets-rebased.json": "9d487f65fb3a78c0ed2d7395320c5384a9a659062199fb41d29ba876fa2e7751",
+    "inventory-outbox-connector-offsets-before.json": "3effd286be2e7422b33705e8cb525c8cc37fcf1dad038893d458a6c86f8b4028",
+    "repair-result.json": "4580c3e0fd33a9dfcde53b5eef6abe2b020200a9949c8f8265f4a5a891a0a9c8",
+    "inventory-outbox-connector-offsets-rebased.json": "bfe7fe4e7aa721d4230355d547d633262efe74798c3b4672f75ef0d2b1a5123d",
+    "coverage.json": "6ebd24a4b8fc470a5b5527339462b63a71debff29b8797f828312b0890c12fe6",
+    "inventory-outbox-connector-status-before.json": "9e3de51626af873568c19057a23ac3aaad35bf1614fe450a6f195b98de9de186",
+    "consumer-groups-before.txt": "fe842562f54bf2ffebc42037e9a45789585a212bad49006763d1e3c4dad034a1",
+    "orders-outbox-connector-offsets-stopped.json": "aa4a5f3169447a9f824deb99539d97c8b8d52dd2a71d7a688b089c10fb84ca1a",
+    "slots-after-initialization.json": "9804c983f1ef087bdd0c6267bf04bd221532b71243cc3a4756aabb266b3eeedb",
+    "heartbeat-transactional-before.json": "bb2289ecf9f0b596324a47464f0f8569f1ae801632b0e02a328f61017f6bc294",
+    "slots-before.json": "e38d0b113fc01397088d76523e93ec91f1f551040fe9b376fec9d30645603a39",
+    "heartbeat-corrected-after.json": "bf5bc2c30033a76098b4cd375484a565188065cd586f3ef8145ca331e1911738",
+    "heartbeat-before.json": "8439cd27fd0b42803431521b3d6d39d6fc131759b0638878f3acd2829cac73a2",
+    "orders-outbox-connector-offsets-before.json": "aa4a5f3169447a9f824deb99539d97c8b8d52dd2a71d7a688b089c10fb84ca1a",
+    "heartbeat-transactional-after.json": "4580c3e0fd33a9dfcde53b5eef6abe2b020200a9949c8f8265f4a5a891a0a9c8",
+    "inventory-outbox-connector-offsets-stopped.json": "3effd286be2e7422b33705e8cb525c8cc37fcf1dad038893d458a6c86f8b4028",
+    "payments-outbox-connector-offsets-before.json": "e43a6069e7ceed75bfd552defb2dc38ddbdc443d87fbca2a476d741343ffa73d",
+    "outbox-before.json": "0e5aef92aa4a403db4e5ca205ba980c8f7383247755041bfae0d0f93f079e9ce",
+    "heartbeat-corrected-before.json": "6408feb60dc987dc9a06f439e72ca80c0a01b6f16c1e54e3793b98e33183e837",
+    "kafka-outbox-headers.txt": "22a9a5ae190cfbe35a02feb812c80f734cc391dd4e772a5ce51c4f5e1fbe3043",
+    "payments-outbox-connector-status-before.json": "83317fd72b29925891d99258b1a496f73594aaef7164b51055d8b0f27faf53dd",
+    "orders-before.json": "9b8248b79dbd657e3c48b065f30d5115e1f305d57040bc33826e152a0809d622"
+  }
+}

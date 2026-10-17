@@ -6,6 +6,15 @@ default:
 kind-up:
     ./scripts/kind-up.sh
 
+kind-ha-up:
+    KIND_PROFILE=ha ENABLE_OBSERVABILITY=1 ./scripts/kind-up.sh
+
+kind-ha-test:
+    KIND_PROFILE=ha ./scripts/kind-test.sh
+
+render-kind-ha:
+    ./scripts/render.sh kind-ha
+
 kind-up-observability:
     ENABLE_OBSERVABILITY=1 ./scripts/kind-up.sh
 

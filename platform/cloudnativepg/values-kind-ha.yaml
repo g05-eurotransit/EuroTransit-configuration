@@ -1,0 +1,5 @@
+# Bound standby TCP waits when the old primary's worker disappears.
+# CNPG 1.26 passes this millisecond value into primary_conninfo.
+config:
+  data:
+    STANDBY_TCP_USER_TIMEOUT: "5000"

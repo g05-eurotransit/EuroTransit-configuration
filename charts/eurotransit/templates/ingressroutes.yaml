@@ -17,6 +17,20 @@ spec:
       services:
         - name: frontend
           port: 8080
+    {{- $catalogFailover := get .Values.ingress "catalogFailover" | default dict }}
+    {{- if (get $catalogFailover "enabled" | default false) }}
+    # GET-only transport retries: purchase POSTs never use this middleware.
+    - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/api/catalog`) && Method(`GET`)
+      kind: Rule
+      priority: 120
+      middlewares:
+        - name: eurotransit-secure-headers
+        - name: eurotransit-catalog-failover
+      services:
+        - name: catalog
+          port: 8080
+          serversTransport: eurotransit-catalog-failover
+    {{- end }}
     - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/api/catalog`)
       kind: Rule
       middlewares:

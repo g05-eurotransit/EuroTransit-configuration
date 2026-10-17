@@ -2,11 +2,16 @@
 set -euo pipefail
 source "$(dirname "$0")/lib.sh"
 require_commands curl kubectl kind
+KIND_PROFILE="${KIND_PROFILE:-dev}"
+case "$KIND_PROFILE" in dev|ha) ;; *) echo "KIND_PROFILE must be dev or ha" >&2; exit 2 ;; esac
+kubectl() { command kubectl --context "kind-$KIND_CLUSTER_NAME" "$@"; }
+connects=(orders-outbox-connect inventory-outbox-connect payments-outbox-connect)
+if [[ "$KIND_PROFILE" == ha ]]; then connects=(orders-outbox-connect); fi
 
 kubectl config use-context "kind-$KIND_CLUSTER_NAME" >/dev/null
 wait_for_deployments eurotransit
 wait_for_deployments keycloak
-for connect in orders-outbox-connect inventory-outbox-connect payments-outbox-connect; do
+for connect in "${connects[@]}"; do
   kubectl -n eurotransit wait "kafkaconnect/$connect" \
     --for=condition=Ready --timeout=2m
 done

@@ -1,0 +1,126 @@
+{
+  "runId": "et-kind-shutdown-3663800ab3",
+  "context": "kind-eurotransit",
+  "targetPod": "orders-86dd5c49f8-d9zhl",
+  "inflightStatusAtDeletion": "RESERVING",
+  "firstReadiness503At": "2026-10-17T21:00:48.241087+00:00",
+  "endpointExcludedAt": "2026-10-17T21:00:38.054726+00:00",
+  "containerExit": {
+    "state": "CONTAINER_EXITED",
+    "exitCode": 143,
+    "finishedAt": "2026-10-17T21:00:52.636056351Z",
+    "reason": "Error"
+  },
+  "originalClientVerified": true,
+  "finalAudit": {
+    "accepted": 4,
+    "confirmed": 4,
+    "clientOutcomes": {
+      "confirmed": 4
+    },
+    "finalAuditVerified": true
+  },
+  "serverAudit": {
+    "clientAcknowledged": 4,
+    "databaseCommitted": 4,
+    "confirmed": 4,
+    "committedWithoutClientOrderId": 0,
+    "providerCharges": 4,
+    "providerAuditComplete": true,
+    "moneyPathInvariantsVerified": true,
+    "clientProofPassed": true,
+    "note": "HTTP failures are unchanged; database commitment is not a successful client response."
+  },
+  "timeline": [
+    {
+      "at": "2026-10-17T21:00:36.037068+00:00",
+      "event": "fixture_lock_acquired",
+      "maximumSeconds": 24,
+      "nominalHoldSeconds": 18
+    },
+    {
+      "at": "2026-10-17T21:00:38.055092+00:00",
+      "event": "pod_delete_requested",
+      "pod": "orders-86dd5c49f8-d9zhl",
+      "uid": "b4df86e1-826f-48c9-a712-794b876adf3d",
+      "inflightStatus": "RESERVING",
+      "graceSeconds": 45
+    },
+    {
+      "at": "2026-10-17T21:01:04.972413+00:00",
+      "event": "harness_and_replica_recovery_finished",
+      "harnessExitCode": 0
+    }
+  ],
+  "originalVerification": {
+    "verification": "VERIFIED",
+    "passed": true,
+    "violations": []
+  },
+  "checkoutSamples": [
+    {
+      "iteration": 0,
+      "httpStatus": 202,
+      "outcome": "confirmed",
+      "status": "CONFIRMED",
+      "acceptanceMs": 49.65652,
+      "observedConfirmationMs": 19354
+    },
+    {
+      "iteration": 1,
+      "httpStatus": 202,
+      "outcome": "confirmed",
+      "status": "CONFIRMED",
+      "acceptanceMs": 26.621991,
+      "observedConfirmationMs": 3881
+    },
+    {
+      "iteration": 2,
+      "httpStatus": 202,
+      "outcome": "confirmed",
+      "status": "CONFIRMED",
+      "acceptanceMs": 23.134505,
+      "observedConfirmationMs": 1935
+    },
+    {
+      "iteration": 3,
+      "httpStatus": 202,
+      "outcome": "confirmed",
+      "status": "CONFIRMED",
+      "acceptanceMs": 753.607339,
+      "observedConfirmationMs": 2339
+    }
+  ],
+  "barrier": {
+    "method": "SELECT FOR UPDATE in an explicit transaction, then ROLLBACK",
+    "nominalSeconds": 18,
+    "statementTimeoutSeconds": 24,
+    "businessRowsModified": false
+  },
+  "endpointTimestampCaveat": "Observation timestamps mark the beginning of a kubectl sampling cycle; the first ready=false sample overlaps the DELETE request. They do not timestamp the endpoint update itself.",
+  "rawArtifactSha256": {
+    "timeline.json": "01eec1409e4248cc0c277e1b7408eb11319295d6ffcff2a6d9daa1c46bd92024",
+    "pod-endpoint-observations.json": "058366e9779f3f406b46bd5f5e2ffb8ce51da3d94aa74f22d598a56872f57f6e",
+    "orders.json": "9457de8a35e9a19597b2c0b71c2180640c5ce8b9aa76eb2a2a7b589ed7683344",
+    "readiness.json": "f8975a94b96794a6ecbd706f82c47812de8fe071d696814ba5fcb31536ca1a8c",
+    "evidence.json": "73e8198c06f4cb6844c23c72d32b840086ff6ea0237ed47ef75b8279bbb67373",
+    "barrier.log": "a6405b317c3874af2b26428640fa88b44801ccf64cf18313d0e3ccf7d34889ba",
+    "inflight-at-deletion.json": "7bc6fcf4e96058715cf47b001723afbaa83f3aaafd041ff7a359ab9258f4c238",
+    "summary.json": "efed767ad6695165cc61e61305420302f5608ecbe1241e9192ac9979f055eb53",
+    "canonical-events.json": "a58dce068ca6430e9a844f2376f47f64cbadbf600572dae26249d73b21975cda",
+    "result.json": "370d57f026893395db751327c73a2e0491f5571cd384832d89d8bc13a5ea56d8",
+    "orders-86dd5c49f8-d9zhl.log": "0ba189fa0e824a9b7cdbcd5c2df6ccca356531c3ce1d8252add637f851241d62",
+    "preflight.json": "5026aa0cffc1208afb9768ef21332abd33181801e9520fd5e7c8e4fbfc46aaac",
+    "verification.json": "5592ce5475368d5b6611ada26ea89250c0fa03a6a07e9795f09ac34afd79c26a",
+    "telemetry.json": "09b15bb1d0f38e888c4cb387546ec33038dfb95040fb8dea538f5cf583cfe48a",
+    "run.json": "5e334a88374da6d6cd38b844ae8846cf740f548acf8c70b34d06eeb3c3a0573c",
+    "fixtures.json": "baca67b7b9122bc3666a89060769403101d8cd9fc5b5f4289e7c9a80384aa42a",
+    "events.json": "b8a27a2eb0c7b1bfd69ab3f2532f2710ecdac6a350994f61cad106398cddcace",
+    "after-pods.json": "52ec7feb43e076f1b0c22c3ae3de036eb5fcfc5f0bd0aa6815f23d586beefe22",
+    "provider-audit.json": "68601ce782bb71bbed75115db2ba1cdef06aae6be79e800c74714cc4bfdfa1cf",
+    "before-pods.json": "4c791483309c3fc35e7b486de789e72e6086fef0f88d7b3f40431666d036d7c7",
+    "runner.log": "d03a7d2df6994556daaa7811d02b3d918ed4a6bfb6861cd82f311e9392e45571",
+    "orders-86dd5c49f8-wmszb.log": "7694443548f4edd554e296816b60297ef6b230768f70e1c46b36054eed4309e2",
+    "orders.jsonl": "4f7c9e415914f941f9c1b760d59791e039f1d6324e5e267a43a4b650ecfb122c"
+  }
+}

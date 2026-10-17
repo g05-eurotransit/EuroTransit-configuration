@@ -170,12 +170,22 @@ statuses and audit coverage. No card, customer, billing or provider response bod
 is exported. Charge references are needed by the subsequent collector but remain
 restricted here; the collector hashes them for public evidence.
 
-Any unattributed charge in the window, duplicate reference, live-mode charge,
+Any unattributed successful/authorized effect in the window, duplicate reference, live-mode charge,
 missing authorized payment effect, pending charge, invalid record, pagination
 limit or HTTP failure leaves extraction INCOMPLETE and exits nonzero. Hashing a DB
 reference is used only to map independently enumerated charges to run Orders;
 it is not used to manufacture provider effects. Other traffic during the window
 can therefore prevent a complete run attribution, even when checkout succeeded.
+
+An unattributed **failed** Charge object is recorded separately in
+`unattributedFailedAttempts` only with explicit zero-effect proof: `paid=false`,
+`captured=false`, integer `amount_captured=0`, integer `amount_refunded=0`, and
+an explicitly null `balance_transaction`. It is not a successful authorization;
+its ownership is not certified. Missing proof still blocks extraction. An
+uncaptured successful authorization (`paid=true`) remains a monetary effect and
+cannot use this classification. Pending effects always block. All records and
+pages are still enumerated, and expected run authorizations must all be present.
+See the [measured correction](provider-audit-declined-attempt-2026-10-17.md).
 
 After a complete audit, rerun `collect --provider-evidence <provider-audit.json>`
 and the harness verifier. Audit completeness applies to the bounded window,

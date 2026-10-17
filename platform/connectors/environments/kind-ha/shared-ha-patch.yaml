@@ -1,0 +1,24 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: orders-outbox-connect
+  namespace: eurotransit
+spec:
+  replicas: 2
+  config:
+    # Bound task reassignment during a worker loss instead of waiting five minutes.
+    scheduled.rebalance.max.delay.ms: 10000
+    offset.flush.interval.ms: 5000
+  jvmOptions: {-Xms: 128m, -Xmx: 384m}
+  resources:
+    requests: {cpu: 100m, memory: 384Mi}
+    limits: {cpu: "1", memory: 768Mi}
+  template:
+    pod:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  strimzi.io/name: orders-outbox-connect-connect

@@ -1,0 +1,186 @@
+{
+  "at": "2026-10-17T21:23:24.392223+00:00",
+  "context": "kind-eurotransit",
+  "queries": {
+    "checkout_completed_series": {
+      "query": "count(orders_checkout_completed_total{namespace=\"eurotransit\",app=\"orders\"})",
+      "status": "success",
+      "values": [
+        "6"
+      ]
+    },
+    "checkout_e2e_histogram_series": {
+      "query": "count(orders_checkout_e2e_duration_seconds_count{namespace=\"eurotransit\",app=\"orders\"})",
+      "status": "success",
+      "values": [
+        "3"
+      ]
+    },
+    "checkout_e2e_p95_seconds": {
+      "query": "histogram_quantile(0.95,sum by(le)(rate(orders_checkout_e2e_duration_seconds_bucket{namespace=\"eurotransit\",app=\"orders\",outcome=\"confirmed\"}[5m])))",
+      "status": "success",
+      "values": [
+        "1.8000912206999995"
+      ]
+    },
+    "orders_http_p95_seconds": {
+      "query": "histogram_quantile(0.95,sum by(le)(rate(http_server_requests_seconds_bucket{namespace=\"eurotransit\",app=\"orders\",uri=~\"/api/orders.*\"}[5m])))",
+      "status": "success",
+      "values": [
+        "0.007984373449999997"
+      ]
+    },
+    "spring_fetch_lag_series": {
+      "query": "count(kafka_consumer_fetch_manager_records_lag{namespace=\"eurotransit\"})",
+      "status": "success",
+      "values": [
+        "7"
+      ]
+    },
+    "committed_lag_series": {
+      "query": "count(kafka_consumergroup_lag{namespace=\"eurotransit\"})",
+      "status": "success",
+      "values": []
+    },
+    "pipeline_age_series": {
+      "query": "count(orders_pipeline_oldest_age_seconds{namespace=\"eurotransit\",app=\"orders\"})",
+      "status": "success",
+      "values": [
+        "12"
+      ]
+    },
+    "reconciliation_gauge_series": {
+      "query": "count(orders_reconciliation_open{namespace=\"eurotransit\",app=\"orders\"})",
+      "status": "success",
+      "values": [
+        "15"
+      ]
+    }
+  },
+  "tracing": {
+    "catalog": {
+      "MANAGEMENT_TRACING_EXPORT_OTLP_ENABLED": "false",
+      "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT": "http://otel-collector.monitoring.svc.cluster.local:4318/v1/traces"
+    },
+    "orders": {
+      "MANAGEMENT_TRACING_EXPORT_OTLP_ENABLED": "false",
+      "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT": "http://otel-collector.monitoring.svc.cluster.local:4318/v1/traces"
+    },
+    "inventory": {
+      "MANAGEMENT_TRACING_EXPORT_OTLP_ENABLED": "false",
+      "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT": "http://otel-collector.monitoring.svc.cluster.local:4318/v1/traces"
+    },
+    "payments": {
+      "MANAGEMENT_TRACING_EXPORT_OTLP_ENABLED": "false",
+      "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT": "http://otel-collector.monitoring.svc.cluster.local:4318/v1/traces"
+    },
+    "notifications": {
+      "MANAGEMENT_TRACING_EXPORT_OTLP_ENABLED": "false",
+      "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT": "http://otel-collector.monitoring.svc.cluster.local:4318/v1/traces"
+    }
+  },
+  "backendServices": [],
+  "committedLagFollowup": {
+    "at": "2026-10-17T21:55:55.594530+00:00",
+    "context": "kind-eurotransit",
+    "brokerPodsUnchanged": true,
+    "discovery": [
+      {
+        "at": "2026-10-17T21:55:25.498695+00:00",
+        "series": 0
+      },
+      {
+        "at": "2026-10-17T21:55:30.501956+00:00",
+        "series": 0
+      },
+      {
+        "at": "2026-10-17T21:55:35.505110+00:00",
+        "series": 0
+      },
+      {
+        "at": "2026-10-17T21:55:40.508479+00:00",
+        "series": 0
+      },
+      {
+        "at": "2026-10-17T21:55:45.511241+00:00",
+        "series": 0
+      },
+      {
+        "at": "2026-10-17T21:55:50.514223+00:00",
+        "series": 0
+      },
+      {
+        "at": "2026-10-17T21:55:55.517701+00:00",
+        "series": 6
+      }
+    ],
+    "lagSeries": 6
+  },
+  "notificationsProof": {
+    "runId": "et-kind-notifylag-4f19d482",
+    "context": "kind-eurotransit",
+    "confirmed": 2,
+    "confirmedObservedWhilePaused": 2,
+    "originalVerified": true,
+    "maximumDirectCommittedLag": 2.0,
+    "recoveredDirectCommittedLag": 0.0,
+    "maximumPrometheusPartitionLag": 1.0,
+    "samePodUid": true,
+    "sameContainerId": true,
+    "restartCountUnchanged": true,
+    "maximumPrometheusTotalLag": 2.0,
+    "finalPrometheusTotalLag": 0.0,
+    "timeline": [
+      {
+        "at": "2026-10-17T21:57:16.409567+00:00",
+        "event": "notifications_process_paused",
+        "pod": "notifications-547cd59f4c-78xzv",
+        "seconds": 15
+      },
+      {
+        "at": "2026-10-17T21:57:31.550542+00:00",
+        "event": "watchdog_resume_observed",
+        "actualAt": "2026-10-17T21:57:31.512552+00:00"
+      }
+    ],
+    "providerAudit": {
+      "extraction": "COMPLETE",
+      "authorizationsCount": 2,
+      "unmatchedChargesCount": 0
+    },
+    "rawArtifactSha256": {
+      "confirmed-observations.json": "ac92bd7f03453b18c27b47b1f2ede9235e3e5f1a55a50a946dff2e8d012d512e",
+      "timeline.json": "a507181819c9886230e8193f43d4f7292509459341193bf0032e84f9b25f30b7",
+      "orders.json": "08866c06203060555a620347a83e622de4e42c2d70b103d650898e9a321568fc",
+      "evidence.json": "6c062ea2bd311a9548e2c6a01b369d8d1ee29263aa293f74eff339476eb620b4",
+      "summary.json": "01629eb64ecaa7bf6278e854bc8e1d87597d016db01dd180537a37b06a170b40",
+      "canonical-events.json": "72f33cbf0fab76607aaa763538cfd3ed422a013e350e8fad63f60588e5d859ba",
+      "result.json": "466547fa39073962760d5ceb2a092411cef604b3853b1ea5b5546e1f34154678",
+      "direct-committed-lag.json": "e61043ebff271ece4afc3c0863a7228154dde0ccad4c4879e4ed4a9b732bf5b9",
+      "notification-after.json": "517e3714336c55bd1b4c73c49d3856587c8a3548949baa81eaa51b60f30b5aab",
+      "prometheus-notification-committed-lag.json": "55259beec94c2e4b84af9017c76d94d1a3c349d9ecb020da3b199cd674f5d2ce",
+      "verification.json": "5592ce5475368d5b6611ada26ea89250c0fa03a6a07e9795f09ac34afd79c26a",
+      "telemetry.json": "9daf6e0e9fd2acb0681aff2634d7303461145a1ca38bda0ac0740938ce8620c6",
+      "run.json": "701783d9bc62671e4f4eac3d84ebdc8bc7b54e584676c99942cecee0de498746",
+      "fixtures.json": "c7bda7b5021460b81781038e9bfa89462fa9f6d687a49be72e812cde0fa7347e",
+      "events.json": "c3e0752b24783ff03cc11c4cf8c1d40c4a5a2a9bdccbc2191c4add1bac8ff1ea",
+      "provider-audit.json": "b7c8cc0e122b8d2e36b3bbf2b8d89dd57b92670ed533975a78d37cc0d3bf6c02",
+      "notification-before.json": "7a1cfe598b27c2378c100a80b9f3a7ba929895371aceb0046133d1f21a43197b",
+      "watchdog-resumed-at.txt": "29a7fb0b6c6104854fb7c07e7e21adba125ed45a50744c6b360ae69dd9dad2b2",
+      "runner.log": "249785be8a27bb07324491ee14f17a9e56adba7c14f0e58809f52d379c61e8df",
+      "orders.jsonl": "e3113a534613ae251a73e0bec75f538ba23364ad68be92436f658f5d8aba1b6f"
+    }
+  },
+  "finalHealth": {
+    "preflight": "PASS",
+    "smoke": "PASS",
+    "ordersRollout": "Healthy",
+    "catalogRollout": "Healthy",
+    "testLockPresent": false
+  },
+  "sourceSha256": {
+    "observability-before-exporter.json": "16c1b10bb8fb22a065707013883e308c3e4b65574cd9aba88756428915c1e41f",
+    "kafka-exporter-activation.json": "8fa6874ba1c096423717a1649ef4a534c61f4ea29149842164e9df8ec961cf5d",
+    "final-healthy-preflight.json": "33b4afb5d774265c48f5b396e6d60d40fbe1bc9e0ef4a0102d1bdcda19717238"
+  }
+}

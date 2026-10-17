@@ -4,8 +4,8 @@ source "$(dirname "$0")/lib.sh"
 
 environment="${1:-}"
 case "$environment" in
-  kind|aks) ;;
-  *) echo "Usage: $0 kind|aks" >&2; exit 2 ;;
+  kind|kind-ha|aks) ;;
+  *) echo "Usage: $0 kind|kind-ha|aks" >&2; exit 2 ;;
 esac
 
 require_commands helm kubectl rg
@@ -33,8 +33,10 @@ if [[ "$environment" == "aks" ]]; then
 fi
 kubectl kustomize "$ROOT_DIR/platform/connectors/environments/$environment" >/dev/null
 
-if [[ "$environment" == "kind" ]]; then
-  kubectl kustomize "$ROOT_DIR/platform/environments/keycloak-kind" >/dev/null
+if [[ "$environment" == kind* ]]; then
+  keycloak_profile=keycloak-kind
+  if [[ "$environment" == kind-ha ]]; then keycloak_profile=keycloak-kind-ha; fi
+  kubectl kustomize "$ROOT_DIR/platform/environments/$keycloak_profile" >/dev/null
   kubectl kustomize "$ROOT_DIR/platform/argocd/environments/kind" >/dev/null
   kubectl kustomize "$ROOT_DIR/apps/argocd-apps/environments/kind" >/dev/null
 else
