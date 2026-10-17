@@ -1,18 +1,5 @@
-# Agent Mistake Log
+# Agent verification log
 
-Recording at least three concrete cases where an agent-produced artifact was incorrect, unsafe, or subtly wrong and how the team caught and corrected it.
-
-## 1. [Date] - [Mistake summary]
-**What happened:** 
-**How we caught it:**
-**How we fixed it:**
-
-## 2. [Date] - [Mistake summary]
-**What happened:** 
-**How we caught it:**
-**How we fixed it:**
-
-## 3. [Date] - [Mistake summary]
-**What happened:** 
-**How we caught it:**
-**How we fixed it:**
+The maintained configuration-side log is [docs/agent-log.md](../agent-log.md),
+including concrete defects reproduced and corrected during the live experiments.
+Historical application cases remain in the sibling repository's `docs/agent-log.md`.
