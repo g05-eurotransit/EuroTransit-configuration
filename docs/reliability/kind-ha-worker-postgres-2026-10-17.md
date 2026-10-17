@@ -17,6 +17,13 @@ This report supersedes the earlier
 | Process-freeze recovery | No checkout confirmation during any of four freezes | Failed |
 | Continuous Kafka consumer-lag SLI | Expected Prometheus series missing | Not verified |
 
+A later [Catalog-only verification](catalog-failover-verification-2026-10-17.md)
+attributed the historical 504 to the replica on the stopped worker. A controlled
+process stall reproduced five gateway timeouts while the healthy replica returned
+52/52 successful responses. Errors stopped after endpoint withdrawal; no Catalog
+business-logic defect was observed on the tested routes API. This diagnosis does
+not change the original HA test's partial verdict.
+
 ## Hypothesis and steady state
 
 Proposed hypothesis for team review: losing the worker hosting PostgreSQL's

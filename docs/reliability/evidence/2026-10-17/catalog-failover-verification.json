@@ -1,0 +1,113 @@
+{
+  "runId": "catalog-check-20261017T202233Z",
+  "context": "kind-eurotransit",
+  "timeline": [
+    {
+      "at": "2026-10-17T20:22:39.947005+00:00",
+      "event": "catalog_process_stopped"
+    },
+    {
+      "at": "2026-10-17T20:22:53.068559+00:00",
+      "event": "catalog_process_resumed"
+    }
+  ],
+  "targetPod": "catalog-649f7fd5d-n6x8b",
+  "targetIp": "10.244.2.12",
+  "targetNode": "eurotransit-worker3",
+  "healthyPod": "catalog-649f7fd5d-nrh2g",
+  "samePodUid": true,
+  "sameContainerId": true,
+  "restartCountBefore": 0,
+  "restartCountAfter": 0,
+  "finalReady": true,
+  "requestSummary": [
+    {
+      "source": "ingress",
+      "phase": "baseline",
+      "samples": 24,
+      "statuses": {
+        "200": 24
+      },
+      "invalid200Bodies": 0,
+      "maximumMs": 29.19
+    },
+    {
+      "source": "ingress",
+      "phase": "fault",
+      "samples": 30,
+      "statuses": {
+        "200": 25,
+        "504": 5
+      },
+      "invalid200Bodies": 0,
+      "maximumMs": 1070.24
+    },
+    {
+      "source": "ingress",
+      "phase": "recovery",
+      "samples": 35,
+      "statuses": {
+        "200": 35
+      },
+      "invalid200Bodies": 0,
+      "maximumMs": 8.57
+    },
+    {
+      "source": "healthy-direct",
+      "phase": "baseline",
+      "samples": 24,
+      "statuses": {
+        "200": 24
+      },
+      "invalid200Bodies": 0,
+      "maximumMs": 9.51
+    },
+    {
+      "source": "healthy-direct",
+      "phase": "fault",
+      "samples": 52,
+      "statuses": {
+        "200": 52
+      },
+      "invalid200Bodies": 0,
+      "maximumMs": 6.15
+    },
+    {
+      "source": "healthy-direct",
+      "phase": "recovery",
+      "samples": 35,
+      "statuses": {
+        "200": 35
+      },
+      "invalid200Bodies": 0,
+      "maximumMs": 6.73
+    }
+  ],
+  "firstNotReadyObservedAt": "2026-10-17T20:22:47.456027+00:00",
+  "secondsToObservedNotReady": 7.509,
+  "ingressAfterEndpointWithdrawalDuringFault": {
+    "samples": 21,
+    "errors": 0
+  },
+  "successfulBodiesIdentical": true,
+  "traefikTimeouts": 5,
+  "allTraefikTimeoutsTargetSuspendedReplica": true,
+  "rawEvidenceSha256": {
+    "requests.jsonl": "57d7522aaf2a86790fc94c54e2e7b8f72754c732249af272365f2d1232ae1d18",
+    "endpoint-samples.json": "da5c5c0114fbf8b002ba72e7df5bda82d91b38b3b89e76e3300d33ad0a42e006",
+    "timeline.json": "1437563f42a8edc3d77af070f9ac123839acdaf43ee2e68173a8adbd09713b57",
+    "traefik-access.log": "26a042f45ab0b4aacbe15802683d9dc5484d5b8139a5914d99bff0f1e69e1a9c",
+    "before.json": "bd212bb3c845062d59e715ca9a0479d42d5a2f32bc205ecd50b047b4c5ae33b9",
+    "after.json": "58afec447835bfb0d7c6babca3840741b8a35184827fda0a414c81b8cad059df",
+    "experiment.py": "046806c46485a817464190fd85bedb3504ec188d8a370339727a1ea36431239c"
+  },
+  "historical504": {
+    "runId": "et-kind-fault-30677fd63d",
+    "gatewayRequestAt": "2026-10-17T14:35:15Z",
+    "backend": "http://10.244.3.21:8080",
+    "durationMs": 1083,
+    "workerStoppedAt": "2026-10-17T14:34:45.173962Z",
+    "nodeNotReadyObservedAt": "2026-10-17T14:35:32.776318Z",
+    "sourceSha256": "ef64d68dfbf0118cd80411c018c776f6b853955d32dcbe2d002939da6355fc09"
+  }
+}
