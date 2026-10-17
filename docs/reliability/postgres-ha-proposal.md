@@ -47,7 +47,7 @@ commit durability; no synchronous configuration is proposed or tested here.
 The team owns RPO and RTO definitions and acceptance. No numeric objective is
 invented and the previous timings are measurements, not a pass threshold.
 
-The [2026-10-12 experiment](postgres-failover-2026-10-12.md) temporarily used two
+The [2026-10-12 experiment](https://github.com/g05-eurotransit/EuroTransit-configuration/blob/392690487ca60f25532f6823506cc95f77f3f38e/docs/reliability/postgres-failover-2026-10-12.md), published separately in configuration #55, temporarily used two
 instances: promotion was observed after approximately 3.51s and a successful
 Orders GET after approximately 5.11s. One accepted order needed manual replay.
 That experiment did not prove continuous checkout or automatic convergence.
@@ -128,6 +128,8 @@ source. It never changes tracked Argo configuration or the cluster. Optional
 field, including Secrets. Use `--inventory-nodes` and `--inventory-pods` with
 fresh private JSON snapshots to reproduce owner estimates. Render outputs and
 live inventories can contain sensitive data; retain them privately.
+The existing AKS `scripts/render.sh` path also renders `aks-ha`, so normal AKS
+render validation checks the optional overlay's syntax while it remains unselected.
 
 Strict server-side apply dry-run of only the rendered Cluster initially found
 `.spec.instances` owned by `kubectl-patch`. Repeating with `--dry-run=server

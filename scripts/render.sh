@@ -19,6 +19,8 @@ helm template eurotransit "$ROOT_DIR/charts/eurotransit" \
   -f "$values_file" >"$helm_render"
 kubectl kustomize "$ROOT_DIR/platform/environments/$environment" >"$kustomize_render"
 if [[ "$environment" == "aks" ]]; then
+  # Validate the opt-in HA overlay even while GitOps selects ordinary AKS.
+  kubectl kustomize "$ROOT_DIR/platform/environments/aks-ha" >/dev/null
   secrets_dir="$ROOT_DIR/platform/environments/aks/secrets"
   actual_secret_files="$(find "$secrets_dir" -maxdepth 1 -type f -name '*.sealedsecret.yaml' -printf . | wc -c)"
   if [[ "$actual_secret_files" -eq 0 && "${ALLOW_MISSING_AKS_SECRETS:-0}" == "1" ]]; then

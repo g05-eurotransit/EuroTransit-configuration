@@ -4,6 +4,8 @@ AKS currently overrides the shared three-instance CNPG base to one instance.
 Add an unselected `aks-ha` overlay with two asynchronous instances on separate
 hosts and a review/runbook covering capacity, durability decisions and proof.
 Default AKS/Kind owners and the live cluster remain unchanged.
+The normal AKS render check also renders the optional HA overlay. The historical
+failover report stays owned by its separate report change (#55), linked by permalink.
 
 The budget checker can render the opt-in profile independently. Its baseline
 comparison now also accepts the exact monitoring filter already present on main,
