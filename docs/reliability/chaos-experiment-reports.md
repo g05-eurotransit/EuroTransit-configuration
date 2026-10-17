@@ -1,61 +1,27 @@
-# Chaos Experiment Reports
+# Executed resilience experiments
 
-This file is the execution report template for the required chaos experiments. The canonical experiment plan lives in the sibling application repository at `../EuroTransit-application/docs/operations/chaos-experiments.md`.
+These reports contain observations from the authorized AKS session on 2026-10-12.
+Hypotheses, recovery objectives and conclusions require team ownership/review.
+An initial failed client verdict remains failed even when a later correctness
+audit verifies recovered orders. Raw evidence is restricted outside Git.
 
-Do not fill this document with expected results. Each section must be completed after the experiment runs, with links or references to dashboard screenshots, traces, logs, injected fault configuration, observed outcome, and follow-up changes.
+| Experiment | Observed result | Report |
+| --- | --- | --- |
+| Payments latency | Breaker OPEN/HALF_OPEN observed; Catalog 129/129 healthy. Eight orders confirmed after explicit replay; automatic recovery not demonstrated. | [Payments latency](payments-latency-2026-10-12.md) |
+| Inventory kill plus duplicate events/HTTP retries | Verified reservation SQL overlap; one winner/four sold-out failures; one charge. Correctness passed after replay; client deadline failed. | [Inventory crash](inventory-kill-2026-10-12.md) |
+| Kafka response partition | Four orders automatically confirmed after healing; final audit passed; initial client deadline failed. | [Kafka disruption](kafka-disruption-2026-10-12.md) |
+| Selective application node drain | Availability failed; Orders Pending without spare capacity. Operator uncordon restored service; three accepted orders confirmed. Whole-node/AZ outage not tested. | [Node drain](node-drain-2026-10-12.md) |
+| CNPG primary crash with temporary standby | New primary observed in ~3.5s; Orders read recovered in ~5.1s. One accepted order required replay; all three accepted orders finally verified. | [Primary failover](postgres-failover-2026-10-12.md) |
+| Notifications process stopped | Four checkout confirmations entirely inside stop interval; original harness and independent audits passed; consumer caught up. | [Notifications down](notifications-down-2026-10-12.md) |
+| Orders SIGTERM | Readiness refused, drain completed, exit 143; both accepted orders preserved. Four attempts failed during single-replica restart. | [Orders shutdown](orders-shutdown-2026-10-12.md) |
+| Canary / blue-green | Live delivery not run: disabled Rollouts, schema/scrape-label fixes awaiting publication and overlap capacity needed. | [Delivery preflight](progressive-delivery-preflight-2026-10-12.md) |
+| SLO / alert / tracing | Real reconciliation alert fired; collector metric coverage verified. SLO mapping and query selectors need alignment; tracing export/backend absent. | [Observability audit](observability-verification-2026-10-12.md) |
 
-## 1. Latency injection into Payments
-
-Execution tooling: [temporary proxy and runbook](../../platform/reliability/payments-proxy/README.md). Record baseline, neutral proxy baseline, fault, recovery, and direct-route restoration separately. A capacity failure is not a completed experiment.
-
-- **Run ID / application image digests / configuration revision:**
-- **Preflight and approved hypothesis/SLO thresholds:**
-- **Lease creation / independent expiry / explicit reset evidence:**
-- **Breaker transitions / bounded retries / Catalog isolation:**
-- **Reconciliation incidents and operator redrive, if required:**
-- **Steady State (SLIs):**
-- **Hypothesis:** Does the Orders circuit breaker open and the fallback engage, while Catalog browsing stays healthy?
-- **Injected Fault:**
-- **Observation:**
-- **Evidence:**
-- **Conclusion / Changes Made:**
-
-## 2. Pod kill on Inventory mid-reservation
-
-Use the same runbook with one UID-conditioned pod deletion. Record temporal overlap with an in-flight reservation before claiming "mid-reservation"; otherwise state "pod kill under contention".
-
-- **Run ID / fixture / killed pod UID / replacement readiness:**
-- **In-flight overlap evidence (or explicitly unavailable):**
-- **HTTP retry and original-event replay source IDs:**
-- **Read-only seat/reservation/authorization invariants:**
-- **External provider audit for no-double-charge claim:**
-- **Steady State (SLIs):**
-- **Hypothesis:** Does idempotency plus the reservation model prevent oversell or double-charge?
-- **Injected Fault:**
-- **Observation:**
-- **Evidence:**
-- **Conclusion / Changes Made:**
-
-## 3. Node / AZ-style disruption
-- **Steady State (SLIs):**
-- **Hypothesis:** Do PDBs and topology spread keep the critical path available?
-- **Injected Fault:**
-- **Observation:**
-- **Evidence:**
-- **Conclusion / Changes Made:**
-
-## 4. Network partition / Kafka disruption
-- **Steady State (SLIs):**
-- **Hypothesis:** Does the async pipeline recover and converge once the partition heals? Does anything get lost or duplicated?
-- **Injected Fault:**
-- **Observation:**
-- **Evidence:**
-- **Conclusion / Changes Made:**
-
-## 5. Pod-failover of the CloudNativePG primary
-- **Steady State (SLIs):**
-- **Hypothesis:** What is the observed impact on checkout, and does the system recover within your stated RTO?
-- **Injected Fault:**
-- **Observation:**
-- **Evidence:**
-- **Conclusion / Changes Made:**
+Application experiment design remains in the sibling repository's
+`docs/operations/chaos-experiments.md`. These observations do not substitute for
+team-authored consistency choices, SLOs, fault hypotheses or the final postmortem.
+Sanitized aggregate audit and historical alert samples are versioned in
+[the evidence exports](evidence/2026-10-12/README.md). Follow-up work is tracked in [the DoD](../dod.md) and the
+[draft incident review](postmortem.md). The existing baseline/contention/replay
+reports are proposed separately in configuration PR #55; load-shedding setup is
+proposed in configuration PR #54 and is not included in these live proofs.
