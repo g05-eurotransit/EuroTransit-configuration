@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="archify 3.1.0">
   <meta name="archify-reader-contract" content="declared-wide-v1">
-  <title>AKS GitOps reconciliation order Diagram</title>
+  <title>GitOps: from source push to AKS Diagram</title>
   <script>
     // Resolve the theme before first paint so light-preference users don't
     // see a dark flash. The toolbar script below re-applies with UI state.
@@ -5150,18 +5150,18 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
            data-preset-badge-blueprint="BLUEPRINT / REV 01"
            data-preset-badge-editorial="EDITORIAL / FIELD NOTE">
         <div class="pulse-dot"></div>
-        <h1>AKS GitOps reconciliation order</h1>
+        <h1>GitOps: from source push to AKS</h1>
       </div>
     </div>
 
-    <script id="archify-source-evidence-data" type="application/json">{"schemaVersion":1,"verified":true,"repository":{"url":"https://github.com/g05-eurotransit/EuroTransit-configuration","revision":"ea5a1c6d92f964b2c5072688e53609eaf3af3aa7","shortRevision":"ea5a1c6","label":"g05-eurotransit/EuroTransit-configuration","href":"https://github.com/g05-eurotransit/EuroTransit-configuration/tree/ea5a1c6d92f964b2c5072688e53609eaf3af3aa7"},"referenceCount":8,"nodes":{"secrets":[{"path":"platform/argocd/base/platform-applications.yaml","line":93,"endLine":123,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/ea5a1c6d92f964b2c5072688e53609eaf3af3aa7/platform/argocd/base/platform-applications.yaml#L93-L123"}],"operators":[{"path":"platform/argocd/base/platform-applications.yaml","line":1,"endLine":91,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/ea5a1c6d92f964b2c5072688e53609eaf3af3aa7/platform/argocd/base/platform-applications.yaml#L1-L91"}],"runtime":[{"path":"platform/argocd/base/platform-applications.yaml","line":252,"endLine":275,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/ea5a1c6d92f964b2c5072688e53609eaf3af3aa7/platform/argocd/base/platform-applications.yaml#L252-L275"}],"identity":[{"path":"platform/argocd/base/platform-applications.yaml","line":228,"endLine":250,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/ea5a1c6d92f964b2c5072688e53609eaf3af3aa7/platform/argocd/base/platform-applications.yaml#L228-L250"}],"marketplace":[{"path":"platform/argocd/base/platform-applications.yaml","line":319,"endLine":357,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/ea5a1c6d92f964b2c5072688e53609eaf3af3aa7/platform/argocd/base/platform-applications.yaml#L319-L357"}],"connectors":[{"path":"platform/argocd/base/platform-applications.yaml","line":359,"endLine":381,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/ea5a1c6d92f964b2c5072688e53609eaf3af3aa7/platform/argocd/base/platform-applications.yaml#L359-L381"}],"monitoring":[{"path":"platform/argocd/base/platform-applications.yaml","line":178,"endLine":199,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/ea5a1c6d92f964b2c5072688e53609eaf3af3aa7/platform/argocd/base/platform-applications.yaml#L178-L199"}],"rollouts":[{"path":"platform/argocd/base/platform-applications.yaml","line":277,"endLine":317,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/ea5a1c6d92f964b2c5072688e53609eaf3af3aa7/platform/argocd/base/platform-applications.yaml#L277-L317"}]}}</script>
+    <script id="archify-source-evidence-data" type="application/json">{"schemaVersion":1,"verified":true,"repository":{"url":"https://github.com/g05-eurotransit/EuroTransit-configuration","revision":"02447bc426e31fba8743c46cc23225bcec3feea9","shortRevision":"02447bc","label":"g05-eurotransit/EuroTransit-configuration","href":"https://github.com/g05-eurotransit/EuroTransit-configuration/tree/02447bc426e31fba8743c46cc23225bcec3feea9"},"referenceCount":26,"nodes":{"application":[{"path":"docs/delivery/gitops-topology.md","line":3,"endLine":3,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/docs/delivery/gitops-topology.md#L3"},{"path":"docs/delivery/gitops-topology.md","line":53,"endLine":55,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/docs/delivery/gitops-topology.md#L53-L55"}],"ci":[{"path":"docs/delivery/gitops-topology.md","line":13,"endLine":17,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/docs/delivery/gitops-topology.md#L13-L17"},{"path":"docs/delivery/gitops-topology.md","line":53,"endLine":55,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/docs/delivery/gitops-topology.md#L53-L55"}],"configuration":[{"path":"docs/delivery/gitops-topology.md","line":25,"endLine":27,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/docs/delivery/gitops-topology.md#L25-L27"},{"path":"docs/delivery/gitops-topology.md","line":53,"endLine":55,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/docs/delivery/gitops-topology.md#L53-L55"}],"argo":[{"path":"apps/argocd-apps/base/eurotransit-platform-root.yaml","line":10,"endLine":23,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/apps/argocd-apps/base/eurotransit-platform-root.yaml#L10-L23"}],"registry":[{"path":"docs/delivery/gitops-topology.md","line":25,"endLine":27,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/docs/delivery/gitops-topology.md#L25-L27"},{"path":"docs/delivery/gitops-topology.md","line":53,"endLine":55,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/docs/delivery/gitops-topology.md#L53-L55"}],"root":[{"path":"apps/argocd-apps/base/eurotransit-platform-root.yaml","line":1,"endLine":23,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/apps/argocd-apps/base/eurotransit-platform-root.yaml#L1-L23"}],"overlay":[{"path":"platform/argocd/environments/aks/kustomization.yaml","line":1,"endLine":16,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/environments/aks/kustomization.yaml#L1-L16"},{"path":"platform/argocd/base/kustomization.yaml","line":1,"endLine":6,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/kustomization.yaml#L1-L6"}],"foundation":[{"path":"platform/argocd/base/platform-applications.yaml","line":1,"endLine":199,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L1-L199"},{"path":"platform/argocd/base/platform-applications.yaml","line":201,"endLine":227,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L201-L227"},{"path":"platform/argocd/base/platform-applications.yaml","line":277,"endLine":317,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L277-L317"}],"runtime":[{"path":"platform/argocd/base/platform-applications.yaml","line":252,"endLine":275,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L252-L275"}],"identity":[{"path":"platform/argocd/base/platform-applications.yaml","line":228,"endLine":250,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L228-L250"}],"marketplace":[{"path":"platform/argocd/base/platform-applications.yaml","line":319,"endLine":357,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L319-L357"}],"connectors":[{"path":"platform/argocd/base/platform-applications.yaml","line":359,"endLine":381,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L359-L381"}],"platformrender":[{"path":"platform/argocd/base/platform-applications.yaml","line":1,"endLine":199,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L1-L199"},{"path":"platform/argocd/base/platform-applications.yaml","line":277,"endLine":317,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L277-L317"},{"path":"platform/argocd/environments/aks/kustomization.yaml","line":6,"endLine":16,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/environments/aks/kustomization.yaml#L6-L16"}],"runtimerender":[{"path":"platform/environments/aks/kustomization.yaml","line":1,"endLine":19,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/environments/aks/kustomization.yaml#L1-L19"}],"identityrender":[{"path":"platform/keycloak/kustomization.yaml","line":1,"endLine":10,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/keycloak/kustomization.yaml#L1-L10"}],"apphelm":[{"path":"platform/argocd/base/platform-applications.yaml","line":319,"endLine":357,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/argocd/base/platform-applications.yaml#L319-L357"}],"connectrender":[{"path":"platform/connectors/environments/aks/kustomization.yaml","line":1,"endLine":24,"href":"https://github.com/g05-eurotransit/EuroTransit-configuration/blob/02447bc426e31fba8743c46cc23225bcec3feea9/platform/connectors/environments/aks/kustomization.yaml#L1-L24"}]}}</script>
     <script id="archify-i18n-data" type="application/json">{"locale":"en","messages":{"viewer.kind.frontend":"Frontend","viewer.kind.backend":"Backend","viewer.kind.database":"Database","viewer.kind.cloud":"Cloud","viewer.kind.security":"Security","viewer.kind.messagebus":"Message bus","viewer.kind.external":"External","viewer.kind.neutral":"Neutral","viewer.kind.node":"Node","viewer.kind.start":"Start","viewer.kind.active":"Active","viewer.kind.waiting":"Waiting","viewer.kind.decision":"Decision","viewer.kind.success":"Success","viewer.kind.failure":"Failure","viewer.toolbar.actions":"Diagram actions","viewer.theme.toggle.title":"Toggle theme (T)","viewer.theme.toggle":"Toggle color theme","viewer.theme.dark":"Dark","viewer.theme.light":"Light","viewer.preset.choose.title":"Choose visual style (S cycles)","viewer.preset.choose":"Choose visual style","viewer.preset.style":"Style","viewer.preset.menu":"Visual style","viewer.preset.identity":"Visual identity","viewer.preset.cycles":"to cycle","viewer.preset.classic":"Classic","viewer.preset.classic.short":"Classic","viewer.preset.classic.hint":"Stable technical default","viewer.preset.flow":"Signal Flow","viewer.preset.flow.short":"Flow","viewer.preset.flow.hint":"Motion-forward presentation","viewer.preset.blueprint":"Blueprint","viewer.preset.blueprint.hint":"Engineering review","viewer.preset.editorial":"Editorial","viewer.preset.editorial.hint":"Publication and launch notes","viewer.preset.badge.signalFlow":"SIGNAL FLOW","viewer.preset.badge.blueprint":"BLUEPRINT / REV 01","viewer.preset.badge.editorial":"EDITORIAL / FIELD NOTE","viewer.preset.badge.editorialPlate":"ARCHIFY / PLATE 04","viewer.preset.current":"Visual style: {style}. Choose visual style","viewer.motion.live":"Live","viewer.motion.still":"Still","viewer.motion.pause":"Pause motion","viewer.motion.resume":"Resume motion","viewer.motion.reduced":"Motion paused by reduced-motion preference","viewer.motion.hidden":"Motion paused while this page is hidden","viewer.motion.yielding":"Pause motion; currently yielding to {owner}","viewer.motion.yielding.title":"Live preview enabled · yielding to {owner}","viewer.owner.route":"Route Probe","viewer.owner.lens":"Semantic Lens","viewer.owner.relationship":"Relationship Preview","viewer.owner.intent":"Intent Trace","viewer.owner.focus":"semantic focus","viewer.owner.legend":"legend preview","viewer.owner.reader":"reader interaction","viewer.present.enter":"Enter presentation stage","viewer.present.enter.title":"Presentation stage (F)","viewer.present.exit":"Exit presentation stage","viewer.present.exit.title":"Exit presentation stage (F or Escape)","viewer.present.present":"Present","viewer.present.exit.label":"Exit","viewer.export.button":"Export","viewer.export.button.title":"Export diagram (E)","viewer.export.diagram":"Export diagram","viewer.export.menu":"Export","viewer.export.subtitle":"Portable, clean outputs","viewer.export.share":"Share","viewer.export.shareCard":"Share Card","viewer.export.routeShareCard":"Route Share Card","viewer.export.reachShareCard":"Reach Share Card","viewer.export.copyDiagram":"Copy diagram","viewer.export.clipboardPng":"PNG to clipboard","viewer.export.raster":"Raster images","viewer.export.image":"Image","viewer.export.lossless":"Lossless image","viewer.export.compact":"Compact image","viewer.export.modern":"Modern image","viewer.export.vectorMotion":"Vector and motion","viewer.export.vectorMotion.heading":"Vector \u0026 motion","viewer.export.editable":"Editable vector","viewer.export.svg.auto":"SVG · Auto","viewer.export.svg.auto.hint":"Matches host theme","viewer.export.svg.light":"SVG · Light","viewer.export.svg.light.hint":"Always light","viewer.export.svg.dark":"SVG · Dark","viewer.export.svg.dark.hint":"Always dark","viewer.export.motion6s":"6s motion","viewer.export.unsupported":"Not supported by this browser","viewer.export.clipboardUnsupported":"Clipboard image write not supported by this browser","viewer.export.clipboardUnsupported.short":"Clipboard image write not supported in this browser.","viewer.export.motionUnavailable":"Motion capture unavailable in this browser","viewer.export.webmUnavailable":"WebM unavailable in this browser","viewer.export.failed":"Export failed: {message}","viewer.export.unknownVariant":"Unknown Share Card variant: {variant}","viewer.export.routeRequired":"Trace a route before exporting a Route Share Card","viewer.export.reachRequired":"Trace authored reach before exporting a Reach Share Card","viewer.export.unknown":"unknown","viewer.export.routeFailed":"Route Share Card export failed: {message}","viewer.export.reachFailed":"Reach Share Card export failed: {message}","viewer.export.copyFailed":"Copy failed: {message}","viewer.export.copiedPng":"Copied PNG to clipboard","viewer.export.downloadedRoute":"Downloaded Route Share Card","viewer.export.downloadedReach":"Downloaded Reach Share Card","viewer.export.downloadedWebm":"Downloaded WebM","viewer.export.recording":"Recording 6 seconds of motion…","viewer.export.card.routeSummary.one":"Path: {source} → {target} · {count} step","viewer.export.card.routeSummary.other":"Path: {source} → {target} · {count} steps","viewer.export.card.reachSummary":"Authored {direction} from {origin} · {nodes} · {links} · max {hops}","viewer.export.card.node.one":"{count} node","viewer.export.card.node.other":"{count} nodes","viewer.export.card.link.one":"{count} link","viewer.export.card.link.other":"{count} links","viewer.export.card.hop.one":"{count} hop","viewer.export.card.hop.other":"{count} hops","viewer.export.card.routeBadge":"ARCHIFY · ROUTE · {hops}","viewer.export.card.reachBadge":"ARCHIFY · {direction} REACH","viewer.export.direction.upstream":"Upstream","viewer.export.direction.downstream":"Downstream","viewer.export.error.canvasUnavailable":"Canvas unavailable for {label}","viewer.export.error.contextUnavailable":"2D canvas context unavailable for {label}","viewer.export.error.toBlobUnavailable":"canvas.toBlob unavailable for {label}","viewer.export.error.toBlobNull":"canvas.toBlob returned no data for {label}","viewer.export.error.variantsCombined":"Share Card variants cannot be combined","viewer.export.error.viewerState":"Share Card export could not remove temporary viewer state","viewer.export.error.routeState":"Route Card export could not preserve the resolved route safely","viewer.export.error.reachState":"Reach Card export could not preserve authored reach safely","viewer.export.error.webmRequirements":"WebM motion export requires a trace animation and browser MediaRecorder support","viewer.export.error.mediaRecorder":"MediaRecorder failed","viewer.export.error.emptyWebm":"MediaRecorder produced an empty WebM","viewer.export.error.webmBackground":"SVG background could not be loaded for WebM export","viewer.guide.title":"Explore this system","viewer.focus.selectedNodes":"{count} selected nodes","viewer.guide.eyebrow":"Diagram guide","viewer.guide.close":"Close diagram guide","viewer.guide.inspecting":"Inspecting compiled semantics","viewer.guide.actions":"Diagram exploration actions","viewer.guide.find":"Find any node","viewer.guide.find.hint":"Search labels, responsibilities, kinds, and stable IDs.","viewer.guide.route":"Trace a route","viewer.guide.route.aria":"Trace a directed route","viewer.guide.route.hint":"Ask how two semantic nodes connect in authored direction.","viewer.guide.map":"See the whole system","viewer.guide.map.hint":"Open Semantic Radar with a live viewport and stable nodes.","viewer.guide.lens":"Compare semantic kinds","viewer.guide.lens.hint":"Count roles, reveal their traffic, and compare direct authored links.","viewer.guide.present":"Enter Presentation Stage","viewer.guide.present.hint":"Give the live diagram the viewport without changing export.","viewer.guide.shortcuts":"Additional keyboard shortcuts","viewer.guide.shortcut.export":"Export","viewer.guide.shortcut.theme":"Theme","viewer.guide.shortcut.style":"Style","viewer.guide.shortcut.reset":"Reset","viewer.guide.shortcut.zoomIn":"Zoom in","viewer.guide.shortcut.zoomOut":"Zoom out","viewer.guide.shortcut.close":"Close","viewer.guide.credit":"Find Archify useful? A star on GitHub helps","viewer.guide.star":"Star","viewer.guide.facts":"{nodes} · {relationships}","viewer.guide.fact.node.one":"{count} semantic node","viewer.guide.fact.node.other":"{count} semantic nodes","viewer.guide.fact.relationship.one":"{count} relationship","viewer.guide.fact.relationship.other":"{count} relationships","viewer.guide.open":"Open diagram guide","viewer.finder.title":"Find a node","viewer.finder.close":"Close node finder","viewer.finder.placeholder":"Search labels or IDs","viewer.finder.search":"Search diagram nodes","viewer.finder.results":"Diagram nodes","viewer.finder.empty":"No matching nodes","viewer.finder.result.focus":"Focus {label}","viewer.finder.result.routeStart":"Choose {label} as route start","viewer.finder.result.routeTarget":"Choose {label} as route destination, {links}","viewer.finder.status.empty":"No matching nodes","viewer.finder.status.count.one":"{count} matching node","viewer.finder.status.count.other":"{count} matching nodes","viewer.finder.noun.nodes":"nodes","viewer.finder.link.one":"{count} link","viewer.finder.link.other":"{count} links","viewer.finder.result.focus.one":"Focus {label}, {count} related connection","viewer.finder.result.focus.other":"Focus {label}, {count} related connections","viewer.finder.status.filtered":"{visible} of {available} {noun}","viewer.finder.status.all":"{available} {noun}","viewer.passport.eyebrow":"Semantic passport","viewer.passport.metadata":"Node metadata","viewer.passport.evidence":"Verified source evidence","viewer.passport.verified":"Verified source","viewer.passport.verificationScope":"Verified against local Git at the pinned revision. Remote access has not been checked.","viewer.passport.reach":"Authored reach","viewer.passport.reach.trace":"Trace authored reachability","viewer.passport.upstream":"Upstream","viewer.passport.downstream":"Downstream","viewer.passport.upstream.trace":"Trace upstream authored reachability","viewer.passport.downstream.trace":"Trace downstream authored reachability","viewer.passport.close":"Close semantic passport","viewer.passport.move":"Move semantic passport. Drag, use arrow keys, or press Home to reset.","viewer.passport.copy":"Copy link","viewer.passport.copy.focus":"Copy link to focused node","viewer.passport.relations":"Relations","viewer.passport.relations.show":"Show connected relationships","viewer.passport.relations.hide":"Hide connected relationships","viewer.passport.relations.list":"Connected relationships","viewer.passport.copyRelation":"Copy relation","viewer.passport.copyNode":"Copy node","viewer.passport.copyPinned":"Copy link to pinned relationship","viewer.passport.copySource":"Copy link to source node","viewer.passport.copy.focused.success":"Focused node link copied","viewer.passport.copy.pinned.success":"Pinned relationship link copied","viewer.passport.copy.focused.failed":"Could not copy focused node link","viewer.passport.copy.pinned.failed":"Could not copy pinned relationship link","viewer.passport.relationship.none":"No connected relationships","viewer.passport.relationship.count.one":"{count} relation","viewer.passport.relationship.count.other":"{count} relations","viewer.passport.relationship.show.one":"Show {count} connected relationship","viewer.passport.relationship.show.other":"Show {count} connected relationships","viewer.passport.relationship.summary":"{out} outgoing · {in} incoming{loops}","viewer.passport.relationship.loops":" · {count} loop","viewer.passport.relationship.explorer":"Direct relationship explorer","viewer.passport.relationship.help":"Use arrow keys to explore relationships. Press Enter or Space to pin details; Escape clears.","viewer.passport.relationship.loopsBack":"loops back","viewer.passport.relationship.connectsTo":"connects to","viewer.passport.relationship.connectsFrom":"connects from","viewer.passport.relationship.pinned":"Pinned relationship · {from} → {to} · {label}","viewer.passport.relationship.inspect":"Inspect relationship {index} of {total}: {from} to {to}, {label}. Press Enter for details.","viewer.passport.relationship.group.out":"Outgoing","viewer.passport.relationship.group.in":"Incoming","viewer.passport.relationship.group.loop":"Self loops","viewer.passport.relationship.row":"{group}: {relationship}, {neighbor}","viewer.passport.relationship.direction.out":"OUT →","viewer.passport.relationship.direction.in":"← IN","viewer.passport.relationship.direction.loop":"LOOP","viewer.passport.sourceCount.one":"{count} verified source reference","viewer.passport.sourceCount.other":"{count} verified source references","viewer.passport.repository.open":"Open verified repository revision {revision}","viewer.passport.source.open":"Open verified source {path} at revision {revision}","viewer.passport.source.openLink":"Open ↗","viewer.passport.reach.upstream.one":"Trace {count} upstream authored node","viewer.passport.reach.upstream.other":"Trace {count} upstream authored nodes","viewer.passport.reach.downstream.one":"Trace {count} downstream authored node","viewer.passport.reach.downstream.other":"Trace {count} downstream authored nodes","viewer.passport.reach.noUpstream":"No upstream authored nodes","viewer.passport.reach.noDownstream":"No downstream authored nodes","viewer.passport.reach.status":"{direction} · {nodes} nodes · {links} links · max {hops} hops","viewer.route.eyebrow":"Path","viewer.route.start":"Click where the path starts","viewer.route.start.find":"Find start","viewer.route.start.find.aria":"Find a route start","viewer.route.copy":"Copy link","viewer.route.copy.aria":"Copy link to traced route","viewer.route.clear":"Clear","viewer.route.clear.aria":"Clear route probe","viewer.route.traced":"Path","viewer.route.pickTwo":"Click two nodes on the diagram","viewer.route.pickOne":"Click a node on the diagram","viewer.route.controls":"Route journey controls","viewer.route.previous":"Previous route position","viewer.route.play":"Play route journey","viewer.route.pause":"Pause route journey","viewer.route.replay":"Replay route journey","viewer.route.next":"Next route position","viewer.route.journey":"Journey","viewer.route.pause.label":"Pause","viewer.route.replay.label":"Replay","viewer.route.overview":"Overview","viewer.route.overview.aria":"Show complete route overview","viewer.route.instructions":"Click a start, then an end. Paths follow the arrows.","viewer.route.destination":"Where does the path from {label} end?","viewer.route.destination.find":"Find target","viewer.route.destination.find.aria":"Find a reachable route destination","viewer.route.differentDestination":"Choose a different destination","viewer.route.distinct":"Pick two different nodes.","viewer.route.unreachable":"Cannot reach {label} from here","viewer.route.unreachable.detail":"{target} cannot be reached from {source} along the arrows. Pick a highlighted node.","viewer.route.start.instructions":"Next, pick the end. Only nodes you can reach will light up.","viewer.route.copy.success":"Traced route link copied","viewer.route.copy.failed":"Could not copy traced route link","viewer.route.position":"Route position {index} of {total}: {label}","viewer.route.step":"Step {index} of {total} · {phase} · {label}","viewer.route.motionRequired":"Automatic journey requires Live motion","viewer.route.trigger.clear":"Clear traced route","viewer.route.overview.status":"{nodes} · {hops} · shortest path","viewer.route.overview.node.one":"{count} node","viewer.route.overview.node.other":"{count} nodes","viewer.route.overview.hop.one":"{count} step","viewer.route.overview.hop.other":"{count} steps","viewer.route.phase.playing":"Playing","viewer.route.phase.complete":"Complete","viewer.route.phase.inspecting":"Inspecting","viewer.route.destination.count.one":"{count} reachable node is highlighted. Click it.","viewer.route.destination.count.other":"{count} reachable nodes are highlighted. Click one.","viewer.route.noOutgoing":"No arrows lead out of this node. Clear it and pick another start.","viewer.route.result.title":"{source} to {target}","viewer.route.finder.source.title":"Choose route start","viewer.route.finder.source.placeholder":"Search route sources","viewer.route.finder.source.empty":"No matching route sources","viewer.route.finder.source.results":"Nodes that can start a route","viewer.route.finder.source.noun":"route sources","viewer.route.finder.source.badge":"start","viewer.route.finder.target.title":"Destination from {label}","viewer.route.finder.target.placeholder":"Search reachable destinations","viewer.route.finder.target.empty":"No matching reachable destinations","viewer.route.finder.target.results":"Reachable route destinations","viewer.route.finder.target.noun":"reachable destinations","viewer.route.hop.one":"{count} hop","viewer.route.hop.other":"{count} hops","viewer.lens.eyebrow":"Semantic lens","viewer.lens.title":"Compare system roles","viewer.lens.close":"Close semantic lens","viewer.lens.instruction":"Choose up to two semantic kinds. One reveals its real traffic; two compare only direct authored relationships.","viewer.lens.kinds":"Semantic kinds","viewer.lens.choose":"Choose a kind to inspect its nodes and touching relationships.","viewer.lens.copy":"Copy link to semantic lens","viewer.lens.clear":"Clear semantic lens","viewer.lens.open":"Open semantic lens","viewer.lens.openActive":"Open active semantic lens","viewer.lens.legend":"Semantic legend","viewer.lens.legend.inspect.one":"Inspect {label}, {count} node","viewer.lens.legend.inspect.other":"Inspect {label}, {count} nodes","viewer.lens.kind.count.one":"{label}, {count} node","viewer.lens.kind.count.other":"{label}, {count} nodes","viewer.lens.compare.one":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationship","viewer.lens.compare.other":"{first} → {second}: {forward} · {second} → {first}: {reverse} · {count} direct relationships","viewer.lens.single":"{nodes} · {relationships} · connected peers remain visible","viewer.lens.node.one":"{count} {label} node","viewer.lens.node.other":"{count} {label} nodes","viewer.lens.relationship.one":"{count} touching relationship","viewer.lens.relationship.other":"{count} touching relationships","viewer.radar.title":"Semantic radar","viewer.radar.building":"Building overview","viewer.radar.openFull":"Open full semantic radar","viewer.radar.open":"Open radar","viewer.radar.close":"Close semantic radar","viewer.radar.surface":"Diagram overview. Click a node to focus it, or use arrow keys to pan.","viewer.radar.click":"Click node","viewer.radar.drag":"Drag to pan","viewer.radar.space":"Semantic radar needs more MAP space.","viewer.radar.nodes":"Semantic diagram radar nodes","viewer.radar.focus":"Focus {label} from Semantic Radar","viewer.radar.status":"{count} nodes · {viewport}","viewer.radar.fullMap":"{count} nodes · full map","viewer.radar.compacted":"Radar compacted to avoid covering the Semantic Passport or MAP controls.","viewer.radar.cancelWaiting":"Cancel semantic radar waiting for more MAP space","viewer.radar.needsSpace":"Semantic radar needs more visible MAP space","viewer.radar.viewport.full":"full map","viewer.radar.viewport.width":"{percent}% width","viewer.radar.viewport.scale":"{percent}% viewport","viewer.nav.controls":"Diagram view controls","viewer.nav.route":"Trace a directed route","viewer.nav.route.title":"Trace route (R)","viewer.nav.route.short":"ROUTE","viewer.nav.radar":"Open semantic radar","viewer.nav.radar.title":"Semantic radar (M)","viewer.nav.radar.short":"MAP","viewer.nav.lens":"Open semantic lens","viewer.nav.lens.title":"Semantic lens (L)","viewer.nav.lens.short":"LENS","viewer.nav.find":"Find a node","viewer.nav.find.title":"Find a node (/)","viewer.outline.title":"Node index","viewer.rail.show":"Notes \u0026 index","viewer.rail.controls":"Side panel","viewer.rail.collapse":"Collapse side panel","viewer.rail.bottom":"Move panel below the diagram","viewer.rail.right":"Move panel beside the diagram","viewer.nav.guide":"Open diagram guide","viewer.nav.guide.title":"Diagram guide (?)","viewer.nav.zoomOut":"Zoom out","viewer.nav.zoomOut.title":"Zoom out (-)","viewer.nav.reset":"Reset diagram view","viewer.nav.reset.title":"Reset view (0)","viewer.nav.read":"READ","viewer.nav.zoomIn":"Zoom in","viewer.nav.zoomIn.title":"Zoom in (+)","viewer.nav.camera":"{hint}. Reset diagram view","viewer.nav.camera.title":"{semantic}{hint} · reset view (0)","viewer.nav.camera.semantic":"Semantic camera active · ","viewer.nav.level.map":"MAP","viewer.nav.level.read":"READ","viewer.nav.level.full":"FULL","viewer.nav.level.auto":"AUTO","viewer.nav.detail.map":"Zoom in to reveal relationship labels and node context","viewer.nav.detail.read":"Zoom in again to reveal tags and annotations","viewer.nav.detail.full":"Full diagram detail","viewer.intent.summary":"{label}. {out} outgoing, {in} incoming{loops}. {total} connections. Press Enter for details.","viewer.intent.loops":", {count} self loop","viewer.common.copied":"Copied","viewer.common.copyFailed":"Copy failed","viewer.common.copyLink":"Copy link","viewer.common.clear":"Clear","viewer.common.close":"Close"}}</script>
     <!-- Main Diagram -->
     <div class="diagram-container" data-detail-level="read"
          data-preset-badge-editorial-plate="ARCHIFY / PLATE 04">
-      <svg viewBox="0 0 824 404" data-layout-contract="readable-v2" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="classic" data-quality-profile="showcase" data-node-ui="">
-        <title id="archify-diagram-title">AKS GitOps reconciliation order</title>
-        <desc id="archify-diagram-description">A workflow diagram generated by Archify.</desc>
+      <svg viewBox="0 0 1220 964" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="classic" data-quality-profile="showcase" data-node-ui="" data-reader-fit="intrinsic-height" data-reader-min-text="7.5" data-reader-primary-text="14">
+        <title id="archify-diagram-title">GitOps: from source push to AKS</title>
+        <desc id="archify-diagram-description">An architecture diagram generated by Archify.</desc>
         <!-- Definitions -->
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -5205,157 +5205,361 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <!-- Background Grid -->
         <rect width="100%" height="100%" fill="url(#grid)" />
 
-        <!-- Swimlanes -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-0" x="40" y="52" width="768" height="104" rx="10" class="c-lane" stroke-width="1"/>
-        <text x="54" y="74" class="t-muted" font-size="10" font-weight="600">01 / Runtime dependency chain</text>
-
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-1" x="40" y="176" width="768" height="104" rx="10" class="c-lane" stroke-width="1"/>
-        <text x="54" y="198" class="t-muted" font-size="10" font-weight="600">02 / Monitoring and rollout control</text>
-
-        <!-- Phase headers -->
+        <!-- Boundaries (behind everything) -->
 
 
-        <!-- Workflow groups -->
-
-
-        <!-- Edge paths -->
-        <path data-edge-from="identity" data-edge-to="marketplace" data-edge-key="0" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="548,119;580,119" d="M 548 119 L 580 119" class="a-emphasis" data-animate="edge" style="--step:3" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="marketplace" data-edge-to="connectors" data-edge-key="1" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="672,119;704,119" d="M 672 119 L 704 119" class="a-emphasis" data-animate="edge" style="--step:4" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="operators" data-edge-to="monitoring" data-edge-key="2" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="218,145;218,166;348,166;348,217" d="M 218 145 L 218 158 Q 218 166 226 166 L 340 166 Q 348 166 348 174 L 348 217" class="a-default" data-animate="edge" style="--step:8" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="operators" data-edge-to="runtime" data-edge-key="3" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="264,119;296,119" d="M 264 119 L 296 119" class="a-emphasis" data-animate="edge" style="--step:1" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="rollouts" data-edge-to="marketplace" data-edge-label="CRDs ready" data-edge-key="4" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="564,243;626,243;626,145" d="M 564 243 L 618 243 Q 626 243 626 235 L 626 145" class="a-default" data-animate="edge" style="--step:10" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="runtime" data-edge-to="identity" data-edge-key="5" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="400,119;456,119" d="M 400 119 L 456 119" class="a-emphasis" data-animate="edge" style="--step:2" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="secrets" data-edge-to="operators" data-edge-key="6" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="140,119;172,119" d="M 140 119 L 172 119" class="a-emphasis" data-animate="edge" style="--step:0" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-
-        <!-- Nodes -->
-        <g id="node-secrets" data-node-id="secrets" data-node-label="Secrets" tabindex="0" role="button" aria-label="Focus Secrets, Wave 5, Runtime dependency chain" aria-pressed="false" data-node-kind="security" data-node-sublabel="Wave 5" data-node-context="Runtime dependency chain">
-          <title>Secrets · Wave 5 · Runtime dependency chain</title>
-          <rect x="48" y="93" width="92" height="52" rx="8" class="c-mask"/>
-          <rect x="48" y="93" width="92" height="52" rx="8" class="c-security" data-animate="node" style="--step:0" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(54 99) scale(0.6875)">
-            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
-            <path d="m5.8 8 1.5 1.5 3-3"/>
-          </g>
-          <text data-node-label="" data-detail-anchor="" x="94" y="125" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Secrets</text>
-          <text data-detail="context" x="94" y="137.3" class="t-muted" font-size="8" text-anchor="middle">Wave 5</text>
+        <!-- Connection paths (before components for correct z-order) -->
+        <g data-graph-role="automatic-crossover" style="--step:0">
+          <path data-graph-role="automatic-crossover-underlay" d="M 240 78 L 330 78" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="application" data-edge-to="ci" data-edge-label="push main" data-edge-key="0" data-composition-points="240,78;330,78" data-composition-crossover="halo" data-composition-independent="true" d="M 240 78 L 330 78" class="a-emphasis" data-animate="edge" style="--step:0" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:1">
+          <path data-graph-role="automatic-crossover-underlay" d="M 540 78 L 630 78" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="ci" data-edge-to="configuration" data-edge-label="commit values" data-edge-key="1" data-composition-points="540,78;630,78" data-composition-crossover="halo" data-composition-independent="true" d="M 540 78 L 630 78" class="a-emphasis" data-animate="edge" style="--step:1" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:2">
+          <path data-graph-role="automatic-crossover-underlay" d="M 840 78 L 930 78" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="configuration" data-edge-to="argo" data-edge-label="desired state" data-edge-key="2" data-composition-points="840,78;930,78" data-composition-crossover="halo" data-composition-independent="true" d="M 840 78 L 930 78" class="a-emphasis" data-animate="edge" style="--step:2" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:3">
+          <path data-graph-role="automatic-crossover-underlay" d="M 435 116 L 435 220" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="ci" data-edge-to="registry" data-edge-label="publish images" data-edge-key="3" data-composition-points="435,116;435,220" data-composition-crossover="halo" data-composition-independent="true" d="M 435 116 L 435 220" class="a-default" data-animate="edge" style="--step:3" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:4">
+          <path data-graph-role="automatic-crossover-underlay" d="M 1035 116 L 1035 360" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="argo" data-edge-to="root" data-edge-label="reconcile" data-edge-key="4" data-composition-points="1035,116;1035,360" data-composition-crossover="halo" data-composition-independent="true" d="M 1035 116 L 1035 360" class="a-emphasis" data-animate="edge" style="--step:4" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:5">
+          <path data-graph-role="automatic-crossover-underlay" d="M 930 398 L 760 398" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="root" data-edge-to="overlay" data-edge-label="Kustomize source" data-edge-key="5" data-composition-points="930,398;760,398" data-composition-crossover="halo" data-composition-independent="true" d="M 930 398 L 760 398" class="a-emphasis" data-animate="edge" style="--step:5" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:6">
+          <path data-graph-role="automatic-crossover-underlay" d="M 530 391 L 220 391" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="overlay" data-edge-to="foundation" data-edge-key="6" data-composition-points="530,391;220,391" data-composition-crossover="halo" data-composition-independent="true" d="M 530 391 L 220 391" class="a-default" data-animate="edge" style="--step:6" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:7">
+          <path data-graph-role="automatic-crossover-underlay" d="M 125 436 L 125 820" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="foundation" data-edge-to="platformrender" data-edge-label="render + sync" data-edge-key="7" data-composition-points="125,436;125,820" data-composition-crossover="halo" data-composition-independent="true" d="M 125 436 L 125 820" class="a-emphasis" data-animate="edge" style="--step:7" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:8">
+          <path data-graph-role="automatic-crossover-underlay" d="M 631 436 L 631 580" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="overlay" data-edge-to="runtime" data-edge-key="8" data-composition-points="631,436;631,580" data-composition-crossover="halo" data-composition-independent="true" d="M 631 436 L 631 580" class="a-default" data-animate="edge" style="--step:8" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:9">
+          <path data-graph-role="automatic-crossover-underlay" d="M 645 656 L 645 820" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="runtime" data-edge-to="runtimerender" data-edge-label="render + sync" data-edge-key="9" data-composition-points="645,656;645,820" data-composition-crossover="halo" data-composition-independent="true" d="M 645 656 L 645 820" class="a-emphasis" data-animate="edge" style="--step:9" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:10">
+          <path data-graph-role="automatic-crossover-underlay" d="M 546 436 L 546 588 Q 546 596 538 596 L 460 596" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="overlay" data-edge-to="identity" data-edge-key="10" data-composition-points="546,436;546,596;460,596" data-composition-crossover="halo" data-composition-independent="true" d="M 546 436 L 546 588 Q 546 596 538 596 L 460 596" class="a-default" data-animate="edge" style="--step:10" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:11">
+          <path data-graph-role="automatic-crossover-underlay" d="M 365 656 L 365 820" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="identity" data-edge-to="identityrender" data-edge-label="render + sync" data-edge-key="11" data-composition-points="365,656;365,820" data-composition-crossover="halo" data-composition-independent="true" d="M 365 656 L 365 820" class="a-emphasis" data-animate="edge" style="--step:11" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:12">
+          <path data-graph-role="automatic-crossover-underlay" d="M 645 436 L 645 500 Q 645 508 653 508 L 837 508 Q 845 508 845 516 L 845 580" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="overlay" data-edge-to="marketplace" data-edge-key="12" data-composition-points="645,436;645,508;845,508;845,580" data-composition-crossover="halo" data-composition-independent="true" d="M 645 436 L 645 500 Q 645 508 653 508 L 837 508 Q 845 508 845 516 L 845 580" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:13">
+          <path data-graph-role="automatic-crossover-underlay" d="M 845 656 L 845 820" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="marketplace" data-edge-to="apphelm" data-edge-label="render + sync" data-edge-key="13" data-composition-points="845,656;845,820" data-composition-crossover="halo" data-composition-independent="true" d="M 845 656 L 845 820" class="a-emphasis" data-animate="edge" style="--step:12" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:14">
+          <path data-graph-role="automatic-crossover-underlay" d="M 659 436 L 659 452 Q 659 460 667 460 L 1077 460 Q 1085 460 1085 468 L 1085 580" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="overlay" data-edge-to="connectors" data-edge-key="14" data-composition-points="659,436;659,460;1085,460;1085,580" data-composition-crossover="halo" data-composition-independent="true" d="M 659 436 L 659 452 Q 659 460 667 460 L 1077 460 Q 1085 460 1085 468 L 1085 580" class="a-default" data-animate="edge" style="--step:12" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        </g>
+        <g data-graph-role="automatic-crossover" style="--step:15">
+          <path data-graph-role="automatic-crossover-underlay" d="M 1085 656 L 1085 820" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="connectors" data-edge-to="connectrender" data-edge-label="render + sync" data-edge-key="15" data-composition-points="1085,656;1085,820" data-composition-crossover="halo" data-composition-independent="true" d="M 1085 656 L 1085 820" class="a-emphasis" data-animate="edge" style="--step:12" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         </g>
 
-        <g id="node-operators" data-node-id="operators" data-node-label="Operators" tabindex="0" role="button" aria-label="Focus Operators, Waves 10 / 15, Runtime dependency chain" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="Waves 10 / 15" data-node-context="Runtime dependency chain">
-          <title>Operators · Waves 10 / 15 · Runtime dependency chain</title>
-          <rect x="172" y="93" width="92" height="52" rx="8" class="c-mask"/>
-          <rect x="172" y="93" width="92" height="52" rx="8" class="c-cloud" data-animate="node" style="--step:1" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(178 99) scale(0.6875)">
-            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
+        <!-- Components -->
+        <g id="node-application" data-node-id="application" data-node-label="Application Git" tabindex="0" role="button" aria-label="Focus Application Git, Push main / manual source ref, Architecture component" aria-pressed="false" data-node-kind="external" data-node-sublabel="Push main / manual source ref" data-node-context="Architecture component">
+          <title>Application Git · Push main / manual source ref · Architecture component</title>
+          <rect x="30" y="40" width="210" height="76" rx="8" class="c-mask"/>
+          <rect x="30" y="40" width="210" height="76" rx="8" class="c-external" data-animate="node" style="--step:0" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(36 46) scale(0.6875)">
+            <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
+            <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="218" y="125" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Operators</text>
-          <text data-detail="context" x="218" y="137.3" class="t-muted" font-size="8" text-anchor="middle">Waves 10 / 15</text>
+          <text data-node-label="" data-detail-anchor="" x="135" y="76" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Application Git</text>
+        <text data-detail="context" x="135" y="92" class="t-muted" font-size="9" text-anchor="middle">Push main / manual source ref</text>
         </g>
 
-        <g id="node-runtime" data-node-id="runtime" data-node-label="Postgres + Kafka" tabindex="0" role="button" aria-label="Focus Postgres + Kafka, Wave 20, Runtime dependency chain" aria-pressed="false" data-node-kind="database" data-node-sublabel="Wave 20" data-node-context="Runtime dependency chain">
-          <title>Postgres + Kafka · Wave 20 · Runtime dependency chain</title>
-          <rect x="296" y="93" width="104" height="52" rx="8" class="c-mask"/>
-          <rect x="296" y="93" width="104" height="52" rx="8" class="c-database" data-animate="node" style="--step:2" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(302 99) scale(0.6875)">
+        <g id="node-ci" data-node-id="ci" data-node-label="GitHub Actions" tabindex="0" role="button" aria-label="Focus GitHub Actions, Build changed services, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Build changed services" data-node-context="Architecture component">
+          <title>GitHub Actions · Build changed services · Architecture component</title>
+          <rect x="330" y="40" width="210" height="76" rx="8" class="c-mask"/>
+          <rect x="330" y="40" width="210" height="76" rx="8" class="c-backend" data-animate="node" style="--step:1" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(336 46) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="435" y="76" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">GitHub Actions</text>
+        <text data-detail="context" x="435" y="92" class="t-muted" font-size="9" text-anchor="middle">Build changed services</text>
+        </g>
+
+        <g id="node-configuration" data-node-id="configuration" data-node-label="Configuration Git" tabindex="0" role="button" aria-label="Focus Configuration Git, Image values / connector digest, Architecture component" aria-pressed="false" data-node-kind="database" data-node-sublabel="Image values / connector digest" data-node-context="Architecture component">
+          <title>Configuration Git · Image values / connector digest · Architecture component</title>
+          <rect x="630" y="40" width="210" height="76" rx="8" class="c-mask"/>
+          <rect x="630" y="40" width="210" height="76" rx="8" class="c-database" data-animate="node" style="--step:2" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(636 46) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="348" y="126" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">Postgres + Kafka</text>
-          <text data-detail="context" x="348" y="140.6" class="t-muted" font-size="8" text-anchor="middle">Wave 20</text>
+          <text data-node-label="" data-detail-anchor="" x="735" y="76" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Configuration Git</text>
+        <text data-detail="context" x="735" y="92" class="t-muted" font-size="9" text-anchor="middle">Image values / connector digest</text>
         </g>
 
-        <g id="node-identity" data-node-id="identity" data-node-label="Keycloak" tabindex="0" role="button" aria-label="Focus Keycloak, Wave 25, Runtime dependency chain" aria-pressed="false" data-node-kind="security" data-node-sublabel="Wave 25" data-node-context="Runtime dependency chain">
-          <title>Keycloak · Wave 25 · Runtime dependency chain</title>
-          <rect x="456" y="93" width="92" height="52" rx="8" class="c-mask"/>
-          <rect x="456" y="93" width="92" height="52" rx="8" class="c-security" data-animate="node" style="--step:3" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(462 99) scale(0.6875)">
+        <g id="node-argo" data-node-id="argo" data-node-label="Argo CD" tabindex="0" role="button" aria-label="Focus Argo CD, Read desired state from main, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Read desired state from main" data-node-context="Architecture component">
+          <title>Argo CD · Read desired state from main · Architecture component</title>
+          <rect x="930" y="40" width="210" height="76" rx="8" class="c-mask"/>
+          <rect x="930" y="40" width="210" height="76" rx="8" class="c-backend" data-animate="node" style="--step:3" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(936 46) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="1035" y="76" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Argo CD</text>
+        <text data-detail="context" x="1035" y="92" class="t-muted" font-size="9" text-anchor="middle">Read desired state from main</text>
+        </g>
+
+        <g id="node-registry" data-node-id="registry" data-node-label="Azure ACR" tabindex="0" role="button" aria-label="Focus Azure ACR, SHA-tagged application images, Architecture component" aria-pressed="false" data-node-kind="database" data-node-sublabel="SHA-tagged application images" data-node-context="Architecture component">
+          <title>Azure ACR · SHA-tagged application images · Architecture component</title>
+          <rect x="330" y="220" width="210" height="76" rx="8" class="c-mask"/>
+          <rect x="330" y="220" width="210" height="76" rx="8" class="c-database" data-animate="node" style="--step:4" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(336 226) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="435" y="256" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Azure ACR</text>
+        <text data-detail="context" x="435" y="272" class="t-muted" font-size="9" text-anchor="middle">SHA-tagged application images</text>
+        </g>
+
+        <g id="node-root" data-node-id="root" data-node-label="Root Application" tabindex="0" role="button" aria-label="Focus Root Application, eurotransit-platform-root, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="eurotransit-platform-root" data-node-context="Architecture component">
+          <title>Root Application · eurotransit-platform-root · Architecture component</title>
+          <rect x="930" y="360" width="210" height="76" rx="8" class="c-mask"/>
+          <rect x="930" y="360" width="210" height="76" rx="8" class="c-backend" data-animate="node" style="--step:5" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(936 366) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="1035" y="396" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Root Application</text>
+        <text data-detail="context" x="1035" y="412" class="t-muted" font-size="9" text-anchor="middle">eurotransit-platform-root</text>
+        </g>
+
+        <g id="node-overlay" data-node-id="overlay" data-node-label="Argo environment overlay" tabindex="0" role="button" aria-label="Focus Argo environment overlay, AKS overlay → shared base, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="AKS overlay → shared base" data-node-context="Architecture component">
+          <title>Argo environment overlay · AKS overlay → shared base · Architecture component</title>
+          <rect x="530" y="360" width="230" height="76" rx="8" class="c-mask"/>
+          <rect x="530" y="360" width="230" height="76" rx="8" class="c-backend" data-animate="node" style="--step:6" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(536 366) scale(0.6875)">
+            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="645" y="396" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Argo environment overlay</text>
+        <text data-detail="context" x="645" y="412" class="t-muted" font-size="9" text-anchor="middle">AKS overlay → shared base</text>
+        </g>
+
+        <g id="node-foundation" data-node-id="foundation" data-node-label="Platform Applications" tabindex="0" role="button" aria-label="Focus Platform Applications, Waves 5 / 10 / 15 / 29, Architecture component" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="Waves 5 / 10 / 15 / 29" data-node-tag="Waves 5 / 10 / 15 / 29" data-node-context="Architecture component">
+          <title>Platform Applications · Waves 5 / 10 / 15 / 29 · Architecture component · Waves 5 / 10 / 15 / 29</title>
+          <rect x="30" y="360" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="30" y="360" width="190" height="76" rx="8" class="c-cloud" data-animate="node" style="--step:7" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(36 366) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="125" y="396" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Platform Applications</text>
+        <text data-detail="context" x="125" y="412" class="t-muted" font-size="9" text-anchor="middle">Waves 5 / 10 / 15 / 29</text>
+        <text data-detail="fine" x="125" y="428" class="t-cloud" font-size="7" text-anchor="middle">Waves 5 / 10 / 15 / 29</text>
+        </g>
+
+        <g id="node-runtime" data-node-id="runtime" data-node-label="Runtime · wave 20" tabindex="0" role="button" aria-label="Focus Runtime · wave 20, eurotransit-platform-runtime, Architecture component" aria-pressed="false" data-node-kind="database" data-node-sublabel="eurotransit-platform-runtime" data-node-tag="Wave 20" data-node-context="Architecture component">
+          <title>Runtime · wave 20 · eurotransit-platform-runtime · Architecture component · Wave 20</title>
+          <rect x="550" y="580" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="550" y="580" width="190" height="76" rx="8" class="c-database" data-animate="node" style="--step:9" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(556 586) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="645" y="616" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Runtime · wave 20</text>
+        <text data-detail="context" x="645" y="632" class="t-muted" font-size="9" text-anchor="middle">eurotransit-platform-runtime</text>
+        <text data-detail="fine" x="645" y="648" class="t-database" font-size="7" text-anchor="middle">Wave 20</text>
+        </g>
+
+        <g id="node-identity" data-node-id="identity" data-node-label="Identity · wave 25" tabindex="0" role="button" aria-label="Focus Identity · wave 25, eurotransit-keycloak, Architecture component" aria-pressed="false" data-node-kind="security" data-node-sublabel="eurotransit-keycloak" data-node-tag="Wave 25" data-node-context="Architecture component">
+          <title>Identity · wave 25 · eurotransit-keycloak · Architecture component · Wave 25</title>
+          <rect x="270" y="580" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="270" y="580" width="190" height="76" rx="8" class="c-security" data-animate="node" style="--step:11" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(276 586) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="502" y="125" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Keycloak</text>
-          <text data-detail="context" x="502" y="137.3" class="t-muted" font-size="8" text-anchor="middle">Wave 25</text>
+          <text data-node-label="" data-detail-anchor="" x="365" y="616" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Identity · wave 25</text>
+        <text data-detail="context" x="365" y="632" class="t-muted" font-size="9" text-anchor="middle">eurotransit-keycloak</text>
+        <text data-detail="fine" x="365" y="648" class="t-security" font-size="7" text-anchor="middle">Wave 25</text>
         </g>
 
-        <g id="node-marketplace" data-node-id="marketplace" data-node-label="Marketplace" tabindex="0" role="button" aria-label="Focus Marketplace, Wave 30 + Flyway, Runtime dependency chain" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Wave 30 + Flyway" data-node-context="Runtime dependency chain">
-          <title>Marketplace · Wave 30 + Flyway · Runtime dependency chain</title>
-          <rect x="580" y="93" width="92" height="52" rx="8" class="c-mask"/>
-          <rect x="580" y="93" width="92" height="52" rx="8" class="c-backend" data-animate="node" style="--step:4" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(586 99) scale(0.6875)">
+        <g id="node-marketplace" data-node-id="marketplace" data-node-label="Marketplace · wave 30" tabindex="0" role="button" aria-label="Focus Marketplace · wave 30, eurotransit-marketplace, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="eurotransit-marketplace" data-node-tag="Wave 30" data-node-context="Architecture component">
+          <title>Marketplace · wave 30 · eurotransit-marketplace · Architecture component · Wave 30</title>
+          <rect x="750" y="580" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="750" y="580" width="190" height="76" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(756 586) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="626" y="125" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Marketplace</text>
-          <text data-detail="context" x="626" y="137.3" class="t-muted" font-size="8" text-anchor="middle">Wave 30 + Flyway</text>
+          <text data-node-label="" data-detail-anchor="" x="845" y="616" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Marketplace · wave 30</text>
+        <text data-detail="context" x="845" y="632" class="t-muted" font-size="9" text-anchor="middle">eurotransit-marketplace</text>
+        <text data-detail="fine" x="845" y="648" class="t-backend" font-size="7" text-anchor="middle">Wave 30</text>
         </g>
 
-        <g id="node-connectors" data-node-id="connectors" data-node-label="CDC connectors" tabindex="0" role="button" aria-label="Focus CDC connectors, Wave 40, Runtime dependency chain" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="Wave 40" data-node-context="Runtime dependency chain">
-          <title>CDC connectors · Wave 40 · Runtime dependency chain</title>
-          <rect x="704" y="93" width="92" height="52" rx="8" class="c-mask"/>
-          <rect x="704" y="93" width="92" height="52" rx="8" class="c-messagebus" data-animate="node" style="--step:5" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(710 99) scale(0.6875)">
+        <g id="node-connectors" data-node-id="connectors" data-node-label="Connectors · wave 40" tabindex="0" role="button" aria-label="Focus Connectors · wave 40, eurotransit-connectors, Architecture component" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="eurotransit-connectors" data-node-tag="Wave 40" data-node-context="Architecture component">
+          <title>Connectors · wave 40 · eurotransit-connectors · Architecture component · Wave 40</title>
+          <rect x="990" y="580" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="990" y="580" width="190" height="76" rx="8" class="c-messagebus" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(996 586) scale(0.6875)">
             <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/>
             <circle cx="5" cy="4.5" r="1" class="sigil-fill"/>
             <circle cx="10.5" cy="8" r="1" class="sigil-fill"/>
             <circle cx="7" cy="11.5" r="1" class="sigil-fill"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="750" y="126" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">CDC connectors</text>
-          <text data-detail="context" x="750" y="140.6" class="t-muted" font-size="8" text-anchor="middle">Wave 40</text>
+          <text data-node-label="" data-detail-anchor="" x="1085" y="616" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Connectors · wave 40</text>
+        <text data-detail="context" x="1085" y="632" class="t-muted" font-size="9" text-anchor="middle">eurotransit-connectors</text>
+        <text data-detail="fine" x="1085" y="648" class="t-messagebus" font-size="7" text-anchor="middle">Wave 40</text>
         </g>
 
-        <g id="node-monitoring" data-node-id="monitoring" data-node-label="Rules / dashboards" tabindex="0" role="button" aria-label="Focus Rules / dashboards, Wave 15, Monitoring and rollout control" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Wave 15" data-node-context="Monitoring and rollout control">
-          <title>Rules / dashboards · Wave 15 · Monitoring and rollout control</title>
-          <rect x="288" y="217" width="120" height="52" rx="8" class="c-mask"/>
-          <rect x="288" y="217" width="120" height="52" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(294 223) scale(0.6875)">
+        <g id="node-platformrender" data-node-id="platformrender" data-node-label="Helm + Kustomize" tabindex="0" role="button" aria-label="Focus Helm + Kustomize, Platform controllers / secrets, Architecture component" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="Platform controllers / secrets" data-node-context="Architecture component">
+          <title>Helm + Kustomize · Platform controllers / secrets · Architecture component</title>
+          <rect x="30" y="820" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="30" y="820" width="190" height="76" rx="8" class="c-cloud" data-animate="node" style="--step:8" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(36 826) scale(0.6875)">
+            <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="125" y="856" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Helm + Kustomize</text>
+        <text data-detail="context" x="125" y="872" class="t-muted" font-size="9" text-anchor="middle">Platform controllers / secrets</text>
+        </g>
+
+        <g id="node-runtimerender" data-node-id="runtimerender" data-node-label="Kustomize" tabindex="0" role="button" aria-label="Focus Kustomize, AKS bases + patches, Architecture component" aria-pressed="false" data-node-kind="database" data-node-sublabel="AKS bases + patches" data-node-context="Architecture component">
+          <title>Kustomize · AKS bases + patches · Architecture component</title>
+          <rect x="550" y="820" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="550" y="820" width="190" height="76" rx="8" class="c-database" data-animate="node" style="--step:10" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(556 826) scale(0.6875)">
+            <ellipse cx="8" cy="4" rx="5" ry="2"/>
+            <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="645" y="856" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Kustomize</text>
+        <text data-detail="context" x="645" y="872" class="t-muted" font-size="9" text-anchor="middle">AKS bases + patches</text>
+        </g>
+
+        <g id="node-identityrender" data-node-id="identityrender" data-node-label="Kustomize" tabindex="0" role="button" aria-label="Focus Kustomize, Keycloak + realm + bootstrap, Architecture component" aria-pressed="false" data-node-kind="security" data-node-sublabel="Keycloak + realm + bootstrap" data-node-context="Architecture component">
+          <title>Kustomize · Keycloak + realm + bootstrap · Architecture component</title>
+          <rect x="270" y="820" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="270" y="820" width="190" height="76" rx="8" class="c-security" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(276 826) scale(0.6875)">
+            <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
+            <path d="m5.8 8 1.5 1.5 3-3"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="365" y="856" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Kustomize</text>
+        <text data-detail="context" x="365" y="872" class="t-muted" font-size="9" text-anchor="middle">Keycloak + realm + bootstrap</text>
+        </g>
+
+        <g id="node-apphelm" data-node-id="apphelm" data-node-label="Helm" tabindex="0" role="button" aria-label="Focus Helm, Chart + production values, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Chart + production values" data-node-context="Architecture component">
+          <title>Helm · Chart + production values · Architecture component</title>
+          <rect x="750" y="820" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="750" y="820" width="190" height="76" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(756 826) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="348" y="248.3" class="t-primary" font-size="10.3" font-weight="600" text-anchor="middle">Rules / dashboards</text>
-          <text data-detail="context" x="348" y="260.4" class="t-muted" font-size="8" text-anchor="middle">Wave 15</text>
+          <text data-node-label="" data-detail-anchor="" x="845" y="856" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Helm</text>
+        <text data-detail="context" x="845" y="872" class="t-muted" font-size="9" text-anchor="middle">Chart + production values</text>
         </g>
 
-        <g id="node-rollouts" data-node-id="rollouts" data-node-label="Rollouts controller" tabindex="0" role="button" aria-label="Focus Rollouts controller, Wave 29, Monitoring and rollout control" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Wave 29" data-node-context="Monitoring and rollout control">
-          <title>Rollouts controller · Wave 29 · Monitoring and rollout control</title>
-          <rect x="440" y="217" width="124" height="52" rx="8" class="c-mask"/>
-          <rect x="440" y="217" width="124" height="52" rx="8" class="c-backend" data-animate="node" style="--step:12" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(446 223) scale(0.6875)">
-            <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
+        <g id="node-connectrender" data-node-id="connectrender" data-node-label="Kustomize" tabindex="0" role="button" aria-label="Focus Kustomize, Shared worker + digest pin, Architecture component" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="Shared worker + digest pin" data-node-context="Architecture component">
+          <title>Kustomize · Shared worker + digest pin · Architecture component</title>
+          <rect x="990" y="820" width="190" height="76" rx="8" class="c-mask"/>
+          <rect x="990" y="820" width="190" height="76" rx="8" class="c-messagebus" data-animate="node" style="--step:12" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(996 826) scale(0.6875)">
+            <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/>
+            <circle cx="5" cy="4.5" r="1" class="sigil-fill"/>
+            <circle cx="10.5" cy="8" r="1" class="sigil-fill"/>
+            <circle cx="7" cy="11.5" r="1" class="sigil-fill"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="502" y="248.1" class="t-primary" font-size="10.1" font-weight="600" text-anchor="middle">Rollouts controller</text>
-          <text data-detail="context" x="502" y="260.2" class="t-muted" font-size="8" text-anchor="middle">Wave 29</text>
+          <text data-node-label="" data-detail-anchor="" x="1085" y="856" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Kustomize</text>
+        <text data-detail="context" x="1085" y="872" class="t-muted" font-size="9" text-anchor="middle">Shared worker + digest pin</text>
         </g>
 
-        <!-- Edge labels -->
-
-
-
-
-        <g data-detail="context" data-edge-from="rollouts" data-edge-to="marketplace" data-edge-label="CRDs ready" data-edge-key="4">
-          <rect x="566" y="223" width="58" height="14" rx="3" class="c-mask"/>
-          <text x="595" y="233" class="t-muted" font-size="8" text-anchor="middle">CRDs ready</text>
+        <!-- Connection labels -->
+        <g data-detail="context" data-edge-from="application" data-edge-to="ci" data-edge-label="push main" data-edge-key="0">
+          <rect x="258.4" y="58" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="285" y="68" class="t-edge-emphasis" font-size="8" text-anchor="middle">push main</text>
+        </g>
+        <g data-detail="context" data-edge-from="ci" data-edge-to="configuration" data-edge-label="commit values" data-edge-key="1">
+          <rect x="548.8" y="58" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="585" y="68" class="t-edge-emphasis" font-size="8" text-anchor="middle">commit values</text>
+        </g>
+        <g data-detail="context" data-edge-from="configuration" data-edge-to="argo" data-edge-label="desired state" data-edge-key="2">
+          <rect x="848.8" y="58" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="885" y="68" class="t-edge-emphasis" font-size="8" text-anchor="middle">desired state</text>
+        </g>
+        <g data-detail="context" data-edge-from="ci" data-edge-to="registry" data-edge-label="publish images" data-edge-key="3">
+          <rect x="351.79999999999995" y="161" width="77.2" height="14" rx="3" class="c-mask"/>
+          <text x="390.4" y="171" class="t-edge-default" font-size="8" text-anchor="middle">publish images</text>
+        </g>
+        <g data-detail="context" data-edge-from="argo" data-edge-to="root" data-edge-label="reconcile" data-edge-key="4">
+          <rect x="975.8" y="231" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="1002.4" y="241" class="t-edge-emphasis" font-size="8" text-anchor="middle">reconcile</text>
+        </g>
+        <g data-detail="context" data-edge-from="root" data-edge-to="overlay" data-edge-label="Kustomize source" data-edge-key="5">
+          <rect x="801.6" y="378" width="86.8" height="14" rx="3" class="c-mask"/>
+          <text x="845" y="388" class="t-edge-emphasis" font-size="8" text-anchor="middle">Kustomize source</text>
         </g>
 
+        <g data-detail="context" data-edge-from="foundation" data-edge-to="platformrender" data-edge-label="render + sync" data-edge-key="7">
+          <rect x="46.599999999999994" y="621" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="82.8" y="631" class="t-edge-emphasis" font-size="8" text-anchor="middle">render + sync</text>
+        </g>
+
+        <g data-detail="context" data-edge-from="runtime" data-edge-to="runtimerender" data-edge-label="render + sync" data-edge-key="9">
+          <rect x="566.5999999999999" y="731" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="602.8" y="741" class="t-edge-emphasis" font-size="8" text-anchor="middle">render + sync</text>
+        </g>
+
+        <g data-detail="context" data-edge-from="identity" data-edge-to="identityrender" data-edge-label="render + sync" data-edge-key="11">
+          <rect x="286.6" y="731" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="322.8" y="741" class="t-edge-emphasis" font-size="8" text-anchor="middle">render + sync</text>
+        </g>
+
+        <g data-detail="context" data-edge-from="marketplace" data-edge-to="apphelm" data-edge-label="render + sync" data-edge-key="13">
+          <rect x="766.5999999999999" y="731" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="802.8" y="741" class="t-edge-emphasis" font-size="8" text-anchor="middle">render + sync</text>
+        </g>
+
+        <g data-detail="context" data-edge-from="connectors" data-edge-to="connectrender" data-edge-label="render + sync" data-edge-key="15">
+          <rect x="1006.5999999999999" y="731" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="1042.8" y="741" class="t-edge-emphasis" font-size="8" text-anchor="middle">render + sync</text>
+        </g>
+
+        <!-- Boundary labels (foreground masks keep routes out of titles) -->
 
 
         <!-- Legend -->
         <g data-legend="" data-legend-bridge="">
-          <text x="20" y="304" class="t-primary" font-size="12" font-weight="650">Legend</text>
-          <g data-legend-semantic-kind="backend" data-legend-kind="backend" data-legend-label="Controller / config" data-legend-x="20" data-legend-baseline="324" data-legend-width="132">
-            <rect x="20" y="316" width="14" height="9" rx="2" class="c-backend" stroke-width="1"/>
-            <text x="42" y="324" class="t-muted" font-size="7.5" font-weight="500">Controller / config</text>
+          <text x="40" y="928" class="t-primary" font-size="12" font-weight="650">Legend</text>
+          <g data-legend-semantic-kind="backend" data-legend-kind="backend" data-legend-label="Backend" data-legend-x="40" data-legend-baseline="948" data-legend-width="87">
+            <rect x="40" y="939" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
+            <text x="62" y="948" class="t-muted" font-size="10" font-weight="500">Backend</text>
           </g>
-          <g data-legend-semantic-kind="security" data-legend-kind="security" data-legend-label="Secrets / identity" data-legend-x="159" data-legend-baseline="324" data-legend-width="127">
-            <rect x="159" y="316" width="14" height="9" rx="2" class="c-security" stroke-width="1"/>
-            <text x="181" y="324" class="t-muted" font-size="7.5" font-weight="500">Secrets / identity</text>
+          <g data-legend-semantic-kind="database" data-legend-kind="database" data-legend-label="Database" data-legend-x="149" data-legend-baseline="948" data-legend-width="93">
+            <rect x="149" y="939" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
+            <text x="171" y="948" class="t-muted" font-size="10" font-weight="500">Database</text>
           </g>
-          <g data-legend-semantic-kind="messagebus" data-legend-kind="messagebus" data-legend-label="CDC runtime" data-legend-x="293" data-legend-baseline="324" data-legend-width="95">
-            <rect x="293" y="316" width="14" height="9" rx="2" class="c-messagebus" stroke-width="1"/>
-            <text x="315" y="324" class="t-muted" font-size="7.5" font-weight="500">CDC runtime</text>
+          <g data-legend-semantic-kind="cloud" data-legend-kind="cloud" data-legend-label="Cloud" data-legend-x="264" data-legend-baseline="948" data-legend-width="74">
+            <rect x="264" y="939" width="16" height="10" rx="2.5" class="c-cloud" stroke-width="1"/>
+            <text x="286" y="948" class="t-muted" font-size="10" font-weight="500">Cloud</text>
           </g>
-          <g data-legend-semantic-kind="database" data-legend-kind="database" data-legend-label="Data runtime" data-legend-x="395" data-legend-baseline="324" data-legend-width="99">
-            <rect x="395" y="316" width="14" height="9" rx="2" class="c-database" stroke-width="1"/>
-            <text x="417" y="324" class="t-muted" font-size="7.5" font-weight="500">Data runtime</text>
+          <g data-legend-semantic-kind="security" data-legend-kind="security" data-legend-label="Security" data-legend-x="360" data-legend-baseline="948" data-legend-width="93">
+            <rect x="360" y="939" width="16" height="10" rx="2.5" class="c-security" stroke-width="1"/>
+            <text x="382" y="948" class="t-muted" font-size="10" font-weight="500">Security</text>
           </g>
-          <g data-legend-semantic-kind="cloud" data-legend-kind="cloud" data-legend-label="Platform operators" data-legend-x="501" data-legend-baseline="324" data-legend-width="127">
-            <rect x="501" y="316" width="14" height="9" rx="2" class="c-cloud" stroke-width="1"/>
-            <text x="523" y="324" class="t-muted" font-size="7.5" font-weight="500">Platform operators</text>
+          <g data-legend-semantic-kind="messagebus" data-legend-kind="messagebus" data-legend-label="Message bus" data-legend-x="475" data-legend-baseline="948" data-legend-width="112">
+            <rect x="475" y="939" width="16" height="10" rx="2.5" class="c-messagebus" stroke-width="1"/>
+            <text x="497" y="948" class="t-muted" font-size="10" font-weight="500">Message bus</text>
+          </g>
+          <g data-legend-semantic-kind="external" data-legend-kind="external" data-legend-label="External" data-legend-x="609" data-legend-baseline="948" data-legend-width="93">
+            <rect x="609" y="939" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
+            <text x="631" y="948" class="t-muted" font-size="10" font-weight="500">External</text>
           </g>
         </g>
       </svg>
@@ -5538,24 +5742,38 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       <div class="card">
         <div class="card-header">
           <div class="card-dot cyan"></div>
-          <h3>Bootstrap and health</h3>
+          <h3>Application ownership</h3>
         </div>
         <ul>
-          <li>Admin installs Argo CD and its private-repository credential first.</li>
-          <li>Apply the root app-of-apps; independent child applies lose wave ordering.</li>
-          <li>Connector health must include RUNNING tasks, not only a Ready Pod.</li>
+          <li>Bootstrap installs Argo CD and repository credentials, then applies apps/argocd-apps/environments/aks.</li>
+          <li>The root reads platform/argocd/environments/aks; its Kustomize base declares all child Applications.</li>
+          <li>Foundation groups eurotransit-secrets, traefik, cert-manager, strimzi, cloudnativepg, kube-prometheus-stack, eurotransit-monitoring-config, keycloak-operator and argo-rollouts.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Source to Kubernetes</h3>
+        </div>
+        <ul>
+          <li>Runtime: platform/environments/aks composes PostgreSQL, Kafka, topics and environment patches.</li>
+          <li>Marketplace: charts/eurotransit uses values.yaml + values-production.yaml; Flyway runs with the workload sync.</li>
+          <li>Connectors: platform/connectors/environments/aks composes shared workers and a pinned Debezium image.</li>
+          <li>Argo CD renders and applies manifests; Kubernetes controllers run Pods and pull their declared images from ACR.</li>
         </ul>
       </div>
 
       <div class="card">
         <div class="card-header">
           <div class="card-dot amber"></div>
-          <h3>Delivery boundary</h3>
+          <h3>Delivery boundaries</h3>
         </div>
         <ul>
-          <li>Application CI publishes images and updates configuration Git.</li>
-          <li>Argo CD reconciles desired state; Rollouts owns live selectors and weights.</li>
-          <li>Configured ordering is separate from demonstrated release history.</li>
+          <li>Pushes to application main trigger conditional image builds; manual runs can select a source ref. CI directly commits configuration values after successful builds.</li>
+          <li>Debezium has its own build/digest update workflow. A configuration-only change enters at Configuration Git.</li>
+          <li>Application workflows inspected at dc636f4; configuration topology pinned to 02447bc. This is declared AKS topology, not evidence of a completed release.</li>
+          <li>Custom child health gates wave progression. Rollouts owns live selectors/weights; Argo CD ignores those controller-managed fields. Standard Kind differs; isolated Kind HA uses direct setup.</li>
         </ul>
       </div>
     </div>

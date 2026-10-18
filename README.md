@@ -1,45 +1,23 @@
 # EuroTransit Configuration
 
-This repository defines Kubernetes deployment, GitOps delivery, platform configuration, and operational verification for EuroTransit Marketplace. Application behavior and contracts live in [EuroTransit Application](https://github.com/g05-eurotransit/EuroTransit-application/tree/dev).
+Kubernetes deployment, GitOps, platform configuration and operational evidence for EuroTransit Marketplace.
 
-## Choose an environment
+Start with the [deployment architecture](docs/platform/deployment.md), including clickable diagrams for Kind, Kind HA and AKS.
 
-| Environment | Purpose | Entry point |
-| --- | --- | --- |
-| Kind | Single-node local development | [Local setup](docs/platform/kind-local-setup.md) |
-| Kind HA | Isolated worker-loss, failover, and delivery experiments | [HA runbook](docs/reliability/kind-ha-runbook.md) |
-| AKS | Resource-constrained cluster deployment | [AKS setup](docs/platform/aks-production-setup.md) |
-
-The [deployment reference](docs/platform/deployment.md) shows each topology and its limitations. Direct Kind setup uses local scripts and Helm; the GitOps path reconciles committed desired state through Argo CD. These are distinct deployment methods.
-
-## Start with Kind
-
-Prerequisites and application checkout requirements are in [local setup](docs/platform/kind-local-setup.md).
+## Run with Kind
 
 ```bash
 just kind-up
 just kind-test
-just kind-status
 ```
 
-These commands create and modify a local cluster. To inspect configuration without deploying:
+See [Kind setup](docs/operations/kind.md) for prerequisites, credentials and cleanup. Other environments and GitOps bootstrap are covered in [operations](docs/operations/README.md).
 
-```bash
-just render-kind
-just render-aks
-```
+## Documentation
 
-AKS rendering requires the documented secret inventory; a fail-closed render is a prerequisite failure, not live proof.
+- [Platform](docs/platform/README.md): topology, GitOps, identity, CDC and observability.
+- [Operations](docs/operations/README.md): environment setup, recovery and controlled experiments.
+- [Verification](docs/verification/README.md): results by environment and scenario.
+- [Readiness](docs/readiness.md): operational acceptance and remaining work.
 
-## Find the right document
-
-| Need | Start here |
-| --- | --- |
-| Understand placement and topology | [Deployment](docs/platform/deployment.md) |
-| Bootstrap or recover a cluster | [Platform](docs/platform/README.md) |
-| Understand build, promotion, and rollback | [Delivery](docs/delivery/README.md) |
-| Inspect executed experiments | [Reliability evidence](docs/reliability/chaos-experiment-reports.md) |
-| See remaining environment gaps | [Readiness](docs/delivery/readiness.md) |
-| Navigate all documentation | [Documentation](docs/README.md) |
-
-Use the [shared documentation guide](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/templates/README.md) when editing either repository.
+Service behavior and API/event contracts live in [application](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/README.md).

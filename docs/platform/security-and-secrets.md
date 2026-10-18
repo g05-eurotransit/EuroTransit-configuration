@@ -11,7 +11,7 @@ credentials are duplicated in `eurotransit` and `keycloak` for the Argo Job.
 
 ## Secret boundaries
 
-Never commit plaintext credentials or controller private keys. Orders, Inventory and Payments receive their own logical database credentials; provider sandbox credentials belong only to Payments. Keycloak client secrets and bootstrap credentials are namespace-scoped. Application identities, roles and resource ownership are defined by the [API contract](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/design/api-design.md); cluster issuer/client provisioning is in [OIDC setup](keycloak-oidc.md).
+Never commit plaintext credentials or controller private keys. Orders, Inventory and Payments receive their own logical database credentials; provider sandbox credentials belong only to Payments. Keycloak client secrets and bootstrap credentials are namespace-scoped. Application identities, roles and resource ownership are defined by the [API contract](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/design/api-design.md); cluster issuer/client provisioning is in [OIDC setup](keycloak-oidc.md).
 
 ## Current Manifests
 
@@ -39,8 +39,8 @@ Never commit plaintext credentials or controller private keys. Orders, Inventory
 - Keycloak multi-environment OIDC configuration lives in `platform/keycloak/` and is documented in `docs/platform/keycloak-oidc.md`.
 - CloudNativePG database and role references live in `platform/cloudnativepg/postgres-cluster.yaml`.
 - The executable sealing, bootstrap, upgrade, rotation and disaster-recovery
-  workflow is documented in `docs/platform/aks-production-setup.md` and
-  summarized in `docs/platform/cluster-bootstrap-runbook.md`.
+  workflow is documented in `docs/operations/aks.md` and
+  summarized in `docs/operations/aks.md`.
 
 ## Rotation And Recovery
 
