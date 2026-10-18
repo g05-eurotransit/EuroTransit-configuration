@@ -2,7 +2,7 @@
 
 Application CI publishes versioned images and updates configuration Git; Argo CD reconciles the selected environment. CI needs registry/repository credentials and no cluster credentials. The [release evidence gap](../readiness.md) remains distinct from this configured path.
 
-![AKS reconciliation waves and controller dependencies](../diagrams/delivery/gitops.svg)
+[![AKS reconciliation waves and controller dependencies](../diagrams/delivery/gitops.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
 
 [Full-size SVG](../diagrams/delivery/gitops.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
 

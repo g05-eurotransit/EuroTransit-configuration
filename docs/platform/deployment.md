@@ -6,13 +6,13 @@ Choose standard Kind for development, Kind HA for isolated multi-node experiment
 
 ### Kind
 
-![Kind deployment: workstation ingress, application pods, Keycloak, single-instance PostgreSQL and Kafka, and optional GitOps control](../diagrams/deployment/kind.svg)
+[![Kind deployment: workstation ingress, application pods, Keycloak, single-instance PostgreSQL and Kafka, and optional GitOps control](../diagrams/deployment/kind.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/deployment/kind.html)
 
 [Open the full-size SVG](../diagrams/deployment/kind.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/deployment/kind.html)
 
 ### Kind HA
 
-![Kind HA: separated critical replicas, synchronous PostgreSQL, replicated persistent Kafka and two shared Connect workers](../diagrams/deployment/kind-ha.svg)
+[![Kind HA: separated critical replicas, synchronous PostgreSQL, replicated persistent Kafka and two shared Connect workers](../diagrams/deployment/kind-ha.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/deployment/kind-ha.html)
 
 [Full-size SVG](../diagrams/deployment/kind-ha.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/deployment/kind-ha.html)
 
@@ -20,7 +20,7 @@ The [HA runbook](../operations/ha-experiment.md) owns the isolated setup, host c
 
 ### AKS
 
-![AKS deployment: public LoadBalancer, application pods, identity, PostgreSQL, Kafka, outbox connectors, monitoring, and Argo CD](../diagrams/deployment/aks.svg)
+[![AKS deployment: public LoadBalancer, application pods, identity, PostgreSQL, Kafka, outbox connectors, monitoring, and Argo CD](../diagrams/deployment/aks.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/deployment/aks.html)
 
 [Open the full-size SVG](../diagrams/deployment/aks.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/deployment/aks.html)
 
