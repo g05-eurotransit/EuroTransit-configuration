@@ -31,7 +31,7 @@ data:
       },
       "panels": [
         {
-          "title": "Hold Operations (Success vs Failed vs Expired)",
+          "title": "Hold Operations (Success vs Rejected vs Expired)",
           "type": "timeseries",
           "datasource": { "type": "prometheus", "uid": "${datasource}" },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
@@ -45,8 +45,8 @@ data:
             {
               "refId": "B",
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "sum(rate(inventory_holds_failed_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
-              "legendFormat": "Failed Holds/s"
+              "expr": "sum(rate(inventory_holds_rejected_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Rejected Holds/s"
             },
             {
               "refId": "C",

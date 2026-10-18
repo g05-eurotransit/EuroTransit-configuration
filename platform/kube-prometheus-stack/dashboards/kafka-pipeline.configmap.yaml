@@ -127,7 +127,7 @@ data:
             {
               "refId": "A",
               "datasource": { "type": "prometheus", "uid": "${datasource}" },
-              "expr": "sum by (kind) (orders_reconciliation_open{namespace=\"eurotransit\", app=\"orders\"})",
+              "expr": "max by (kind) (orders_reconciliation_open{namespace=\"eurotransit\", app=\"orders\"})",
               "legendFormat": "{{kind}}"
             }
           ],
