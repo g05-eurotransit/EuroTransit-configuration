@@ -10,8 +10,7 @@ The reports below are the current evidence for each environment and scenario. Ki
 | Catalog replica failure | Replica attribution and endpoint withdrawal explain transient gateway timeouts; healthy replica returned 52/52 successful reads. | [Catalog failover](kind/ha-failover.md#catalog-failover-verification) |
 | Orders shutdown | 4/4 confirmed with readiness refusal, endpoint withdrawal, bounded drain and independent payment audit. | [Orders shutdown](kind/orders-shutdown.md) |
 | Checkout admission | Three controlled 429 responses had no business effects; five accepted checkouts confirmed and reads stayed available. A low test threshold does not establish saturation capacity. | [Load shedding](kind/checkout-load-shedding.md) |
-| Orders canary | Ordinary 10/25/50% gates, real traffic and automatic abort verified; 100% read check and promotion passed. Temporary placement exception; one batch retains a manual provider-evidence qualification. | [Canary](kind/orders-canary.md) |
-| Catalog blue/green | Public 1316/1316 and preview 1042/1042 valid reads; rollback 1.575 s. Local configuration-only revisions, not proof of CI/GitOps delivery of a new application binary. | [Blue/green](kind/catalog-bluegreen.md) |
+| Progressive delivery | Orders canary and Catalog blue/green; controller results retain placement and delivery-proof limits. | [Experiments](kind/progressive-delivery.md) |
 | Notifications pause | 2/2 purchases confirmed; committed lag 0 → 2 → 0 on the same process. | [Notifications lag](kind/notifications-lag.md) |
 | CDC idle recovery | Transactional heartbeats advance all three logical slots after manual baseline repair. | [CDC recovery](incidents/cdc-slots.md) |
 | Monitoring | Real asynchronous metrics and committed Kafka lag available; checkout dashboard/alert SLI mapping remains incorrect and queryable tracing is absent. | [Observability](kind/observability.md) |
@@ -24,14 +23,8 @@ The reports below are the current evidence for each environment and scenario. Ki
 | Seat contention | Scoped no-oversell and one-charge correctness audit. | [Contention](aks/checkout.md#contention) |
 | Request replay | Sequential HTTP replay/conflicts and financial effects checked within the run. | [Replay](aks/checkout.md#request-replay) |
 | Rising traffic | Bounded ramp/spike observations, not maximum sustainable capacity. | [Ramp/spike](aks/checkout.md#ramp-and-spike) |
-| Inventory crash | One winner/four sold-out, one charge; automatic convergence in 73 s on the last redelivery. Original client deadline failed. | [Inventory crash](aks/inventory-crash.md) |
-| Kafka disruption | Four automatic confirmations after healing; original client deadline failed. | [Kafka disruption](aks/kafka-disruption.md) |
-| Payments latency only | Six automatic confirmations under 4 s delay for 45 s; Catalog/readiness 50/50. Two original client polling timeouts remain failures. | [Pure latency](aks/payments-latency.md) |
-| Payments latency + restart | Five of six automatically confirmed; one abandoned/refunded. This compound fault stays separate from latency-only proof. | [Latency and restart](aks/payments-latency-and-restart.md) |
-| Selective node drain | Availability failed without spare capacity; operator uncordon recovered service and three accepted orders confirmed. | [Node drain](aks/node-drain.md) |
-| Temporary PostgreSQL standby | Primary promotion ~3.5 s and read recovery ~5.1 s; one accepted order needed replay. | [Primary failover](aks/postgres-failover.md) |
-| Notifications stopped | Four confirmations during the stop, independent audits passed and consumer caught up. | [Notifications outage](aks/notifications-outage.md) |
-| Orders SIGTERM | Accepted work preserved; four attempts failed during single-replica replacement. | [Orders shutdown](aks/orders-shutdown.md) |
+| Dependency recovery | Inventory, Kafka, Payments and Notifications; original client failures and final recovery audits remain separate. | [Experiments](aks/dependencies.md) |
+| Workload and database recovery | Node evacuation, Orders shutdown and PostgreSQL promotion; availability failures and operator recovery remain recorded. | [Experiments](aks/recovery.md) |
 | Alert injection | Real reconciliation symptom alert fired; target-cluster tracing absent. | [Observability](aks/observability.md) |
 
 ## Reproduce and assess

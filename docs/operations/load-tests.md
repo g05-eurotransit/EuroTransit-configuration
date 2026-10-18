@@ -175,7 +175,7 @@ its ownership is not certified. Missing proof still blocks extraction. An
 uncaptured successful authorization (`paid=true`) remains a monetary effect and
 cannot use this classification. Pending effects always block. All records and
 pages are still enumerated, and expected run authorizations must all be present.
-See the [measured correction](../verification/kind/orders-canary.md).
+See the [measured correction](../verification/kind/progressive-delivery.md#orders-canary).
 
 After a complete audit, rerun `collect --provider-evidence <provider-audit.json>`
 and the harness verifier. Audit completeness applies to the bounded window,

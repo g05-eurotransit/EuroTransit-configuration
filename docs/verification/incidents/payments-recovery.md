@@ -27,7 +27,7 @@ No measured loss or oversell was found in that final audit.
 
 Catalog returned 200 in all 129 probes, p95 137.5ms. Shutdown, replay and provider
 extraction logs are retained; original failed client verdicts were not overwritten.
-See [the detailed report](../aks/payments-latency-and-restart.md).
+See [the detailed report](../aks/dependencies.md#payments-latency-and-restart).
 
 ## Mechanism and response
 
@@ -52,7 +52,7 @@ recovery-policy decision.
 - [ ] Review the implemented exhausted-delivery/redrive/abandon/settle behavior against the [current application policy](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/design/reservation-confirmation.md).
 - [ ] Align terminal-outcome/end-to-end alerts; Kind verifies corrected scrape labels, while target-environment query mapping still needs review.
 - [ ] Add a least-privilege experiment identity and review the documented credential exception.
-- [ ] Review the [latency-only rerun](../aks/payments-latency.md) and [compound-fault rerun](../aks/payments-latency-and-restart.md); retain their distinct original verdicts.
+- [ ] Review the [latency-only rerun](../aks/dependencies.md#payments-latency) and [compound-fault rerun](../aks/dependencies.md#payments-latency-and-restart); retain their distinct original verdicts.
 
 The team must author and own the final postmortem, assign action owners and acceptance criteria and defend
 the conclusions. This draft does not mark those judgments complete.
