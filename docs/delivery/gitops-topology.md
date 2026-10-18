@@ -4,7 +4,7 @@ Application CI publishes versioned images and updates configuration Git; Argo CD
 
 ![AKS reconciliation waves and controller dependencies](../diagrams/delivery/gitops.svg)
 
-[Full-size SVG](../diagrams/delivery/gitops.svg) · [Interactive HTML](../diagrams/delivery/gitops.html)
+[Full-size SVG](../diagrams/delivery/gitops.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html) · [Interactive HTML](../diagrams/delivery/gitops.html)
 
 **Owner:** Technical Coordinator + Gateway/Security Slice Owner.
 

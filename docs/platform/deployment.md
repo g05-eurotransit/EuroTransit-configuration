@@ -8,13 +8,13 @@ Choose standard Kind for development, Kind HA for isolated multi-node experiment
 
 ![Kind deployment: workstation ingress, application pods, Keycloak, single-instance PostgreSQL and Kafka, and optional GitOps control](../diagrams/deployment/kind.svg)
 
-[Open the full-size SVG](../diagrams/deployment/kind.svg) · [Download the interactive HTML](../diagrams/deployment/kind.html)
+[Open the full-size SVG](../diagrams/deployment/kind.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/deployment/kind.html) · [Download the interactive HTML](../diagrams/deployment/kind.html)
 
 ### Kind HA
 
 ![Kind HA: separated critical replicas, synchronous PostgreSQL, replicated persistent Kafka and two shared Connect workers](../diagrams/deployment/kind-ha.svg)
 
-[Full-size SVG](../diagrams/deployment/kind-ha.svg) · [Interactive HTML](../diagrams/deployment/kind-ha.html)
+[Full-size SVG](../diagrams/deployment/kind-ha.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/deployment/kind-ha.html) · [Interactive HTML](../diagrams/deployment/kind-ha.html)
 
 The [HA runbook](../reliability/kind-ha-runbook.md) owns the isolated setup, host capacity gates and fault cleanup. All nodes share one workstation; this is not a physical-host/AZ failure topology.
 
@@ -22,7 +22,7 @@ The [HA runbook](../reliability/kind-ha-runbook.md) owns the isolated setup, hos
 
 ![AKS deployment: public LoadBalancer, application pods, identity, PostgreSQL, Kafka, outbox connectors, monitoring, and Argo CD](../diagrams/deployment/aks.svg)
 
-[Open the full-size SVG](../diagrams/deployment/aks.svg) · [Download the interactive HTML](../diagrams/deployment/aks.html)
+[Open the full-size SVG](../diagrams/deployment/aks.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/deployment/aks.html) · [Download the interactive HTML](../diagrams/deployment/aks.html)
 
 The views show the ingress path, grouped application workloads, identity, persistence, outbox relay, and deployment control. AKS also shows its configured monitoring stack. Namespaces identify placement; they do not by themselves prove network isolation. Operator internals and individual service interactions are omitted; see the [microservice architecture](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/design/architecture.md) for the application view.
 
