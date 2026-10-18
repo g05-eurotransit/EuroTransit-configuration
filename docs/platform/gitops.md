@@ -1,10 +1,12 @@
 # GitOps Topology
 
-Application CI publishes versioned images and updates configuration Git; Argo CD reconciles the selected environment. CI needs registry/repository credentials and no cluster credentials. The [release evidence gap](../readiness.md) remains distinct from this configured path.
+A push to application `main` triggers conditional image builds and publication to ACR. CI commits the image references to configuration Git; Argo CD reads that desired state, renders Helm/Kustomize sources and reconciles AKS. CI needs registry/repository credentials and no cluster credentials. The [release evidence gap](../readiness.md) remains distinct from this configured path.
 
-[![AKS reconciliation waves and controller dependencies](../diagrams/delivery/gitops.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
+[![GitOps delivery from application push through CI, configuration Git and the Argo CD Application hierarchy to Helm and Kustomize sources](../diagrams/delivery/gitops.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
 
 [Full-size SVG](../diagrams/delivery/gitops.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
+
+The viewer has three focused views: delivery, Application hierarchy and manifest rendering. Platform Applications are grouped; their names and sync waves are listed in the diagram. The children are siblings under one root, and wave numbers define their synchronization order. Helm and Kustomize run within Argo CD; Kubernetes controllers create workloads and pull the declared images.
 
 **Owner:** Technical Coordinator + Gateway/Security Slice Owner.
 
