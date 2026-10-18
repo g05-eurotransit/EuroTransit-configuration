@@ -2,11 +2,11 @@
 
 A push to application `main` triggers conditional image builds and publication to ACR. CI commits the image references to configuration Git; Argo CD reads that desired state, renders Helm/Kustomize sources and reconciles AKS. CI needs registry/repository credentials and no cluster credentials. The [release evidence gap](../readiness.md) remains distinct from this configured path.
 
-[![GitOps delivery from application push through CI, configuration Git and the Argo CD Application hierarchy to Helm and Kustomize sources](../diagrams/delivery/gitops.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
+[![GitOps delivery from application push through CI and configuration Git to the Argo CD Root Application](../diagrams/delivery/gitops.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
 
 [Full-size SVG](../diagrams/delivery/gitops.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
 
-The viewer has two views: the delivery flow and the Application inventory. The inventory names all 13 child Applications, their sync waves, the Helm chart or Kustomize source and the resources each installs. Operators and the database or identity instances they manage have separate entries.
+The delivery flow ends at the Root Application. The Application inventory continues with all 13 children, their sync waves, the Helm chart or Kustomize source and the resources each installs. Operators and the database or identity instances they manage have separate entries.
 
 [![AKS Application inventory with Helm chart names, Kustomize sources and installed resources](../diagrams/delivery/gitops-applications.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html#applications)
 
