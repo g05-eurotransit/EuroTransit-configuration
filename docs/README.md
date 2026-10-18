@@ -1,5 +1,7 @@
 # Configuration documentation
 
+[Interactive diagrams](https://g05-eurotransit.github.io/EuroTransit-configuration/) are published from `main` with GitHub Pages.
+
 Use [deployment](platform/deployment.md) to choose an environment, [platform procedures](platform/README.md) to operate it, and the [experiment index](reliability/chaos-experiment-reports.md) to inspect verified results.
 
 | Section | Contents |
