@@ -73,22 +73,23 @@ app="orders"`).
 
 | Alert | Signal and threshold | Response intent |
 | --- | --- | --- |
-| `ReconciliationRecordOpen` | Any open record, for 5 minutes | Create an operations ticket for the record kind. |
+| `ReconciliationRecordOpen` | Any open record, for 1 minute | Create an operations ticket for the record kind before the 10-minute hold window closes. |
+| `PaymentOutcomeUnknown` | An open `PAYMENT_OUTCOME_UNKNOWN` record, for 1 minute | Page immediately: an abandoned order may have taken money but payment outcome is unknown. |
 | `PaymentReversalFailure` | A `PAYMENT_REVERSAL_FAILURE` is recorded in 10 minutes | Page immediately: money is unresolved and the order remains `COMPENSATING`. |
 | `InvariantViolation` | An `INVARIANT_VIOLATION` is recorded in 10 minutes | Page immediately and investigate before an operator resolves it. |
-| `CheckoutStuckNonTerminal` | Oldest order in `PAYMENT_PENDING`, `CONFIRMING_INVENTORY`, or `COMPENSATING` exceeds 5 minutes for 2 minutes | Page while there is still time to recover before the 10-minute Inventory hold boundary. |
-| `ReconciliationAgeHigh` | Oldest open reconciliation record exceeds 15 minutes for 5 minutes | Escalate a record that has not converged through normal redrive. |
+| `CheckoutStuckNonTerminal` | Oldest order in `PAYMENT_PENDING`, `CONFIRMING_INVENTORY`, or `COMPENSATING` exceeds 3 minutes for 2 minutes | Page while there is still time to recover before the 10-minute Inventory hold boundary. |
+| `ReconciliationAgeHigh` | Oldest open reconciliation record exceeds 5 minutes for 2 minutes | Escalate an incident that has not converged through normal redrive. |
 | `InventorySeatConflict` | A `RESERVATION_SEAT_CONFLICT` confirmation refusal occurs in 5 minutes | Page; this is a direct no-oversell invariant signal. |
 | `PoisonOrderEvent` | An unparseable `order-placed-dlt` event occurs in 5 minutes | Ticket; use the Kafka key and original offset in Orders logs, never the payload as a metric label. |
 | `DeadLetterUnknownOrder` | A parseable `order-placed-dlt` event has no durable Orders record in 5 minutes | Ticket; investigate event/data retention before replay. |
+| `DeadLetterNotRecorded` | More than 3 dead-letter incident recording failures in 10 minutes | Ticket; a dead letter repeatedly failing to record an incident stalls its topic on that pod. |
 
-The five-minute checkout age is intentionally below the ten-minute seat-hold
-expiry, and the two-minute `for` duration filters one delayed gauge refresh
-(the application publishes every 30 seconds). The five-minute open-record
-delay filters incidents that automatic recovery closes promptly; the 15-minute
-reconciliation age escalates an incident that has not converged. Counter-based
-event alerts use `increase(...)`, which is reset-safe and simply remains
-inactive before a matching series has ever been scraped.
+The three-minute checkout age matches the Orders retry budget (1.5 to ~2.3 minutes)
+plus execution pipeline margin, staying well inside the ten-minute seat-hold expiry.
+The one-minute open-record delay gives the operator 7-8 minutes to intervene before
+hold expiration, and the five-minute reconciliation age escalates incidents that
+have not converged. Counter-based event alerts use `increase(...)`, which is
+reset-safe and simply remains inactive before a matching series has ever been scraped.
 
 These are deployable platform rules, not end-to-end proof. Alert firing and
 clearing must be demonstrated after the application scrape authorization is
