@@ -1,0 +1,16 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: ignored-by-target-selector
+spec:
+  config:
+    # All three databases share WAL. Keep idle outbox slots advancing even when
+    # only another database is active, without writing application rows.
+    heartbeat.interval.ms: 10000
+    heartbeat.action.query: "SELECT pg_logical_emit_message(true, 'eurotransit_aks_heartbeat', '')"
+    message.prefix.include.list: eurotransit_aks_heartbeat
+    # Heartbeat records have their own schema/topic and must bypass the outbox SMT.
+    predicates: outboxTable
+    predicates.outboxTable.type: org.apache.kafka.connect.transforms.predicates.TopicNameMatches
+    predicates.outboxTable.pattern: '(orders|inventory|payments)\.public\.outbox_events'
+    transforms.outbox.predicate: outboxTable

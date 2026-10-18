@@ -3,7 +3,12 @@ kind: Cluster
 metadata: { name: eurotransit-postgres, namespace: eurotransit }
 spec:
   instances: 1
-  storage: { size: 10Gi }
+  storage: { size: 12Gi }
+  postgresql:
+    parameters:
+      # Bound retained WAL if a demo connector stops consuming.
+      # A slot that exceeds this limit can require a connector re-snapshot.
+      max_slot_wal_keep_size: 1GB
   resources:
     requests: { cpu: 50m, memory: 192Mi }
     limits: { cpu: 500m, memory: 512Mi }
