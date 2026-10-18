@@ -63,16 +63,11 @@ Missing/partial k6 summary fails. No token, JWT, secret, provider reference or e
 Acceptance latency and poll-observed time-to-confirmation are distinct metrics.
 Polling measures an upper bound; it does **not** replace the server
 `orders_checkout_e2e_duration_seconds` SLI, which survives Kafka redelivery.
-Use the canonical team SLOs in [application SLOs](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/operations/slo-observability.md); a small
+Use the canonical team SLOs in [application SLOs](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/design/slo.md); a small
 successful sample is not evidence of the 30-day SLO. Throughput and expected
 refusals remain separate from terminal/technical failures and timeouts.
 
-The baseline report records the
-[AKS baseline](../docs/reliability/aks-baseline.md):
-20/20 confirmed orders, matching reservations/seats and independently enumerated
-sandbox charges, with a final passing correctness audit. The run exercised the
-existing deployed application; it did not deploy the new metrics
-code and does not complete the overload or chaos acceptance criteria.
+[Verification results](../docs/verification/README.md) record observed outcomes and their individual audit limits.
 
 Run `python3 load-tests/verify.py --ledger <orders.jsonl> --evidence <evidence.json>
 --output <verification.json>`. Configuration's read-only collector emits:
@@ -98,7 +93,7 @@ counter changes. Replaying a terminal order alone does not prove mid-stage crash
 
 ## Scope and overload observations
 
-This proposal adds the harness and the metrics needed to observe existing behavior.
+The harness observes the deployed application.
 It does not change Orders admission, database/HTTP pools, timeouts, retry policy,
 or checkout persistence. Any operational hardening belongs in a separate,
 evidence-based proposal in the application repository.
@@ -107,25 +102,15 @@ Ramp/spike record controlled refusals separately from technical failures and
 require successful recovery. `EXPECT_OVERLOAD=true` requires at least one observed
 429; without that observation the report does not claim load shedding. These tests
 measure the current system rather than supplying new overload controls.
-The remaining #123 criteria require live experiments and, if demonstrated necessary,
-a separate corrective change with its own review.
+Use the verification index for executed experiments and readiness for unresolved acceptance.
 
 `just load-checkout-unit` runs allocator/outcome/verifier tests in configuration.
 The application repository's `ResilienceMetricsTest` verifies actual registry
 gauges and the exported end-to-end histogram.
 
-## Metrics prerequisite discovered by the cluster baseline
+## Instrumentation prerequisite
 
-The initial live baseline exposed terminal checkout counts without histogram buckets
-and absent circuit-breaker state series. Orders now explicitly exports the
-`orders_checkout_e2e_duration_seconds_bucket` histogram (including the existing2s
-objective) and binds the actual custom Resilience4j registries to Micrometer.
-`resilience4j_circuitbreaker_state{name="payments",state="open"}` observes the actual
-breaker; bulkhead/retry names use the library's tagged metric contract. Labels contain
-only bounded dependency names, states and outcomes; never run IDs or order IDs.
-These changes require publishing and deploying the new Orders image before #47 can
-observe breaker state under injected latency. A baseline against the old image must
-record missing series as unavailable rather than substitute the per-delivery timer.
+The deployed Orders image must expose the canonical [checkout SLIs](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/design/slo.md) and actual Resilience4j registry metrics. Missing buckets, breaker state or committed lag remain unavailable evidence, not zero. The [platform monitoring reference](../docs/platform/observability.md) owns target wiring.
 
 ## Review findings
 
