@@ -182,7 +182,7 @@ notifications:
 frontend:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/frontend
-    tag: "7866ea8"
+    tag: "e8be067"
   replicaCount: 2
   resources: {}
   config:
