@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg viewBox="0 0 1128 666" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="blueprint" data-quality-profile="showcase" data-node-ui="" data-reader-fit="intrinsic-height" data-reader-min-text="7.5" data-reader-primary-text="14" style="--flow-cycle: 5.279s; width: 1128px; height: 666px; min-width: 0px;" width="1128" height="666" xmlns="http://www.w3.org/2000/svg"><style>
+<svg viewBox="0 0 1128 896" role="img" lang="en" aria-labelledby="archify-diagram-title archify-diagram-description" data-animation="trace" data-preset="blueprint" data-quality-profile="showcase" data-node-ui="" data-reader-fit="intrinsic-height" data-reader-min-text="7.5" data-reader-primary-text="14" style="--flow-cycle: 5.279s; width: 1128px; height: 896px; min-width: 0px;" width="1128" height="896" xmlns="http://www.w3.org/2000/svg"><style>
 /*
 JetBrains Mono variable WOFF2 subsets from Google Fonts service revision v24.
 These fixed bytes are shared by the viewer and its SVG/raster exports.
@@ -589,7 +589,7 @@ svg[data-node-ui][data-preset="editorial"] :is([data-graph-role="structural-fram
 svg[data-theme="light"] { --bg: #edf7fa; --grid: #b5d5e1; --canvas-dot: #e2e7ec; --text: #123344; --text-muted: #4e7486; --text-dim: #86a6b4; --text-faint: #668c9d; --panel: rgba(249, 253, 255, 0.94); --panel-border: #78aabd; --lane-fill: rgba(210, 232, 240, 0.42); --lane-stroke: #83b2c4; --arrow: #6d93a5; --arrow-emphasis: #087f69; --mask: #f9fdff; --frontend-fill: rgba(8, 145, 178, 0.08); --frontend-stroke: #087f9c; --backend-fill: rgba(5, 128, 101, 0.08); --backend-stroke: #08755f; --database-fill: rgba(100, 75, 180, 0.08); --database-stroke: #6757a8; --cloud-fill: rgba(181, 120, 15, 0.08); --cloud-stroke: #a86609; --security-fill: rgba(190, 48, 80, 0.07); --security-stroke: #b32f50; --messagebus-fill: rgba(196, 81, 22, 0.07); --messagebus-stroke: #b65120; --external-fill: rgba(79, 112, 128, 0.08); --external-stroke: #506f7e; --toolbar-bg: rgba(247, 252, 254, 0.94); --toolbar-border: #8ab5c5; --toolbar-text: #294f61; --toolbar-hover: #ffffff; --toolbar-menu-bg: #f9fdff; --flow-cycle: ; --flow-halo-peak: ; --flow-glow-peak: ; --flow-tail-peak: ; --flow-head-peak: ; --flow-wake-peak: ; --flow-ripple-peak: ; --flow-peak: ; }
 svg[data-theme="dark"] { --bg: #06131f; --grid: #17425a; --canvas-dot: rgba(148, 163, 184, 0.16); --text: #e3f6ff; --text-muted: #91b8ca; --text-dim: #557e92; --text-faint: #739caf; --panel: rgba(7, 27, 43, 0.9); --panel-border: #27627f; --lane-fill: rgba(10, 43, 66, 0.36); --lane-stroke: #34799a; --arrow: #78a3b7; --arrow-emphasis: #64dfc1; --mask: #0a2031; --frontend-fill: rgba(26, 157, 193, 0.14); --frontend-stroke: #66d9ef; --backend-fill: rgba(31, 155, 124, 0.13); --backend-stroke: #69dfbd; --database-fill: rgba(120, 105, 196, 0.14); --database-stroke: #b4a8ff; --cloud-fill: rgba(197, 145, 43, 0.13); --cloud-stroke: #ffd166; --security-fill: rgba(199, 76, 104, 0.13); --security-stroke: #ff8da1; --messagebus-fill: rgba(207, 112, 49, 0.13); --messagebus-stroke: #ffad66; --external-fill: rgba(84, 119, 139, 0.18); --external-stroke: #a7cad9; --toolbar-bg: rgba(7, 28, 45, 0.92); --toolbar-border: #34799a; --toolbar-text: #d8f3ff; --toolbar-hover: rgba(18, 58, 83, 0.95); --toolbar-menu-bg: #0a2031; --flow-cycle: ; --flow-halo-peak: ; --flow-glow-peak: ; --flow-tail-peak: ; --flow-head-peak: ; --flow-wake-peak: ; --flow-ripple-peak: ; --flow-peak: ; }
 rect.c-bg-rect { fill: var(--bg); }
-</style><rect x="0" y="0" width="1128" height="666" class="c-bg-rect"/>
+</style><rect x="0" y="0" width="1128" height="896" class="c-bg-rect"/>
         <title id="archify-diagram-title">EuroTransit AKS deployment</title>
         <desc id="archify-diagram-description">Declared environment topology; live health is unverified</desc>
         <!-- Definitions -->
@@ -644,8 +644,8 @@ rect.c-bg-rect { fill: var(--bg); }
           <path data-edge-from="client" data-edge-to="ingress" data-edge-label="HTTPS" data-edge-key="0" data-edge-id="client-to-ingress" data-composition-points="200,274;330,274" data-composition-crossover="halo" data-composition-independent="true" d="M 200 274 L 330 274" class="a-emphasis" data-animate="edge" style="--step: 0;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:1">
-          <path data-graph-role="automatic-crossover-underlay" d="M 490 275.05 L 620 275.05" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="ingress" data-edge-to="workloads" data-edge-label="Public routes" data-edge-key="1" data-edge-id="ingress-to-workloads" data-composition-points="490,275.05;620,275.05" data-composition-crossover="halo" data-composition-independent="true" d="M 490 275.05 L 620 275.05" class="a-emphasis" data-animate="edge" style="--step: 1;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 490 258.95 L 620 258.95" fill="none" stroke="var(--mask)" stroke-width="5.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="ingress" data-edge-to="workloads" data-edge-label="Public routes" data-edge-key="1" data-edge-id="ingress-to-workloads" data-composition-points="490,258.95;620,258.95" data-composition-crossover="halo" data-composition-independent="true" d="M 490 258.95 L 620 258.95" class="a-emphasis" data-animate="edge" style="--step: 1;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:2">
           <path data-graph-role="automatic-crossover-underlay" d="M 474 240 L 474 100 Q 474 92 482 92 L 910 92" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
@@ -672,12 +672,12 @@ rect.c-bg-rect { fill: var(--bg); }
           <path data-edge-from="workloads" data-edge-to="kafka" data-edge-label="Kafka clients" data-edge-key="7" data-edge-id="workloads-to-kafka" data-composition-points="700,308;700,510" data-composition-crossover="halo" data-composition-independent="true" d="M 700 308 L 700 510" class="a-dashed" data-animate="edge" style="--step: 7;" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:8">
-          <path data-graph-role="automatic-crossover-underlay" d="M 120 510 L 120 417 Q 120 409 128 409 L 678 409 Q 686 409 686 401 L 686 308" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="argocd" data-edge-to="workloads" data-edge-label="Reconcile" data-edge-key="8" data-edge-id="argocd-to-workloads" data-composition-points="120,510;120,409;686,409;686,308" data-composition-crossover="halo" data-composition-independent="true" d="M 120 510 L 120 417 Q 120 409 128 409 L 678 409 Q 686 409 686 401 L 686 308" class="a-default" data-animate="edge" style="--step: 8;" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 200 544 L 498 544 Q 506 544 506 536 L 506 282 Q 506 274 514 274 L 620 274" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="argocd" data-edge-to="workloads" data-edge-label="Reconcile" data-edge-key="8" data-edge-id="argocd-to-workloads" data-composition-points="200,544;506,544;506,274;620,274" data-composition-crossover="halo" data-composition-independent="true" d="M 200 544 L 498 544 Q 506 544 506 536 L 506 282 Q 506 274 514 274 L 620 274" class="a-default" data-animate="edge" style="--step: 8;" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
         <g data-graph-role="automatic-crossover" style="--step:9">
-          <path data-graph-role="automatic-crossover-underlay" d="M 200 74 L 628 74 Q 636 74 636 82 L 636 240" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
-          <path data-edge-from="monitoring" data-edge-to="workloads" data-edge-label="Metrics scrape" data-edge-key="9" data-edge-id="monitoring-to-workloads" data-composition-points="200,74;636,74;636,240" data-composition-crossover="halo" data-composition-independent="true" d="M 200 74 L 628 74 Q 636 74 636 82 L 636 240" class="a-default" data-animate="edge" style="--step: 9;" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <path data-graph-role="automatic-crossover-underlay" d="M 200 794 L 580 794 Q 588 794 588 786 L 588 296 Q 588 288 596 288 L 620 288" fill="none" stroke="var(--mask)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
+          <path data-edge-from="monitoring" data-edge-to="workloads" data-edge-label="Metrics scrape" data-edge-key="9" data-edge-id="monitoring-to-workloads" data-composition-points="200,794;588,794;588,288;620,288" data-composition-crossover="halo" data-composition-independent="true" d="M 200 794 L 580 794 Q 588 794 588 786 L 588 296 Q 588 288 596 288 L 620 288" class="a-default" data-animate="edge" style="--step: 9;" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         </g>
 
         <!-- Components -->
@@ -778,13 +778,13 @@ rect.c-bg-rect { fill: var(--bg); }
 
         <g id="node-monitoring" data-node-id="monitoring" data-node-label="Monitoring" tabindex="0" role="button" aria-label="Focus Monitoring, Prometheus / Grafana, Architecture component" aria-pressed="false" data-node-kind="backend" data-node-sublabel="Prometheus / Grafana" data-node-context="Architecture component">
           <title>Monitoring · Prometheus / Grafana · Architecture component</title>
-          <rect x="40" y="40" width="160" height="68" rx="8" class="c-mask"/>
-          <rect x="40" y="40" width="160" height="68" rx="8" class="c-backend" data-animate="node" style="--step: 9; --flow-node-name: archify-relay-node-2;" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(46 46) scale(0.6875)">
+          <rect x="40" y="760" width="160" height="68" rx="8" class="c-mask"/>
+          <rect x="40" y="760" width="160" height="68" rx="8" class="c-backend" data-animate="node" style="--step: 9; --flow-node-name: archify-relay-node-2;" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(46 766) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" x="120" y="72" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Monitoring</text>
-        <text x="120" y="88" class="t-muted" font-size="9" text-anchor="middle">Prometheus / Grafana</text>
+          <text data-node-label="" x="120" y="792" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Monitoring</text>
+        <text x="120" y="808" class="t-muted" font-size="9" text-anchor="middle">Prometheus / Grafana</text>
         </g>
 
         <!-- Connection labels -->
@@ -793,8 +793,8 @@ rect.c-bg-rect { fill: var(--bg); }
           <text x="265" y="264" class="t-edge-emphasis" font-size="8" text-anchor="middle">HTTPS</text>
         </g>
         <g data-edge-from="ingress" data-edge-to="workloads" data-edge-label="Public routes" data-edge-key="1" data-edge-id="ingress-to-workloads">
-          <rect x="518.8" y="255.05" width="72.4" height="14" rx="3" class="c-mask"/>
-          <text x="555" y="265.05" class="t-edge-emphasis" font-size="8" text-anchor="middle">Public routes</text>
+          <rect x="518.8" y="238.95" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="555" y="248.95" class="t-edge-emphasis" font-size="8" text-anchor="middle">Public routes</text>
         </g>
         <g data-edge-from="ingress" data-edge-to="identity" data-edge-label="OIDC routes" data-edge-key="2" data-edge-id="ingress-to-identity">
           <rect x="660.6" y="72" width="62.8" height="14" rx="3" class="c-mask"/>
@@ -817,50 +817,50 @@ rect.c-bg-rect { fill: var(--bg); }
           <text x="845" y="534" class="t-edge-dashed" font-size="8" text-anchor="middle">Relay events</text>
         </g>
         <g data-edge-from="workloads" data-edge-to="kafka" data-edge-label="Kafka clients" data-edge-key="7" data-edge-id="workloads-to-kafka">
-          <rect x="706" y="402" width="72.4" height="14" rx="3" class="c-mask"/>
-          <text x="742.2" y="412" class="t-edge-dashed" font-size="8" text-anchor="middle">Kafka clients</text>
+          <rect x="621.5999999999999" y="402" width="72.4" height="14" rx="3" class="c-mask"/>
+          <text x="657.8" y="412" class="t-edge-dashed" font-size="8" text-anchor="middle">Kafka clients</text>
         </g>
         <g data-edge-from="argocd" data-edge-to="workloads" data-edge-label="Reconcile" data-edge-key="8" data-edge-id="argocd-to-workloads">
-          <rect x="376.4" y="389" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
-          <text x="403" y="399" class="t-edge-default" font-size="8" text-anchor="middle">Reconcile</text>
+          <rect x="479.4" y="389" width="53.199999999999996" height="14" rx="3" class="c-mask"/>
+          <text x="506" y="399" class="t-edge-default" font-size="8" text-anchor="middle">Reconcile</text>
         </g>
         <g data-edge-from="monitoring" data-edge-to="workloads" data-edge-label="Metrics scrape" data-edge-key="9" data-edge-id="monitoring-to-workloads">
-          <rect x="597.4" y="137" width="77.2" height="14" rx="3" class="c-mask"/>
-          <text x="636" y="147" class="t-edge-default" font-size="8" text-anchor="middle">Metrics scrape</text>
+          <rect x="355.4" y="774" width="77.2" height="14" rx="3" class="c-mask"/>
+          <text x="394" y="784" class="t-edge-default" font-size="8" text-anchor="middle">Metrics scrape</text>
         </g>
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->
         <g data-graph-role="structural-frame-label" data-composition-frame-id="0" data-composition-frame-kind="region" data-composition-frame-label="eurotransit namespace">
-          <rect data-graph-role="structural-frame-label-mask" x="644" y="220" width="123.39999999999999" height="16" rx="3" class="c-mask"/>
-          <text data-boundary-label="" x="648" y="233" class="t-cloud" font-size="9" font-weight="600">eurotransit namespace</text>
+          <rect data-graph-role="structural-frame-label-mask" x="606" y="220" width="123.39999999999999" height="16" rx="3" class="c-mask"/>
+          <text data-boundary-label="" x="610" y="233" class="t-cloud" font-size="9" font-weight="600">eurotransit namespace</text>
         </g>
 
         <!-- Legend -->
         <g data-legend="">
-          <text x="40" y="630" class="t-primary" font-size="12" font-weight="650">Legend</text>
-          <g data-legend-semantic-kind="backend" data-legend-x="40" data-legend-baseline="650" data-legend-width="87">
-            <rect x="40" y="641" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
-            <text x="62" y="650" class="t-muted" font-size="10" font-weight="500">Backend</text>
+          <text x="40" y="860" class="t-primary" font-size="12" font-weight="650">Legend</text>
+          <g data-legend-semantic-kind="backend" data-legend-x="40" data-legend-baseline="880" data-legend-width="87">
+            <rect x="40" y="871" width="16" height="10" rx="2.5" class="c-backend" stroke-width="1"/>
+            <text x="62" y="880" class="t-muted" font-size="10" font-weight="500">Backend</text>
           </g>
-          <g data-legend-semantic-kind="database" data-legend-x="149" data-legend-baseline="650" data-legend-width="93">
-            <rect x="149" y="641" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
-            <text x="171" y="650" class="t-muted" font-size="10" font-weight="500">Database</text>
+          <g data-legend-semantic-kind="database" data-legend-x="149" data-legend-baseline="880" data-legend-width="93">
+            <rect x="149" y="871" width="16" height="10" rx="2.5" class="c-database" stroke-width="1"/>
+            <text x="171" y="880" class="t-muted" font-size="10" font-weight="500">Database</text>
           </g>
-          <g data-legend-semantic-kind="cloud" data-legend-x="264" data-legend-baseline="650" data-legend-width="74">
-            <rect x="264" y="641" width="16" height="10" rx="2.5" class="c-cloud" stroke-width="1"/>
-            <text x="286" y="650" class="t-muted" font-size="10" font-weight="500">Cloud</text>
+          <g data-legend-semantic-kind="cloud" data-legend-x="264" data-legend-baseline="880" data-legend-width="74">
+            <rect x="264" y="871" width="16" height="10" rx="2.5" class="c-cloud" stroke-width="1"/>
+            <text x="286" y="880" class="t-muted" font-size="10" font-weight="500">Cloud</text>
           </g>
-          <g data-legend-semantic-kind="security" data-legend-x="360" data-legend-baseline="650" data-legend-width="93">
-            <rect x="360" y="641" width="16" height="10" rx="2.5" class="c-security" stroke-width="1"/>
-            <text x="382" y="650" class="t-muted" font-size="10" font-weight="500">Security</text>
+          <g data-legend-semantic-kind="security" data-legend-x="360" data-legend-baseline="880" data-legend-width="93">
+            <rect x="360" y="871" width="16" height="10" rx="2.5" class="c-security" stroke-width="1"/>
+            <text x="382" y="880" class="t-muted" font-size="10" font-weight="500">Security</text>
           </g>
-          <g data-legend-semantic-kind="messagebus" data-legend-x="475" data-legend-baseline="650" data-legend-width="112">
-            <rect x="475" y="641" width="16" height="10" rx="2.5" class="c-messagebus" stroke-width="1"/>
-            <text x="497" y="650" class="t-muted" font-size="10" font-weight="500">Message bus</text>
+          <g data-legend-semantic-kind="messagebus" data-legend-x="475" data-legend-baseline="880" data-legend-width="112">
+            <rect x="475" y="871" width="16" height="10" rx="2.5" class="c-messagebus" stroke-width="1"/>
+            <text x="497" y="880" class="t-muted" font-size="10" font-weight="500">Message bus</text>
           </g>
-          <g data-legend-semantic-kind="external" data-legend-x="609" data-legend-baseline="650" data-legend-width="93">
-            <rect x="609" y="641" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
-            <text x="631" y="650" class="t-muted" font-size="10" font-weight="500">External</text>
+          <g data-legend-semantic-kind="external" data-legend-x="609" data-legend-baseline="880" data-legend-width="93">
+            <rect x="609" y="871" width="16" height="10" rx="2.5" class="c-external" stroke-width="1"/>
+            <text x="631" y="880" class="t-muted" font-size="10" font-weight="500">External</text>
           </g>
         </g>
       </svg>

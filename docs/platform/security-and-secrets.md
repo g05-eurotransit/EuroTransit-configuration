@@ -9,46 +9,9 @@ under `platform/argocd/bootstrap/aks`, applied manually, and outside that path.
 Ciphertext is cluster/key specific; Orders client
 credentials are duplicated in `eurotransit` and `keycloak` for the Argo Job.
 
-## Required Controls
+## Secret boundaries
 
-- No plaintext production secrets committed to the repository.
-- Environment-specific values are externalized through Kubernetes-native mechanisms or the chosen secret management approach.
-- CI must not hold broad cluster credentials.
-- Public ingress must enforce the configured authentication boundary.
-- Target clusters use Keycloak as the OIDC identity provider. Mock OIDC issuers and fixed JWTs are local-development substitutes only.
-- Internal services must not be publicly routable.
-- Final cluster/demo proof must not depend on mocked services or fake in-memory substitutes for core infrastructure.
-- Payments must use sandbox/test provider credentials, such as Stripe test mode or PayPal Sandbox, stored through the chosen Kubernetes secret mechanism.
-- Payment provider sandbox secrets, Keycloak client settings, database credentials, Kafka credentials, and signing material must never be committed as plaintext.
-- `Idempotency-Key` must never be treated as an authorization credential. It is only a retry identifier; protected APIs still require JWT or service identity controls.
-- Orders, Inventory, and Payments use separate logical PostgreSQL databases with separate credentials: `orders_db`, `inventory_db`, and `payments_db`.
-
-## Keycloak Configuration
-
-Cluster Keycloak configuration must define:
-
-- realm name;
-- public frontend client;
-- Orders/API client or audience;
-- customer role/scope;
-- operations/admin role/scope;
-- issuer URL;
-- JWKS discovery URL;
-- redirect origins for the frontend.
-
-Fixed JWTs and mock OIDC issuers are local-development substitutes only and must not be the final cluster/demo proof.
-
-## Database And Secret Boundaries
-
-Configuration must provision:
-
-- `orders_db` credentials exposed only to Orders;
-- `inventory_db` credentials exposed only to Inventory;
-- `payments_db` credentials exposed only to Payments;
-- payment provider sandbox credentials exposed only to Payments;
-- Kafka credentials only where the selected Kafka setup requires them.
-
-One PostgreSQL cluster may host the three logical databases in local environments, but service users must not receive cross-database read/write access.
+Never commit plaintext credentials or controller private keys. Orders, Inventory and Payments receive their own logical database credentials; provider sandbox credentials belong only to Payments. Keycloak client secrets and bootstrap credentials are namespace-scoped. Application identities, roles and resource ownership are defined by the [API contract](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/design/api-design.md); cluster issuer/client provisioning is in [OIDC setup](keycloak-oidc.md).
 
 ## Current Manifests
 

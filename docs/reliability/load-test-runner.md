@@ -63,22 +63,13 @@ mode may run only a sequential baseline of at most 20 attempts when measured
 usage exceeds allocatable. It declares saturation and prohibits fault experiments.
 These are tool admission bounds, not SLOs or a capacity certification.
 
-The observed baseline and its remaining proof are recorded in
-[`baseline-2026-10-06.md`](baseline-2026-10-06.md). The subsequent successful
-five-order run with the new Orders instrumentation is recorded in
-[`baseline-2026-10-12.md`](baseline-2026-10-12.md).
-The five-attempt, two-VU single-seat correctness experiment is recorded in
-[`contention-2026-10-12.md`](contention-2026-10-12.md), including an independent
-Stripe sandbox audit and a passing correctness verifier.
-Sequential HTTP idempotency is recorded in
-[`request-replay-2026-10-12.md`](request-replay-2026-10-12.md), with replay
-identity, changed-payload conflicts and independently audited provider effects.
+Current [baseline](aks-baseline.md), [contention](aks-contention.md), [request replay](aks-request-replay.md) and [ramp/spike](aks-ramp-spike.md) observations are indexed in [verification results](chaos-experiment-reports.md). Each report retains its own financial-audit and telemetry scope.
 
 The optional Job requires a schedulable, untainted node with 50m/128Mi available
 requests and measured memory + 256Mi runner limit + 128Mi safety margin within
 allocatable. `--extra-memory-mib` only increases that bound: experiments must
 include proxy peak and any extra Orders rollout pod. This tool never reduces
-existing workloads or changes node sizes. At the observed 100–108% usage the
+existing workloads or changes node sizes. At the observed 100 to 108% usage the
 cluster Job and fault gates are blocked.
 
 Jobs are constrained by node affinity to the nodes admitted by that preflight;
@@ -185,7 +176,7 @@ its ownership is not certified. Missing proof still blocks extraction. An
 uncaptured successful authorization (`paid=true`) remains a monetary effect and
 cannot use this classification. Pending effects always block. All records and
 pages are still enumerated, and expected run authorizations must all be present.
-See the [measured correction](provider-audit-declined-attempt-2026-10-17.md).
+See the [measured correction](kind-orders-canary.md).
 
 After a complete audit, rerun `collect --provider-evidence <provider-audit.json>`
 and the harness verifier. Audit completeness applies to the bounded window,
@@ -193,4 +184,4 @@ not to future charges, historical charges outside the window or provider metadat
 that the current payment adapter does not supply. Record this limit in the report.
 
 Bounded pacing experiments and their overload-proof limits are recorded in
-[`ramp-spike-2026-10-12.md`](ramp-spike-2026-10-12.md).
+[Aks ramp spike](aks-ramp-spike.md).

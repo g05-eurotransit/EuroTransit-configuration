@@ -1,6 +1,10 @@
 # GitOps Topology
 
-This document owns the delivery topology for EuroTransit Marketplace.
+Application CI publishes versioned images and updates configuration Git; Argo CD reconciles the selected environment. CI needs registry/repository credentials and no cluster credentials. The [release evidence gap](readiness.md) remains distinct from this configured path.
+
+![AKS reconciliation waves and controller dependencies](../diagrams/delivery/gitops.svg)
+
+[Full-size SVG](../diagrams/delivery/gitops.svg) · [Interactive HTML](../diagrams/delivery/gitops.html)
 
 **Owner:** Technical Coordinator + Gateway/Security Slice Owner.
 
@@ -30,8 +34,7 @@ This document owns the delivery topology for EuroTransit Marketplace.
   `platform/argocd/environments/<environment>` overlay and is the parent of
   every platform and workload Application. It is the only Application applied
   imperatively after Argo CD and its private-repository credential exist.
-- Platform operator Applications install their CRDs and controllers at wave
-  `10`; `keycloak-operator` follows at wave `15`.
+- Application secrets reconcile at wave `5`; platform operators generally install at wave `10`. Monitoring configuration and `keycloak-operator` follow at wave `15`. Argo Rollouts installs at wave `29`, before marketplace Rollout resources.
 - `eurotransit-platform-runtime` installs PostgreSQL, Kafka and topics at wave
   `20`.
 - `eurotransit-keycloak` creates the identity runtime at wave `25`.
@@ -46,3 +49,9 @@ being hidden by a healthy Kafka Connect HTTP process.
 Applying an Argo environment overlay directly creates independent auto-sync
 Applications and does not enforce ordering between them. The normal AKS
 bootstrap must apply `apps/argocd-apps/environments/aks` instead.
+
+## Image update boundary
+
+The application [image workflow](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/.github/workflows/docker-gitops.yml) builds from the resolved source revision, publishes SHA-tagged images and updates `charts/eurotransit/values.yaml` using the scoped configuration-repository credential. Its current implementation commits and pushes the values change directly. The connector image has its own [digest update workflow](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/.github/workflows/connect-gitops.yml). Review branch protection and credential scope before claiming that every generated change passed human merge review.
+
+The diagram describes the AKS app-of-apps. Standard Kind removes some monitoring applications; isolated Kind HA uses a direct setup procedure. Rollouts owns active selectors/Traefik weights while Argo ignores those controller-managed fields. Rollback steps and gates belong to [progressive delivery](progressive-delivery.md).

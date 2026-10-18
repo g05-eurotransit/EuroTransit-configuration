@@ -1,6 +1,6 @@
 # Kind worker loss and PostgreSQL failover
 
-Status: executable local profile and experiment runner; see the dated report for observed results.
+Status: executable local profile and experiment runner; see the scenario report for observed results.
 This profile is isolated from AKS and is not selected by Argo CD.
 
 ## Scope
@@ -45,7 +45,7 @@ injecting failure; configured requests alone are not evidence of spare capacity.
   message and heartbeat topics must exist: Kafka automatic topic creation is
   disabled. Do not infer progress from a `RUNNING` task; compare confirmed LSNs
   during an interval with unchanged outbox counts. See the
-  [observed idle-slot repair](orders-shutdown-load-preflight-2026-10-17.md).
+  [observed idle-slot repair](kind-cdc-recovery.md).
   The HA-only Strimzi values reconcile every 15 seconds so its existing finite
   connector auto-restart policy can observe failed tasks sooner. The policy's
   own backoff still applies; this is not a 15-second pipeline recovery guarantee.
@@ -148,8 +148,8 @@ readiness, endpoint withdrawal, drain and recovery. It makes at most four
 checkouts. The load-shedding check applies only rendered ingress/middleware
 objects with a deliberately low temporary limit of 1/s, burst 1, makes at most
 eight attempts and restores the ingress. It is direct local test configuration,
-not evidence of a GitOps delivery. Read the [shutdown report](orders-pod-shutdown-2026-10-17.md)
-and [429/recovery report](checkout-load-shedding-2026-10-17.md) for measured scope.
+not evidence of a GitOps delivery. Read the [shutdown report](kind-orders-shutdown.md)
+and [429/recovery report](kind-checkout-load-shedding.md) for measured scope.
 
 The baseline makes two real sandbox checkouts. `warmup` checks the slot gate
 and executes at most four such batches, stopping immediately once all standby

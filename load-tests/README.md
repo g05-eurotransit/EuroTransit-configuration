@@ -19,7 +19,7 @@ The wrapper accepts an optional absolute script filename.
 Supply `PUBLIC_URL`, `TOKEN_URL`, `CLIENT_ID`, `CLIENT_SECRET` via an existing secret,
 unique safe `RUN_ID`, `FIXTURES_FILE`, and writable `OUTPUT_DIR` (default `/results`).
 `SCENARIO` is `baseline` (default), `ramp`, `spike`, `contention` or `request-replay`.
-`MAX_ATTEMPTS` defaults to 20 (hard bound 1–10000); `MAX_VUS` defaults to 2 (hard cap 4);
+`MAX_ATTEMPTS` defaults to 20 (hard bound 1 to 10000); `MAX_VUS` defaults to 2 (hard cap 4);
 `POLL_TIMEOUT_SECONDS` defaults to 30 (hard bound 300). Optional test-provider
 `PAYMENT_METHOD_TOKEN` defaults to `tok_visa`; this is never exported.
 `ALLOW_INSECURE_TLS=true` is only for local certificates; TLS validation is on by default.
@@ -68,7 +68,7 @@ successful sample is not evidence of the 30-day SLO. Throughput and expected
 refusals remain separate from terminal/technical failures and timeouts.
 
 The baseline report records the
-[2026-10-06 AKS baseline](../docs/reliability/baseline-2026-10-06.md):
+[AKS baseline](../docs/reliability/aks-baseline.md):
 20/20 confirmed orders, matching reservations/seats and independently enumerated
 sandbox charges, with a final passing correctness audit. The run exercised the
 existing deployed application; it did not deploy the new metrics

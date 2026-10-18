@@ -1,0 +1,232 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "AKS GitOps reconciliation order",
+    "output": "docs/diagrams/delivery/gitops.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/g05-eurotransit/EuroTransit-configuration",
+      "revision": "ea5a1c6d92f964b2c5072688e53609eaf3af3aa7",
+      "link_mode": "web"
+    },
+    "legend": {
+      "entries": {
+        "backend": {
+          "label": "Controller / config"
+        },
+        "database": {
+          "label": "Data runtime"
+        },
+        "security": {
+          "label": "Secrets / identity"
+        },
+        "cloud": {
+          "label": "Platform operators"
+        },
+        "messagebus": {
+          "label": "CDC runtime"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Runtime dependency chain"
+    },
+    {
+      "id": "control",
+      "label": "Monitoring and rollout control"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "secrets",
+      "col": 0,
+      "lane": "main",
+      "type": "security",
+      "label": "Secrets",
+      "sublabel": "Wave 5",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 93,
+          "end_line": 123
+        }
+      ]
+    },
+    {
+      "id": "operators",
+      "col": 1,
+      "lane": "main",
+      "type": "cloud",
+      "label": "Operators",
+      "sublabel": "Waves 10 / 15",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 1,
+          "end_line": 91
+        }
+      ]
+    },
+    {
+      "id": "runtime",
+      "col": 2,
+      "lane": "main",
+      "type": "database",
+      "label": "Postgres + Kafka",
+      "sublabel": "Wave 20",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 252,
+          "end_line": 275
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "col": 3,
+      "lane": "main",
+      "type": "security",
+      "label": "Keycloak",
+      "sublabel": "Wave 25",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 228,
+          "end_line": 250
+        }
+      ]
+    },
+    {
+      "id": "marketplace",
+      "col": 4,
+      "lane": "main",
+      "type": "backend",
+      "label": "Marketplace",
+      "sublabel": "Wave 30 + Flyway",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 319,
+          "end_line": 357
+        }
+      ]
+    },
+    {
+      "id": "connectors",
+      "col": 5,
+      "lane": "main",
+      "type": "messagebus",
+      "label": "CDC connectors",
+      "sublabel": "Wave 40",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 359,
+          "end_line": 381
+        }
+      ]
+    },
+    {
+      "id": "monitoring",
+      "col": 2,
+      "lane": "control",
+      "type": "backend",
+      "label": "Rules / dashboards",
+      "sublabel": "Wave 15",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 178,
+          "end_line": 199
+        }
+      ]
+    },
+    {
+      "id": "rollouts",
+      "col": 3,
+      "lane": "control",
+      "type": "backend",
+      "label": "Rollouts controller",
+      "sublabel": "Wave 29",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 277,
+          "end_line": 317
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "secrets",
+      "to": "operators",
+      "variant": "emphasis"
+    },
+    {
+      "from": "operators",
+      "to": "runtime",
+      "variant": "emphasis"
+    },
+    {
+      "from": "runtime",
+      "to": "identity",
+      "variant": "emphasis"
+    },
+    {
+      "from": "identity",
+      "to": "marketplace",
+      "variant": "emphasis"
+    },
+    {
+      "from": "marketplace",
+      "to": "connectors",
+      "variant": "emphasis"
+    },
+    {
+      "from": "operators",
+      "to": "monitoring",
+      "variant": "default"
+    },
+    {
+      "from": "rollouts",
+      "to": "marketplace",
+      "label": "CRDs ready",
+      "variant": "default"
+    }
+  ],
+  "mainPath": [
+    "secrets",
+    "operators",
+    "runtime",
+    "identity",
+    "marketplace",
+    "connectors"
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Bootstrap and health",
+      "items": [
+        "Admin installs Argo CD and its private-repository credential first.",
+        "Apply the root app-of-apps; independent child applies lose wave ordering.",
+        "Connector health must include RUNNING tasks, not only a Ready Pod."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Delivery boundary",
+      "items": [
+        "Application CI publishes images and updates configuration Git.",
+        "Argo CD reconciles desired state; Rollouts owns live selectors and weights.",
+        "Configured ordering is separate from demonstrated release history."
+      ]
+    }
+  ]
+}

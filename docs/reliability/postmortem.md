@@ -1,6 +1,6 @@
-# Blameless incident review — draft for team authorship
+# Blameless incident review : draft for team authorship
 
-**Incident:** Controlled Payments latency, 2026-10-12.
+**Incident:** Controlled Payments latency on the earlier deployed revision.
 **Authors:** Team authors/reviewers pending. Agent-prepared factual timeline only.
 **Status:** Recovery observed; recovery-policy judgment and assigned actions open.
 
@@ -14,20 +14,20 @@ pending. All eight eventually confirmed after scoped replay of their original
 events; an independent sandbox audit verified eight charges and no duplicates.
 No measured loss or oversell was found in that final audit.
 
-## Detection and timeline — UTC
+## Detection and fault-relative timeline
 
-- 21:54:24: Payments-only response delay enabled, with independent 45s expiry.
-- 21:54:36: First observed Payments breaker OPEN.
-- 21:55:01: HALF_OPEN first observed; closed/open/half-open states were sampled.
-- 21:55:09: Injector removed the delay and restored the original qdisc.
+- T+0 s: Payments-only response delay enabled, with independent 45s expiry.
+- T+12 s: First observed Payments breaker OPEN.
+- T+37 s: HALF_OPEN first observed; closed/open/half-open states were sampled.
+- T+45 s: Injector removed the delay and restored the original qdisc.
 - After healing: original client run failed; reconciliation incidents remained.
 - Controlled recovery: exact original six events replayed, then the second run's two events.
-- 22:00:30–22:01:30: Historical Prometheus samples show ReconciliationRecordOpen firing.
-- 22:00:58 onward: labelled cross-run final-state audit collected; all eight CONFIRMED and provider verification passed.
+- T+366 to T+426 s: Historical Prometheus samples show ReconciliationRecordOpen firing.
+- T+394 s onward: labelled cross-run final-state audit collected; all eight CONFIRMED and provider verification passed.
 
 Catalog returned 200 in all 129 probes, p95 137.5ms. Shutdown, replay and provider
 extraction logs are retained; original failed client verdicts were not overwritten.
-See [the detailed report](payments-latency-2026-10-12.md).
+See [the detailed report](aks-payments-latency-and-restart.md).
 
 ## Mechanism and response
 
@@ -46,13 +46,13 @@ recovery-policy decision.
 - Which symptom/age/incident SLIs should protect stranded accepted work and operator response?
 - Which experiment identity and cleanup controls adequately bound fault-injection permissions?
 
-## Proposed actions — owners and acceptance criteria pending
+## Proposed actions : owners and acceptance criteria pending
 
-- [ ] Assign a checkout recovery RTO/RPO and explicit automatic/manual recovery policy.
-- [ ] Review exhausted-delivery handling and test safe redrive after dependency recovery.
-- [ ] Align terminal-outcome/end-to-end alerts; correct missing scrape labels before validating gates.
+- [ ] Team reviews the proposed recovery objectives and the implemented automatic/operator policy; no failover RTO compliance is claimed by the existing report.
+- [ ] Review the implemented exhausted-delivery/redrive/abandon/settle behavior against the [current application policy](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/design/reservation-confirmation.md).
+- [ ] Align terminal-outcome/end-to-end alerts; Kind verifies corrected scrape labels, while target-environment query mapping still needs review.
 - [ ] Add a least-privilege experiment identity and review the documented credential exception.
-- [ ] Re-run the same bounded hypothesis after reviewed changes; preserve both old and new outcomes.
+- [ ] Review the [latency-only rerun](aks-payments-latency.md) and [compound-fault rerun](aks-payments-latency-and-restart.md); retain their distinct original verdicts.
 
-The team must author and own the final postmortem, assign owners/dates and defend
+The team must author and own the final postmortem, assign action owners and acceptance criteria and defend
 the conclusions. This draft does not mark those judgments complete.

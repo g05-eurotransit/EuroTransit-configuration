@@ -1,26 +1,13 @@
-# EuroTransit Configuration Documentation
+# Configuration documentation
 
-This repository owns deployment, GitOps, Kubernetes, delivery, observability, reliability, and operational governance documentation for EuroTransit Marketplace.
+Use [deployment](platform/deployment.md) to choose an environment, [platform procedures](platform/README.md) to operate it, and the [experiment index](reliability/chaos-experiment-reports.md) to inspect verified results.
 
-Application behavior, API contracts, service design, authentication model, idempotency semantics, and team implementation planning live in the sibling application repository: `../EuroTransit-application/docs`.
+| Section | Contents |
+| --- | --- |
+| [Platform](platform/README.md) | Kind/Kind HA/AKS, identity, networking, secrets, databases and monitoring |
+| [Delivery](delivery/README.md) | GitOps ownership, smoke tests, promotion, rollback and readiness |
+| [Reliability](reliability/chaos-experiment-reports.md) | Current scenario reports, reproduction procedures and bounded evidence |
+| [Agent threat model](governance/agent-threat-model.md) | Operational permissions and failure impact |
+| [Agent log](agent-log.md) | Configuration-specific mistakes and corrections |
 
-## Documentation Map
-
-- [Microservice architecture](../../EuroTransit-application/docs/design/architecture.md) explains application responsibilities; [Kind and AKS deployment](platform/deployment.md) shows configured infrastructure and environment differences with inline SVGs and optional interactive HTML.
-- [Shared documentation guide and templates](../../EuroTransit-application/docs/templates/README.md) define structure, ownership, report consolidation, and diagram conventions for both repositories.
-- `delivery/`: GitOps, CI/CD, kind smoke/e2e checks, progressive delivery, and delivery readiness.
-- `platform/`: Kubernetes networking, ingress, identity, secrets, observability stack, cluster bootstrap runbooks, and references to application contracts.
-- `reliability/`: SLOs, chaos experiment reports, and postmortems.
-- `governance/`: agent threat model, agent activity log, and agent skill routing.
-
-Keep this repository focused on how EuroTransit is deployed, operated, observed, and validated on Kubernetes. Do not duplicate service API or domain design documents here; link to the application repository instead.
-
-The AKS constrained production setup is documented in [platform/aks-production-setup.md](platform/aks-production-setup.md). The local executable Kind workflow is documented in [platform/kind-local-setup.md](platform/kind-local-setup.md). The remaining go-live checks for the fixed three-node AKS target are tracked in [delivery/production-readiness-gap-analysis.md](delivery/production-readiness-gap-analysis.md).
-
-The generic cluster bootstrap sequence is documented in [platform/cluster-bootstrap-runbook.md](platform/cluster-bootstrap-runbook.md). The private-repository root app-of-apps bootstrap is documented in [platform/argocd-bootstrap.md](platform/argocd-bootstrap.md). The local kind GitOps and Sealed Secrets workflow is documented in [platform/kind-gitops-secrets-runbook.md](platform/kind-gitops-secrets-runbook.md). Keycloak/OIDC environment configuration is documented in [platform/keycloak-oidc.md](platform/keycloak-oidc.md). Remaining Kubernetes/GitOps artifact gaps are tracked in [delivery/configuration-artifact-backlog.md](delivery/configuration-artifact-backlog.md).
-
-Kafka dead-letter topic provisioning, partitioning, and retention operations are documented in [platform/kafka-dead-letter-operations.md](platform/kafka-dead-letter-operations.md).
-
-Agent skill drafts are canonical in the sibling application repository under `../EuroTransit-application/docs/agent-skills`; this repository keeps only the configuration-side routing note in [governance/agent-skill-recommendations.md](governance/agent-skill-recommendations.md).
-
-AKS memory reduction has a [release and rollback runbook](platform/aks-memory-reduction-runbook.md), [persistent resource budgets](platform/aks-resource-budgets.md), and [offline verification and capacity accounting](platform/aks-memory-verification.md).
+[Application documentation](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/README.md) owns behavior, API/event contracts, domain decisions, SLO definitions and the project DoD. Both repositories use the [same writing guide and templates](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/templates/README.md).

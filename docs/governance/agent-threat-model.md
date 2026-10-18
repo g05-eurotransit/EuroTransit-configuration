@@ -28,9 +28,9 @@ This document owns the configuration-side threat model: the risk that an agent-g
 
 An agent proposes a configuration change that is merged and reconciled by ArgoCD, exposing an internal service, weakening authentication, granting broad ServiceAccount permissions, breaking checkout routing, or disabling meaningful alerts. The controls are mandatory review, least-privilege RBAC, no direct agent cluster credentials, no plaintext secrets, and policy checks before merge.
 
-## Observed exception for the authorized test session — 2026-10-12
+## Authorized experiment exception
 
-The policy above describes the intended boundary. This session has a broader
+The policy above describes the intended boundary. The recorded fault experiments used a broader
 actual boundary: the user explicitly authorized autonomous AKS fault experiments
 and resource waivers, and the agent used the workstation's `eurotransit` kube
 context. It could delete targeted pods, cordon/uncordon a node, temporarily
@@ -48,8 +48,5 @@ but do not remove the broad credential blast radius: a bad action could disrupt
 checkout, expose secrets or change reconciled infrastructure. A dedicated,
 short-lived experiment identity and explicit RBAC review are still required.
 
-Remote Git push was denied by automatic approval review in this session. Local
-commits and reviewable PR drafts are allowed; publication and merge remain human
-steps. CI must continue to publish immutable images/update desired state without
-cluster credentials. Live fault injection is not proof of GitOps deployment.
+CI must publish immutable images and update desired state without cluster credentials. Live fault injection is not proof of GitOps deployment.
 The team must review and own this exception and threat-model assessment.
