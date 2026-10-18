@@ -161,7 +161,7 @@ inventory:
 payments:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/payments
-    tag: "7866ea8"
+    tag: "5798dd1"
   replicaCount: 2
   resources: {}
   database:
