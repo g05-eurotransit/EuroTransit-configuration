@@ -4,59 +4,13 @@
   "meta": {
     "title": "GitOps: from source push to AKS",
     "locale": "en",
-    "output": "docs/diagrams/delivery/gitops.html",
+    "output": "docs/diagrams/delivery/gitops-flow.html",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/g05-eurotransit/EuroTransit-configuration",
-      "revision": "02447bc426e31fba8743c46cc23225bcec3feea9",
+      "revision": "70971f2b01e06d1c3a8d6554d41ede2ee9faf6e2",
       "link_mode": "web"
-    },
-    "views": [
-      {
-        "id": "delivery",
-        "label": "Push \u2192 delivery",
-        "focus": [
-          "application",
-          "ci",
-          "registry",
-          "configuration",
-          "argo"
-        ],
-        "note": "CI publishes images and commits desired state; Argo CD performs cluster reconciliation."
-      },
-      {
-        "id": "applications",
-        "label": "Application hierarchy",
-        "focus": [
-          "argo",
-          "root",
-          "overlay",
-          "foundation",
-          "runtime",
-          "identity",
-          "marketplace",
-          "connectors"
-        ],
-        "note": "One root owns sibling Applications. Sync waves order them; siblings are not parents of each other."
-      },
-      {
-        "id": "rendering",
-        "label": "Helm / Kustomize",
-        "focus": [
-          "foundation",
-          "runtime",
-          "identity",
-          "marketplace",
-          "connectors",
-          "platformrender",
-          "runtimerender",
-          "identityrender",
-          "apphelm",
-          "connectrender"
-        ],
-        "note": "Argo CD renders each Application source and syncs the resulting Kubernetes resources."
-      }
-    ]
+    }
   },
   "components": [
     {
@@ -74,14 +28,14 @@
       ],
       "sources": [
         {
-          "path": "docs/delivery/gitops-topology.md",
+          "path": "docs/platform/gitops.md",
           "line": 3,
           "end_line": 3
         },
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 53,
-          "end_line": 55
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
         }
       ]
     },
@@ -100,14 +54,14 @@
       ],
       "sources": [
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 13,
-          "end_line": 17
+          "path": "docs/platform/gitops.md",
+          "line": 15,
+          "end_line": 19
         },
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 53,
-          "end_line": 55
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
         }
       ]
     },
@@ -126,14 +80,14 @@
       ],
       "sources": [
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 25,
-          "end_line": 27
+          "path": "docs/platform/gitops.md",
+          "line": 27,
+          "end_line": 29
         },
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 53,
-          "end_line": 55
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
         }
       ]
     },
@@ -173,14 +127,14 @@
       ],
       "sources": [
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 25,
-          "end_line": 27
+          "path": "docs/platform/gitops.md",
+          "line": 27,
+          "end_line": 29
         },
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 53,
-          "end_line": 55
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
         }
       ]
     },
@@ -209,7 +163,7 @@
       "id": "overlay",
       "type": "backend",
       "label": "Argo environment overlay",
-      "sublabel": "AKS overlay \u2192 shared base",
+      "sublabel": "AKS overlay → shared base",
       "pos": [
         530,
         360
@@ -266,7 +220,7 @@
     {
       "id": "runtime",
       "type": "database",
-      "label": "Runtime \u00b7 wave 20",
+      "label": "Runtime · wave 20",
       "sublabel": "eurotransit-platform-runtime",
       "pos": [
         550,
@@ -288,7 +242,7 @@
     {
       "id": "identity",
       "type": "security",
-      "label": "Identity \u00b7 wave 25",
+      "label": "Identity · wave 25",
       "sublabel": "eurotransit-keycloak",
       "pos": [
         270,
@@ -310,7 +264,7 @@
     {
       "id": "marketplace",
       "type": "backend",
-      "label": "Marketplace \u00b7 wave 30",
+      "label": "Marketplace · wave 30",
       "sublabel": "eurotransit-marketplace",
       "pos": [
         750,
@@ -332,7 +286,7 @@
     {
       "id": "connectors",
       "type": "messagebus",
-      "label": "Connectors \u00b7 wave 40",
+      "label": "Connectors · wave 40",
       "sublabel": "eurotransit-connectors",
       "pos": [
         990,

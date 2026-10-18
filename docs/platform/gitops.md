@@ -6,7 +6,13 @@ A push to application `main` triggers conditional image builds and publication t
 
 [Full-size SVG](../diagrams/delivery/gitops.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
 
-The viewer has three focused views: delivery, Application hierarchy and manifest rendering. Platform Applications are grouped; their names and sync waves are listed in the diagram. The children are siblings under one root, and wave numbers define their synchronization order. Helm and Kustomize run within Argo CD; Kubernetes controllers create workloads and pull the declared images.
+The viewer has two views: the delivery flow and the Application inventory. The inventory names all 13 child Applications, their sync waves, the Helm chart or Kustomize source and the resources each installs. Operators and the database or identity instances they manage have separate entries.
+
+[![AKS Application inventory with Helm chart names, Kustomize sources and installed resources](../diagrams/delivery/gitops-applications.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html#applications)
+
+[Full-size inventory SVG](../diagrams/delivery/gitops-applications.svg) · [Open interactive inventory](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html#applications)
+
+The children are siblings under one root, and wave numbers define their synchronization order. Helm and Kustomize run within Argo CD; Kubernetes controllers create workloads and pull the declared images.
 
 **Owner:** Technical Coordinator + Gateway/Security Slice Owner.
 
