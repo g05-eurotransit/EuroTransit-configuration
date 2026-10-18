@@ -268,7 +268,7 @@ Verify all three connectors and their single tasks RUNNING, each slot active wit
 only one reader, advancing source offsets, falling outbox/backlog/consumer lag,
 and eventual checkout completion. Look for snapshot restarts, duplicate events,
 dead letters and missed processing. Validate the application-owned expectations in
-[SLO observability](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/operations/slo-observability.md).
+[SLO observability](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/operations/slo-observability.md).
 
 Only after these checks, remove `spec.state: stopped` from the three connector CRs
 and unpause shared-worker/connector reconciliation. Verify all remain healthy.

@@ -1,6 +1,6 @@
-# Kind and AKS deployment
+# Deployment environments
 
-The checked-in Kind and AKS overlays configure one replica of each application service, one PostgreSQL instance, and one Kafka broker/controller. Kind uses a single control-plane node. These are constrained deployment topologies with single points of failure; the manifests do not establish live cluster health or continuous checkout availability.
+Choose standard Kind for development, Kind HA for isolated multi-node experiments, or AKS for the constrained public environment. Kind HA declares replicated application/data workloads; standard Kind and AKS retain single-instance failure points. Configuration describes intended topology, while the [verification index](../reliability/chaos-experiment-reports.md) records what was observed.
 
 ## Deployment views
 
@@ -10,15 +10,23 @@ The checked-in Kind and AKS overlays configure one replica of each application s
 
 [Open the full-size SVG](../diagrams/deployment/kind.svg) · [Download the interactive HTML](../diagrams/deployment/kind.html)
 
+### Kind HA
+
+![Kind HA: separated critical replicas, synchronous PostgreSQL, replicated persistent Kafka and two shared Connect workers](../diagrams/deployment/kind-ha.svg)
+
+[Full-size SVG](../diagrams/deployment/kind-ha.svg) · [Interactive HTML](../diagrams/deployment/kind-ha.html)
+
+The [HA runbook](../reliability/kind-ha-runbook.md) owns the isolated setup, host capacity gates and fault cleanup. All nodes share one workstation; this is not a physical-host/AZ failure topology.
+
 ### AKS
 
 ![AKS deployment: public LoadBalancer, application pods, identity, PostgreSQL, Kafka, outbox connectors, monitoring, and Argo CD](../diagrams/deployment/aks.svg)
 
 [Open the full-size SVG](../diagrams/deployment/aks.svg) · [Download the interactive HTML](../diagrams/deployment/aks.html)
 
-Both views show the ingress path, grouped application workloads, identity, persistence, outbox relay, and deployment control. AKS also shows its configured monitoring stack. Namespaces identify placement; they do not by themselves prove network isolation. Operator internals and individual service interactions are omitted; see the [microservice architecture](../../../EuroTransit-application/docs/design/architecture.md) for the application view.
+The views show the ingress path, grouped application workloads, identity, persistence, outbox relay, and deployment control. AKS also shows its configured monitoring stack. Namespaces identify placement; they do not by themselves prove network isolation. Operator internals and individual service interactions are omitted; see the [microservice architecture](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/design/architecture.md) for the application view.
 
-The diagrams describe the committed configuration. They do not incorporate unmerged HA proposals or claim that those manifests have been reconciled on a live cluster.
+The diagrams describe the committed configuration. Use the scenario reports for live observations; declared replicas alone do not prove availability.
 
 ## Environment differences
 
@@ -38,13 +46,17 @@ The diagrams describe the committed configuration. They do not incorporate unmer
 
 The [Kind runtime overlay](../../platform/environments/kind/kustomization.yaml) and [AKS runtime overlay](../../platform/environments/aks/kustomization.yaml) override the larger base PostgreSQL and Kafka topologies. Kafka inherits ephemeral storage from the [base cluster definition](../../platform/strimzi/kafka-cluster.yaml), including on AKS.
 
+## Kind HA profile
+
+[HA values](../../charts/eurotransit/values-kind-ha.yaml) run two Catalog, Orders, Inventory, Payments and frontend replicas, and one Notifications replica, with required critical-service anti-affinity. The [four-node Kind configuration](../../platform/kind/kind-ha-config.yaml) has one control plane and three workers. [PostgreSQL](../../platform/environments/kind-ha/postgres-patch.yaml) uses three persistent instances and required `ANY 1` synchronous replication; [Kafka](../../platform/environments/kind-ha/kafka-patch.yaml) retains three broker/controllers, persistent storage, RF 3 and min ISR 2. [Connect](../../platform/connectors/environments/kind-ha/shared-ha-patch.yaml) uses two replicas in one shared distributed group. Monitoring and committed-lag export are enabled by the HA procedure; tracing export remains disabled.
+
 ## Operational constraints
 
-Single service replicas interrupt their own traffic during replacement. A single PostgreSQL instance has no standby for primary promotion; a single Kafka broker with ephemeral storage provides neither broker redundancy nor a durable replicated log. Node capacity and persistent storage behavior require separate operational verification.
+In standard Kind and AKS, single service replicas interrupt their own traffic during replacement. A single PostgreSQL instance has no standby for primary promotion; a single Kafka broker with ephemeral storage provides neither broker redundancy nor a durable replicated log. Node capacity and persistent storage behavior require separate operational verification.
 
 PDBs differ between the overlays. The [PDB template](../../charts/eurotransit/templates/poddisruptionbudgets.yaml) reads `global.podDisruptionBudget.enabled`: production disables it at that path, but Kind's override sets a top-level `podDisruptionBudget.enabled` and leaves the base global setting enabled. Kind therefore renders five PDBs with `minAvailable: 1` for single-replica services, which can block voluntary eviction. The mismatch is documented here for a later configuration fix.
 
-[Ingress routes](../../charts/eurotransit/templates/ingressroutes.yaml) expose the frontend, Catalog, Orders, and the enabled Notifications API. Inventory and Payments have no public IngressRoute. Forward-auth is disabled in the [base values](../../charts/eurotransit/values.yaml); JWT checks remain in the services. This differs from the gateway-authentication requirement in the [application DoD](../../../EuroTransit-application/docs/capstone-dod.md) and must remain an explicit gap.
+[Ingress routes](../../charts/eurotransit/templates/ingressroutes.yaml) expose the frontend, Catalog, Orders, and the enabled Notifications API. Inventory and Payments have no public IngressRoute. Forward-auth is disabled in the [base values](../../charts/eurotransit/values.yaml); JWT checks remain in the services. This differs from the gateway-authentication requirement in the [application DoD](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/capstone-dod.md) and must remain an explicit gap.
 
 Argo CD reconciles platform controllers, runtime resources, application workloads, and connectors in ordered waves. Rollouts is installed by the platform applications, while progressive-delivery resources remain disabled by default in the marketplace values. Their existence in the chart does not prove a canary or blue/green execution.
 
@@ -55,4 +67,4 @@ Application ServiceMonitors are disabled in Kind. Installing the optional monito
 - [Argo CD applications](../../platform/argocd/base/platform-applications.yaml) and [Kind patches](../../platform/argocd/environments/kind/kustomization.yaml) select the environment resources. [Connector overlays](../../platform/connectors/environments/aks/kustomization.yaml) configure the outbox relay separately from the marketplace chart.
 - [Kind setup](kind-local-setup.md), [cluster bootstrap](cluster-bootstrap-runbook.md), and [Argo CD bootstrap](argocd-bootstrap.md) describe setup paths.
 - [AKS setup](aks-production-setup.md), [Kind GitOps secrets](kind-gitops-secrets-runbook.md), and [security and secrets](security-and-secrets.md) describe environment prerequisites.
-- [Observability](observability.md) maps monitoring artifacts. [Readiness](../delivery/production-readiness-gap-analysis.md) tracks operational acceptance; the observations above are configuration findings, not new runtime test results.
+- [Observability](observability.md) maps monitoring artifacts. [Readiness](../delivery/readiness.md) tracks operational acceptance; the observations above are configuration findings, not new runtime test results.

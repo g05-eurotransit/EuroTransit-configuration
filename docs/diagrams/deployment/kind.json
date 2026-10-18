@@ -9,9 +9,9 @@
     "quality_profile": "showcase",
     "visual_preset": "blueprint",
     "repository": {
-      "url": "git@github.com:g05-eurotransit/EuroTransit-configuration.git",
-      "revision": "c1a5a47108a26dee46b8be5ebb1934d08b1931b6",
-      "link_mode": "local-only"
+      "url": "https://github.com/g05-eurotransit/EuroTransit-configuration",
+      "revision": "ea5a1c6d92f964b2c5072688e53609eaf3af3aa7",
+      "link_mode": "web"
     }
   },
   "components": [
@@ -32,7 +32,7 @@
         {
           "path": "charts/eurotransit/templates/ingressroutes.yaml",
           "line": 1,
-          "end_line": 72
+          "end_line": 111
         }
       ]
     },
@@ -58,7 +58,7 @@
         {
           "path": "charts/eurotransit/templates/ingressroutes.yaml",
           "line": 11,
-          "end_line": 72
+          "end_line": 111
         },
         {
           "path": "platform/environments/keycloak-kind/keycloak-ingressroute-patch.yaml",
@@ -89,7 +89,7 @@
         {
           "path": "charts/eurotransit/templates/orders-deployment.yaml",
           "line": 59,
-          "end_line": 110
+          "end_line": 112
         }
       ],
       "tag": "1 replica each"
@@ -214,8 +214,8 @@
       "label": "Argo CD",
       "sublabel": "Optional GitOps path",
       "pos": [
-        330,
-        40
+        40,
+        510
       ],
       "size": [
         160,

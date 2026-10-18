@@ -1,10 +1,8 @@
 # Kind incident report: payment authorized, order failed
 
-## Summary
+Stripe sandbox authorized a local Kind purchase while Orders ultimately failed it. The then-deployed Payments implementation blocked on a missing Kafka topic after committing the authorization. Topic creation restored the infrastructure path but did not repair the affected payment.
 
-On 2026-07-14, during a checkout in the local Kind environment, Stripe test
-mode successfully authorized a payment, but Orders subsequently marked the
-order as `FAILED`.
+This incident concerns the pre-outbox implementation. Current checkout behavior, durable publication and unknown-outcome handling are defined by the application [lifecycle specification](https://github.com/g05-eurotransit/EuroTransit-application/blob/dev/docs/design/reservation-confirmation.md). The unresolved status of this specific affected order has not been re-audited by the documentation revision.
 
 The failure happened after the external payment authorization and its local
 database commit. Payments then attempted to publish the `payment-authorized`
@@ -28,7 +26,6 @@ test-mode key (`sk_test_...`).
 ## Incident scope
 
 - Environment: local Kind cluster
-- Date: 2026-07-14
 - Affected checkout correlation ID:
   `67e62693-32fc-437f-889c-96178618d3f8`
 - Affected order ID:
@@ -139,13 +136,13 @@ The affected order is not retroactively repaired by topic creation. Its local
 test-mode payment remains `AUTHORIZED` while the order remains `FAILED` and
 must be explicitly refunded or reconciled.
 
-## Recommended follow-up actions
+## Corrective-action record
 
-1. Implement a Payments outbox so the authorization state and event intent are
+1. Implement a Payments outbox (present in the current application; see the lifecycle specification) so the authorization state and event intent are
    committed atomically, with asynchronous and retryable Kafka publication.
 2. Add automated reconciliation for `AUTHORIZED` payments whose Orders state
    is `FAILED` or does not become `CONFIRMED` within a defined interval.
-3. Implement an explicit refund/reversal step when checkout fails after payment
+3. Implement an explicit refund/reversal step (present in the current application) when checkout fails after payment
    authorization.
 4. Add a deployment validation that compares all application Kafka topic names
    with the Strimzi desired state.

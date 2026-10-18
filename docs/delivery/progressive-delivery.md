@@ -36,7 +36,7 @@ for the actual stable/canary overlap plus the 256Mi test Job. Follow the
 [AKS resource preflight](../platform/aks-resource-budgets.md) and
 [memory reduction runbook](../platform/aks-memory-reduction-runbook.md): inspect
 per-node allocatable memory, requests and Pending/OOM events; aggregate headroom
-does not prove that another pod fits. Coordinate the cluster window with #46–#49.  Do not overlap the Catalog
+does not prove that another pod fits. Coordinate the cluster window with #46 to #49.  Do not overlap the Catalog
 and Orders exercises on the small demo cluster.
 
 For AKS, generate the two namespace-bound ciphertexts for
@@ -157,8 +157,8 @@ HTTP evidence excludes actuator endpoints, so scrape/health traffic cannot satis
 the request minimum. `increase()` produces extrapolated estimates rather than
 exact event counts; record raw counters and k6 outcomes alongside the estimates.
 
-This replaces percentage claims at tiny volumes. At 3–8 checkouts/minute,
-one of three Kafka partitions can yield roughly 5–13 terminal outcomes in five
+This replaces percentage claims at tiny volumes. At 3 to 8 checkouts/minute,
+one of three Kafka partitions can yield roughly 5 to 13 terminal outcomes in five
 minutes; requiring four confirmations fits that illustrative exposure and the
 360-slot fixture. Assignment and actual outcomes must be checked; the estimate
 is not a guarantee. Three analyses take about 18 minutes plus manual pauses,

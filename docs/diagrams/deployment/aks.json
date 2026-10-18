@@ -9,9 +9,9 @@
     "quality_profile": "showcase",
     "visual_preset": "blueprint",
     "repository": {
-      "url": "git@github.com:g05-eurotransit/EuroTransit-configuration.git",
-      "revision": "c1a5a47108a26dee46b8be5ebb1934d08b1931b6",
-      "link_mode": "local-only"
+      "url": "https://github.com/g05-eurotransit/EuroTransit-configuration",
+      "revision": "ea5a1c6d92f964b2c5072688e53609eaf3af3aa7",
+      "link_mode": "web"
     }
   },
   "components": [
@@ -32,7 +32,7 @@
         {
           "path": "charts/eurotransit/templates/ingressroutes.yaml",
           "line": 1,
-          "end_line": 72
+          "end_line": 111
         }
       ]
     },
@@ -58,7 +58,7 @@
         {
           "path": "charts/eurotransit/templates/ingressroutes.yaml",
           "line": 11,
-          "end_line": 72
+          "end_line": 111
         },
         {
           "path": "platform/keycloak/ingressroute.yaml",
@@ -84,12 +84,12 @@
         {
           "path": "charts/eurotransit/values-production.yaml",
           "line": 17,
-          "end_line": 39
+          "end_line": 53
         },
         {
           "path": "charts/eurotransit/templates/orders-deployment.yaml",
           "line": 59,
-          "end_line": 110
+          "end_line": 112
         }
       ],
       "tag": "1 replica each"
@@ -163,7 +163,7 @@
         {
           "path": "platform/environments/aks/kafka-patch.yaml",
           "line": 1,
-          "end_line": 11
+          "end_line": 13
         },
         {
           "path": "platform/strimzi/kafka-cluster.yaml",
@@ -224,8 +224,8 @@
         },
         {
           "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 315,
-          "end_line": 377
+          "line": 319,
+          "end_line": 381
         }
       ]
     },
@@ -236,7 +236,7 @@
       "sublabel": "Prometheus / Grafana",
       "pos": [
         40,
-        40
+        760
       ],
       "size": [
         160,
@@ -251,7 +251,7 @@
         {
           "path": "charts/eurotransit/templates/servicemonitors.yaml",
           "line": 1,
-          "end_line": 29
+          "end_line": 33
         }
       ]
     }
