@@ -2,61 +2,15 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "GitOps: from source push to AKS",
+    "title": "GitOps: from source push to Root Application",
     "locale": "en",
-    "output": "docs/diagrams/delivery/gitops.html",
+    "output": "docs/diagrams/delivery/gitops-flow.html",
     "quality_profile": "showcase",
     "repository": {
       "url": "https://github.com/g05-eurotransit/EuroTransit-configuration",
-      "revision": "02447bc426e31fba8743c46cc23225bcec3feea9",
+      "revision": "70971f2b01e06d1c3a8d6554d41ede2ee9faf6e2",
       "link_mode": "web"
-    },
-    "views": [
-      {
-        "id": "delivery",
-        "label": "Push \u2192 delivery",
-        "focus": [
-          "application",
-          "ci",
-          "registry",
-          "configuration",
-          "argo"
-        ],
-        "note": "CI publishes images and commits desired state; Argo CD performs cluster reconciliation."
-      },
-      {
-        "id": "applications",
-        "label": "Application hierarchy",
-        "focus": [
-          "argo",
-          "root",
-          "overlay",
-          "foundation",
-          "runtime",
-          "identity",
-          "marketplace",
-          "connectors"
-        ],
-        "note": "One root owns sibling Applications. Sync waves order them; siblings are not parents of each other."
-      },
-      {
-        "id": "rendering",
-        "label": "Helm / Kustomize",
-        "focus": [
-          "foundation",
-          "runtime",
-          "identity",
-          "marketplace",
-          "connectors",
-          "platformrender",
-          "runtimerender",
-          "identityrender",
-          "apphelm",
-          "connectrender"
-        ],
-        "note": "Argo CD renders each Application source and syncs the resulting Kubernetes resources."
-      }
-    ]
+    }
   },
   "components": [
     {
@@ -74,14 +28,14 @@
       ],
       "sources": [
         {
-          "path": "docs/delivery/gitops-topology.md",
+          "path": "docs/platform/gitops.md",
           "line": 3,
           "end_line": 3
         },
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 53,
-          "end_line": 55
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
         }
       ]
     },
@@ -100,14 +54,14 @@
       ],
       "sources": [
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 13,
-          "end_line": 17
+          "path": "docs/platform/gitops.md",
+          "line": 15,
+          "end_line": 19
         },
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 53,
-          "end_line": 55
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
         }
       ]
     },
@@ -126,14 +80,14 @@
       ],
       "sources": [
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 25,
-          "end_line": 27
+          "path": "docs/platform/gitops.md",
+          "line": 27,
+          "end_line": 29
         },
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 53,
-          "end_line": 55
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
         }
       ]
     },
@@ -173,14 +127,14 @@
       ],
       "sources": [
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 25,
-          "end_line": 27
+          "path": "docs/platform/gitops.md",
+          "line": 27,
+          "end_line": 29
         },
         {
-          "path": "docs/delivery/gitops-topology.md",
-          "line": 53,
-          "end_line": 55
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
         }
       ]
     },
@@ -191,7 +145,7 @@
       "sublabel": "eurotransit-platform-root",
       "pos": [
         930,
-        360
+        220
       ],
       "size": [
         210,
@@ -202,267 +156,6 @@
           "path": "apps/argocd-apps/base/eurotransit-platform-root.yaml",
           "line": 1,
           "end_line": 23
-        }
-      ]
-    },
-    {
-      "id": "overlay",
-      "type": "backend",
-      "label": "Argo environment overlay",
-      "sublabel": "AKS overlay \u2192 shared base",
-      "pos": [
-        530,
-        360
-      ],
-      "size": [
-        230,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/argocd/environments/aks/kustomization.yaml",
-          "line": 1,
-          "end_line": 16
-        },
-        {
-          "path": "platform/argocd/base/kustomization.yaml",
-          "line": 1,
-          "end_line": 6
-        }
-      ]
-    },
-    {
-      "id": "foundation",
-      "type": "cloud",
-      "label": "Platform Applications",
-      "sublabel": "Waves 5 / 10 / 15 / 29",
-      "pos": [
-        30,
-        360
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 1,
-          "end_line": 199
-        },
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 201,
-          "end_line": 227
-        },
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 277,
-          "end_line": 317
-        }
-      ],
-      "tag": "Waves 5 / 10 / 15 / 29"
-    },
-    {
-      "id": "runtime",
-      "type": "database",
-      "label": "Runtime \u00b7 wave 20",
-      "sublabel": "eurotransit-platform-runtime",
-      "pos": [
-        550,
-        580
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 252,
-          "end_line": 275
-        }
-      ],
-      "tag": "Wave 20"
-    },
-    {
-      "id": "identity",
-      "type": "security",
-      "label": "Identity \u00b7 wave 25",
-      "sublabel": "eurotransit-keycloak",
-      "pos": [
-        270,
-        580
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 228,
-          "end_line": 250
-        }
-      ],
-      "tag": "Wave 25"
-    },
-    {
-      "id": "marketplace",
-      "type": "backend",
-      "label": "Marketplace \u00b7 wave 30",
-      "sublabel": "eurotransit-marketplace",
-      "pos": [
-        750,
-        580
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 319,
-          "end_line": 357
-        }
-      ],
-      "tag": "Wave 30"
-    },
-    {
-      "id": "connectors",
-      "type": "messagebus",
-      "label": "Connectors \u00b7 wave 40",
-      "sublabel": "eurotransit-connectors",
-      "pos": [
-        990,
-        580
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 359,
-          "end_line": 381
-        }
-      ],
-      "tag": "Wave 40"
-    },
-    {
-      "id": "platformrender",
-      "type": "cloud",
-      "label": "Helm + Kustomize",
-      "sublabel": "Platform controllers / secrets",
-      "pos": [
-        30,
-        820
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 1,
-          "end_line": 199
-        },
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 277,
-          "end_line": 317
-        },
-        {
-          "path": "platform/argocd/environments/aks/kustomization.yaml",
-          "line": 6,
-          "end_line": 16
-        }
-      ]
-    },
-    {
-      "id": "runtimerender",
-      "type": "database",
-      "label": "Kustomize",
-      "sublabel": "AKS bases + patches",
-      "pos": [
-        550,
-        820
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/environments/aks/kustomization.yaml",
-          "line": 1,
-          "end_line": 19
-        }
-      ]
-    },
-    {
-      "id": "identityrender",
-      "type": "security",
-      "label": "Kustomize",
-      "sublabel": "Keycloak + realm + bootstrap",
-      "pos": [
-        270,
-        820
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/keycloak/kustomization.yaml",
-          "line": 1,
-          "end_line": 10
-        }
-      ]
-    },
-    {
-      "id": "apphelm",
-      "type": "backend",
-      "label": "Helm",
-      "sublabel": "Chart + production values",
-      "pos": [
-        750,
-        820
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/argocd/base/platform-applications.yaml",
-          "line": 319,
-          "end_line": 357
-        }
-      ]
-    },
-    {
-      "id": "connectrender",
-      "type": "messagebus",
-      "label": "Kustomize",
-      "sublabel": "Shared worker + digest pin",
-      "pos": [
-        990,
-        820
-      ],
-      "size": [
-        190,
-        76
-      ],
-      "sources": [
-        {
-          "path": "platform/connectors/environments/aks/kustomization.yaml",
-          "line": 1,
-          "end_line": 24
         }
       ]
     }
@@ -497,97 +190,24 @@
       "to": "root",
       "variant": "emphasis",
       "label": "reconcile"
-    },
-    {
-      "from": "root",
-      "to": "overlay",
-      "variant": "emphasis",
-      "label": "Kustomize source"
-    },
-    {
-      "from": "overlay",
-      "to": "foundation",
-      "variant": "default"
-    },
-    {
-      "from": "foundation",
-      "to": "platformrender",
-      "variant": "emphasis",
-      "label": "render + sync"
-    },
-    {
-      "from": "overlay",
-      "to": "runtime",
-      "variant": "default"
-    },
-    {
-      "from": "runtime",
-      "to": "runtimerender",
-      "variant": "emphasis",
-      "label": "render + sync"
-    },
-    {
-      "from": "overlay",
-      "to": "identity",
-      "variant": "default"
-    },
-    {
-      "from": "identity",
-      "to": "identityrender",
-      "variant": "emphasis",
-      "label": "render + sync"
-    },
-    {
-      "from": "overlay",
-      "to": "marketplace",
-      "variant": "default"
-    },
-    {
-      "from": "marketplace",
-      "to": "apphelm",
-      "variant": "emphasis",
-      "label": "render + sync"
-    },
-    {
-      "from": "overlay",
-      "to": "connectors",
-      "variant": "default"
-    },
-    {
-      "from": "connectors",
-      "to": "connectrender",
-      "variant": "emphasis",
-      "label": "render + sync"
     }
   ],
   "cards": [
     {
       "dot": "cyan",
-      "title": "Application ownership",
+      "title": "Delivery",
       "items": [
-        "Bootstrap installs Argo CD and repository credentials, then applies apps/argocd-apps/environments/aks.",
-        "The root reads platform/argocd/environments/aks; its Kustomize base declares all child Applications.",
-        "Foundation groups eurotransit-secrets, traefik, cert-manager, strimzi, cloudnativepg, kube-prometheus-stack, eurotransit-monitoring-config, keycloak-operator and argo-rollouts."
-      ]
-    },
-    {
-      "dot": "emerald",
-      "title": "Source to Kubernetes",
-      "items": [
-        "Runtime: platform/environments/aks composes PostgreSQL, Kafka, topics and environment patches.",
-        "Marketplace: charts/eurotransit uses values.yaml + values-production.yaml; Flyway runs with the workload sync.",
-        "Connectors: platform/connectors/environments/aks composes shared workers and a pinned Debezium image.",
-        "Argo CD renders and applies manifests; Kubernetes controllers run Pods and pull their declared images from ACR."
+        "Pushes to application main trigger conditional image builds. Manual runs can select a source ref.",
+        "CI publishes images to ACR and directly commits image references to configuration Git. Debezium has its own digest update workflow.",
+        "A configuration-only change enters at Configuration Git. Argo CD reads main and reconciles the root Application."
       ]
     },
     {
       "dot": "amber",
-      "title": "Delivery boundaries",
+      "title": "Root Application",
       "items": [
-        "Pushes to application main trigger conditional image builds; manual runs can select a source ref. CI directly commits configuration values after successful builds.",
-        "Debezium has its own build/digest update workflow. A configuration-only change enters at Configuration Git.",
-        "Application workflows inspected at dc636f4; configuration topology pinned to 02447bc. This is declared AKS topology, not evidence of a completed release.",
-        "Custom child health gates wave progression. Rollouts owns live selectors/weights; Argo CD ignores those controller-managed fields. Standard Kind differs; isolated Kind HA uses direct setup."
+        "Bootstrap installs Argo CD and repository credentials, then applies apps/argocd-apps/environments/aks.",
+        "Continue in Applications and charts for the child Applications, sync waves and installed resources."
       ]
     }
   ]

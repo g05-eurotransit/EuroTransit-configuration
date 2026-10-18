@@ -2,11 +2,17 @@
 
 A push to application `main` triggers conditional image builds and publication to ACR. CI commits the image references to configuration Git; Argo CD reads that desired state, renders Helm/Kustomize sources and reconciles AKS. CI needs registry/repository credentials and no cluster credentials. The [release evidence gap](../readiness.md) remains distinct from this configured path.
 
-[![GitOps delivery from application push through CI, configuration Git and the Argo CD Application hierarchy to Helm and Kustomize sources](../diagrams/delivery/gitops.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
+[![GitOps delivery from application push through CI and configuration Git to the Argo CD Root Application](../diagrams/delivery/gitops.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
 
 [Full-size SVG](../diagrams/delivery/gitops.svg) · [Open interactive diagram](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html)
 
-The viewer has three focused views: delivery, Application hierarchy and manifest rendering. Platform Applications are grouped; their names and sync waves are listed in the diagram. The children are siblings under one root, and wave numbers define their synchronization order. Helm and Kustomize run within Argo CD; Kubernetes controllers create workloads and pull the declared images.
+The delivery flow ends at the Root Application. The Application inventory continues with all 13 children, their sync waves, the Helm chart or Kustomize source and the resources each installs. Operators and the database or identity instances they manage have separate entries.
+
+[![AKS Application inventory with Helm chart names, Kustomize sources and installed resources](../diagrams/delivery/gitops-applications.svg)](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html#applications)
+
+[Full-size inventory SVG](../diagrams/delivery/gitops-applications.svg) · [Open interactive inventory](https://g05-eurotransit.github.io/EuroTransit-configuration/delivery/gitops.html#applications)
+
+The children are siblings under one root, and wave numbers define their synchronization order. Helm and Kustomize run within Argo CD; Kubernetes controllers create workloads and pull the declared images.
 
 **Owner:** Technical Coordinator + Gateway/Security Slice Owner.
 
