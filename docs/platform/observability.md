@@ -91,7 +91,17 @@ hold expiration, and the five-minute reconciliation age escalates incidents that
 have not converged. Counter-based event alerts use `increase(...)`, which is
 reset-safe and simply remains inactive before a matching series has ever been scraped.
 
+## Inventory Alert Policy
+
+The inventory rules protect seat consistency, prevent capacity leaks from stuck holds, and guard against service-level failures on the synchronous hold creation path. Scoped to the Inventory scrape target (`namespace="eurotransit", app="inventory"`).
+
+| Alert | Signal and threshold | Response intent |
+| --- | --- | --- |
+| `InventoryReservationFailures` | Over 20% of seat holds rejected for 5 minutes | Page immediately: investigate seat contention or datastore lock degradation. |
+| `InventoryHoldSweepFailure` | Any sweep error in 5 minutes | Page immediately: expired holds cannot be released, leading to artificial capacity loss. |
+| `InventoryIdempotencyPurgeFailure` | Any idempotency purge error in 10 minutes | Ticket: cleanup of 30-minute idempotency records failed, risking datastore growth. |
+| `InventoryServiceErrorsHigh` | HTTP 5xx error rate exceeds 5% for 5 minutes | Page immediately: internal failures on the synchronous hold path block checkout completion. |
+
 These are deployable platform rules, not end-to-end proof. Alert firing and
 clearing must be demonstrated after the application scrape authorization is
-deployed and the Orders ServiceMonitor successfully scrapes
-`/actuator/prometheus`.
+deployed and the ServiceMonitors successfully scrape `/actuator/prometheus`.
