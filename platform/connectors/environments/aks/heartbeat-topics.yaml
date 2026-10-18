@@ -1,0 +1,75 @@
+# Kafka disables automatic topic creation; heartbeat delivery must be provisioned.
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: cdc-heartbeat-orders
+  namespace: eurotransit
+  labels: {strimzi.io/cluster: eurotransit-kafka}
+spec:
+  topicName: __debezium-heartbeat.orders
+  partitions: 1
+  replicas: 1
+  config: {cleanup.policy: compact, min.insync.replicas: 1}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: cdc-heartbeat-inventory
+  namespace: eurotransit
+  labels: {strimzi.io/cluster: eurotransit-kafka}
+spec:
+  topicName: __debezium-heartbeat.inventory
+  partitions: 1
+  replicas: 1
+  config: {cleanup.policy: compact, min.insync.replicas: 1}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: cdc-heartbeat-payments
+  namespace: eurotransit
+  labels: {strimzi.io/cluster: eurotransit-kafka}
+spec:
+  topicName: __debezium-heartbeat.payments
+  partitions: 1
+  replicas: 1
+  config: {cleanup.policy: compact, min.insync.replicas: 1}
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: cdc-message-orders
+  namespace: eurotransit
+  labels: {strimzi.io/cluster: eurotransit-kafka}
+spec:
+  topicName: orders.message
+  partitions: 1
+  replicas: 1
+  config: {cleanup.policy: delete, retention.ms: 86400000, min.insync.replicas: 1}
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: cdc-message-inventory
+  namespace: eurotransit
+  labels: {strimzi.io/cluster: eurotransit-kafka}
+spec:
+  topicName: inventory.message
+  partitions: 1
+  replicas: 1
+  config: {cleanup.policy: delete, retention.ms: 86400000, min.insync.replicas: 1}
+
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: cdc-message-payments
+  namespace: eurotransit
+  labels: {strimzi.io/cluster: eurotransit-kafka}
+spec:
+  topicName: payments.message
+  partitions: 1
+  replicas: 1
+  config: {cleanup.policy: delete, retention.ms: 86400000, min.insync.replicas: 1}
