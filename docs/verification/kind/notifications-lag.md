@@ -1,5 +1,14 @@
 # Notifications degradation and committed lag
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | Checkout completes while Notifications is paused, and committed lag exposes the delayed notification work, then returns to zero after recovery. |
+| Steady state | Committed Notifications lag at zero, measured by the Kind Kafka exporter; all broker Pods unchanged. |
+| Injected fault | SIGSTOP to the single Notifications process for 15 s, below its liveness failure window. |
+| Observations | 2/2 checkouts `CONFIRMED` during the pause, two authorizations, no unmatched charge; lag 0 → 2 → 0 in the exporter and in Prometheus; same Pod, no restart ([details](#method-and-observations)). |
+| Conclusion | Held. |
+| Follow-up change | None for checkout. The Kind Kafka exporter and PodMonitor stay enabled for committed-lag measurement. |
+
 ## Result
 
 **PASS.** Two checkout orders confirmed while the Notifications process was
@@ -17,8 +26,8 @@ unchanged. Six committed-offset lag series appeared: three populated partitions
 for Orders and three for Notifications. Empty refund/DLT partitions were not
 invented as zero-valued observations.
 
-The proposed operational question, consistent with the existing Notifications
-failure boundary, is whether checkout completes independently while lag exposes
+The hypothesis, accepted by the team and consistent with the existing Notifications
+failure boundary, is that checkout completes independently while lag exposes
 the delayed notification work and returns to steady state after recovery. The
 experiment used two fresh, exclusively claimed fixtures and native k6.
 
