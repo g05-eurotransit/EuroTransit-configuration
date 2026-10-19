@@ -12,16 +12,25 @@ Each section records a separate experiment with its own verdict, tested configur
 
 ## Selective application node drain
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | Evacuating the application workloads of one node keeps checkout available. |
+| Steady state | All three nodes and the critical services Ready; Orders, Catalog and Inventory with one replica each on the target node; no application PDBs, no spare replica. |
+| Injected fault | The node cordoned and Catalog, Inventory and Orders evicted through `policy/v1` with their normal grace. |
+| Observations | Catalog 24 of 105 probes HTTP 503 until its replacement was Ready; Orders Pending for lack of CPU and memory until an operator uncordoned the node; the three accepted orders confirmed with three matching charges ([details](#node-drain-injection-and-observations)). |
+| Conclusion | Refuted: availability did not hold without spare capacity. Accepted work recovered without data correction. |
+| Follow-up change | The Kind HA profile adds separated replicas, PDBs and failed-node headroom, and its [worker-loss experiment](../kind/ha-failover.md) repeats the disruption. |
+
 <a id="node-drain-steady-state-and-proposed-hypothesis"></a>
 
-### Steady state and proposed hypothesis
+### Steady state and hypothesis
 
 All three AKS nodes and the critical services were Ready. Orders, Catalog and
 Inventory each had one replica on node `aks-eurotransit-76738666-vms77`.
-Proposed hypothesis: evacuating that node's application workloads should retain
+Hypothesis: evacuating that node's application workloads should retain
 checkout availability. The observed deployment has no application PDBs and no
 spare critical-service replica; this experiment tests those actual conditions,
-not an assumed HA deployment. Team review of the hypothesis is pending.
+not an assumed HA deployment. The team accepted this hypothesis.
 
 <a id="node-drain-injection-and-observations"></a>
 
@@ -79,14 +88,23 @@ Accepted-order audit: `load-results/node-accepted-orders-final-audit-20261012T22
 
 ## Orders SIGTERM under checkout traffic
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | SIGTERM flips readiness while work drains, stops consumers cooperatively and preserves accepted orders without double processing. Single-replica availability is assessed separately. |
+| Steady state | Orders `bad4c04` Ready with one replica; one order `CONFIRMED`, another in `CONFIRMING_INVENTORY` at the signal. |
+| Injected fault | SIGTERM sent directly to the Orders JVM under checkout traffic. |
+| Observations | Readiness 503 within 0.6 s, consumers and server stopped in order, exit 143 with no SIGKILL; both accepted orders `CONFIRMED` without replay, two matching charges; four requests failed with HTTP 502 ([details](#orders-shutdown-signal-drain-and-recovery)). |
+| Conclusion | Held for readiness refusal, cooperative shutdown and accepted work. Single-replica availability did not hold. |
+| Follow-up change | Application #132 stops a listener after the record in progress instead of its whole batch; Kind runs two Orders replicas and its [Pod shutdown experiment](../kind/orders-shutdown.md) covers endpoint removal. |
+
 <a id="orders-shutdown-steady-state-and-proposed-hypothesis"></a>
 
-### Steady state and proposed hypothesis
+### Steady state and hypothesis
 
-Orders `bad4c04` was Ready with one replica. Proposed hypothesis: SIGTERM flips
+Orders `bad4c04` was Ready with one replica. Hypothesis: SIGTERM flips
 readiness while work drains, stops consumers cooperatively and preserves the
 accepted orders without double processing. Continuous availability of a single
-replica is assessed separately. The team must review this lifecycle hypothesis.
+replica is assessed separately. The team accepted this hypothesis.
 
 <a id="orders-shutdown-signal-drain-and-recovery"></a>
 
@@ -150,9 +168,18 @@ bounded traffic; no application resource or retry setting changed.
 
 ## CloudNativePG primary pod failover
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | CNPG promotes the Ready standby after a primary-pod crash, database-backed checkout reads recover, and accepted checkout work converges without duplicate effects. |
+| Steady state | A temporary second CNPG instance on another node, Ready and replayed to a fixed WAL position; asynchronous replication; Argo reconciliation of the database paused. |
+| Injected fault | The primary pod force-deleted under checkout traffic. |
+| Observations | New primary after about 3.5 s, Orders reads back after about 5.1 s; three HTTP 500 and three accepted, two of them `CONFIRMED` automatically; the third stayed `RESERVING` with a `DELIVERY_EXHAUSTED` incident until its event was replayed; three matching charges ([details](#postgres-failover-fault-and-observed-recovery)). |
+| Conclusion | Held for promotion, read recovery and final correctness. Automatic completion of every accepted order did not hold on Orders `bad4c04`. No failover RTO is adopted; the timings are measurements. |
+| Follow-up change | Application #139 rides out a dependency outage before dead-lettering, and #149 verifies recovery from PostgreSQL statement failures; the [Kind HA failover](../kind/ha-failover.md) repeats the promotion with synchronous replication. |
+
 <a id="postgres-failover-steady-state-and-proposed-hypothesis"></a>
 
-### Steady state and proposed hypothesis
+### Steady state and hypothesis
 
 The normal AKS deployment has one PostgreSQL instance. For this experiment only,
 its owning Argo Application policy was saved and automatic reconciliation paused;
@@ -161,10 +188,10 @@ controller pauses remained unchanged. The physical standby on a different node
 was Ready and had replayed a fixed pre-test WAL position before injection.
 Replication was asynchronous; this is not a synchronous zero-RPO configuration.
 
-Proposed hypothesis: CNPG promotes the Ready standby after a primary-pod crash,
+Hypothesis, accepted by the team: CNPG promotes the Ready standby after a primary-pod crash,
 restores database-backed checkout reads, and accepted checkout work converges
-without duplicate effects. The team must approve an RTO; no team-owned RTO was
-specified for this run, so timings below are measurements, not an RTO pass.
+without duplicate effects. The team adopts no failover RTO, so timings below are
+measurements, not an RTO pass.
 
 <a id="postgres-failover-fault-and-observed-recovery"></a>
 
@@ -213,9 +240,8 @@ setup changes were restored before this run.
 
 Primary promotion and database-backed read recovery were automatic. Continuous
 checkout availability and automatic completion of every accepted order did not
-hold. Final money-path correctness held after explicit recovery. Adopt reviewed
-HA configuration, define the checkout recovery objective and improve exhausted
-work recovery before treating this as a complete availability proof.
+hold. Final money-path correctness held after explicit recovery. A complete
+availability proof still needs a reviewed HA configuration on the target cluster.
 
 Restricted state snapshots, WAL check, primary observations, idempotency-key
 audit and cleanup: `.resilience-evidence/chaos-20261012/postgres-failover-20261012T223334Z`.
