@@ -16,6 +16,15 @@ Each section records a separate experiment with its own verdict, tested configur
 
 The current run tests the Orders recovery policy from application #139/#141, with an earlier-revision comparison retained below. Five competing purchases converged automatically in 73 s: one confirmation, four sold-out refusals and one independently audited charge. The initial client deadline failed.
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | Five buyers competing for one seat produce at most one confirmed purchase, one active reservation and one charge despite an Inventory crash mid-reservation and duplicate delivery; with #139's retry budget the orders reach a terminal state without an operator. |
+| Steady state | Orders `45357ef` (#139, #141), Inventory and Payments `98bedf2`, all Ready; reconciliation controllers paused; saturation override authorized by the Orders owner. |
+| Injected fault | The seat row locked for 45 s, then the Inventory pod force-deleted while a reservation waited on that lock. |
+| Observations | One `CONFIRMED` on the sixth redelivery, four `SEATS_UNAVAILABLE`, all terminal in 73 s with no incident; one charge, zero unmatched ([details](#inventory-crash-injection-and-observations)). |
+| Conclusion | Held: no oversell, no double charge, automatic convergence. The client completion deadline failed. |
+| Follow-up change | No code change. The zero retry margin and head-of-line waiting stay documented limits. |
+
 <a id="inventory-crash-steady-state-and-hypothesis"></a>
 
 ### Steady state and hypothesis
@@ -109,15 +118,24 @@ and `inventory-kill-fault`). Raw identifiers and provider references are exclude
 
 ## Kafka response partition
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | A bounded broker-response partition delays checkout, but publication and consumption recover once connectivity returns, without operator replay or duplicate side effects. |
+| Steady state | The Orders consumer group at zero committed lag on all three `order-placed` partitions. |
+| Injected fault | 100% loss of the sole broker's outbound TCP responses from port 9092 for 40 s. |
+| Observations | 4/4 `CONFIRMED` after healing without replay; four matching charges, zero unmatched; lag back to zero; Catalog 102/102 ([details](#kafka-disruption-fault-and-observations)). |
+| Conclusion | Held for convergence and money-path invariants. The client completion deadline failed. |
+| Follow-up change | The lag collector falls back to the Spring Kafka client metric when the exporter is absent ([telemetry](#kafka-disruption-consumer-lag-telemetry)). |
+
 <a id="kafka-disruption-steady-state-and-proposed-hypothesis"></a>
 
-### Steady state and proposed hypothesis
+### Steady state and hypothesis
 
 The Orders consumer group had zero committed-offset lag on all three
-`order-placed` partitions. Proposed hypothesis: a bounded broker-response
+`order-placed` partitions. Hypothesis: a bounded broker-response
 partition delays checkout but durable publication and consumption recover after
 connectivity returns, without operator event replay or duplicate side effects.
-The team must review acceptable checkout impact and this hypothesis.
+The team accepted this hypothesis.
 
 <a id="kafka-disruption-fault-and-observations"></a>
 
@@ -180,6 +198,15 @@ Resource-saturation overrides were authorized; other runner checks remained acti
 
 ## Payments latency without probe disruption
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | Orders' Payments breaker opens while Catalog stays available, then accepted orders converge without an operator after the fault heals. |
+| Steady state | Orders `45357ef` (#139, #141); health checks passed; no image, retry budget, probe or GitOps change. |
+| Injected fault | A 4000 ms delay on Payments responses to the Orders pod only, for 45 s, leaving probes untouched. |
+| Observations | Breaker `OPEN`, `HALF_OPEN`, `CLOSED`; Catalog 50/50 and Payments Ready throughout; six confirmations within 6.43 s of the fault's removal; six charges, zero unmatched ([details](#payments-latency-observations)). |
+| Conclusion | Held. Two client polling cycles missed their deadline. |
+| Follow-up change | No application change. The injection method now scopes the delay to Orders so that probes are not disrupted. |
+
 <a id="payments-latency-question-and-preceding-evidence"></a>
 
 ### Question and preceding evidence
@@ -197,10 +224,10 @@ with approximately 75s total disruption. It does not isolate a 45s dependency
 latency fault. The observed exhaustion alone therefore does not demonstrate a
 new Payments defect or justify extending the bounded recovery policy.
 
-The proposed hypothesis for this verification is the same bounded latency case:
+The hypothesis for this verification is the same bounded latency case:
 Orders' breaker opens while Catalog stays available, then accepted orders
-converge without operator action after the fault heals. Team review owns this
-hypothesis and the acceptable latency/error-budget impact.
+converge without operator action after the fault heals. The team accepted this
+hypothesis.
 
 <a id="payments-latency-controlled-verification"></a>
 
@@ -274,7 +301,7 @@ Payments process crashes and service restart recovery remain distinct cases;
 this run neither makes them pass nor proves every provider failure safe. The
 injection-method correction is to scope delayed traffic to Orders, preserving
 probes, rather than increasing liveness timeouts or retry budgets to mask it.
-Team review must assess the original operator response window and SLO impact.
+The application [postmortem](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/operations/payments-latency-postmortem.md) assesses the operator response window against the adopted recovery objectives.
 
 <a id="payments-latency-evidence-and-cleanup"></a>
 
@@ -299,6 +326,15 @@ was performed.
 ## Payments latency experiment
 
 The current run tests the Orders recovery policy from application #139/#141, with an earlier-revision comparison retained below. A 45-second delay also restarted Payments: five of six purchases confirmed automatically and one required abandonment/refund. The original client run failed; this is distinct from the [latency-only experiment](dependencies.md#payments-latency).
+
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | A slow Payments opens the Orders breaker and leaves Catalog available; after the fault, orders reach a terminal state within about a minute without an operator, and any order that outlasts the budget is recovered through the runbook. |
+| Steady state | Orders `45357ef`, Inventory and Payments `98bedf2`; breaker `CLOSED` after three warm-up orders; controllers paused; saturation override authorized by the Orders owner. |
+| Injected fault | A 4000 ms delay on all Payments responses from port 8080 for 45 s; it also timed out Payments' probes, which restarted it once. |
+| Observations | Five of six `CONFIRMED` automatically, the last about 72 s after the fault; the sixth exhausted its budget, its redrive was refused 13 s after its hold expired, and the operator abandoned and refunded it; Catalog 26/26 ([details](#payments-latency-and-restart-fault-and-observations)). |
+| Conclusion | Held for five orders. The sixth reached the operator as designed, but the redrive missed the hold window. |
+| Follow-up change | The [postmortem](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/operations/payments-latency-postmortem.md) tracks them: the operations console (application #152) and alerts within the hold window (#57). The pure-latency case runs separately. |
 
 <a id="payments-latency-and-restart-steady-state-and-hypothesis"></a>
 
@@ -406,14 +442,23 @@ An earlier latency experiment kept Catalog healthy (129/129 reads) and observed 
 
 ## Notifications stopped while checkout succeeds
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | Stopping the whole Notifications JVM leaves checkout functional, and notification consumption catches up after it resumes. |
+| Steady state | All application services Ready. |
+| Injected fault | SIGSTOP to the Notifications JVM for 25 s. |
+| Observations | 4/4 checkouts accepted and `CONFIRMED` during the stop; four matching charges; the `notifications` group back at log end on all partitions ([details](#notifications-outage-fault-and-observations)). |
+| Conclusion | Held. |
+| Follow-up change | None for checkout. Notification history across restarts is best effort by decision (application #131). |
+
 <a id="notifications-outage-steady-state-and-proposed-hypothesis"></a>
 
-### Steady state and proposed hypothesis
+### Steady state and hypothesis
 
-All application services were Ready after the preceding experiments. Proposed
-hypothesis: stopping the entire Notifications JVM must leave checkout functional,
-while notification consumption catches up after it resumes. The team must review
-acceptable notification delay and this hypothesis.
+All application services were Ready after the preceding experiments.
+Hypothesis: stopping the entire Notifications JVM must leave checkout functional,
+while notification consumption catches up after it resumes. The team accepted
+this hypothesis.
 
 <a id="notifications-outage-fault-and-observations"></a>
 
