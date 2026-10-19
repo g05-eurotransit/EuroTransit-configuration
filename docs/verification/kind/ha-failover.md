@@ -2,6 +2,15 @@
 
 Worker termination demonstrated primary promotion and automatic checkout recovery with transient client errors. Five committed purchases finally confirmed with five independently audited charges and no unmatched charges. RTO/SLO compliance was not assessed. The original strict harness verdict remains failed; its zero-error diagnostic condition is separate from the project's failover requirement.
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | Worker loss preserves Kafka quorum, promotes a PostgreSQL standby and restores checkout before the worker returns, with every committed purchase converging without oversell or duplicate payment. |
+| Steady state | Kind HA profile with separated critical replicas; preflight passed: no memory pressure, full Kafka ISR, healthy connector tasks, standby physically streaming. |
+| Injected fault | A worker container stopped for 180 s. |
+| Observations | Promotion at T+51.86 s, synchronous quorum at T+70.30 s, a checkout confirmation at T+179.62 s; 5/5 committed purchases `CONFIRMED` with five distinct charges; three admission failures, two polling timeouts and one Catalog 504 recorded ([details](#result)). |
+| Conclusion | Held for promotion, convergence and money-path correctness, with transient client errors. No RTO or SLO compliance is claimed. |
+| Follow-up change | Preflight now verifies physical streaming and a fixed replay position ([corrections](#corrections-and-remaining-limits)). |
+
 ## Result
 
 | Observation | Final worker-stop run `30677fd63d` |
@@ -21,7 +30,7 @@ No connector restart, event replay or business-row repair was performed during t
 
 ## Environment and hypothesis
 
-The proposed hypothesis was that worker loss preserves Kafka quorum, promotes a standby and restores checkout before worker return, with every committed purchase converging without oversell or duplicate payment. No numeric team recovery objective was adopted by the experiment.
+The hypothesis, accepted by the team, was that worker loss preserves Kafka quorum, promotes a standby and restores checkout before worker return, with every committed purchase converging without oversell or duplicate payment. No numeric team recovery objective was adopted by the experiment.
 
 The [HA profile](../../operations/ha-experiment.md) uses one control plane and three workers on one workstation, Kubernetes v1.34.0, separated critical-service replicas, PostgreSQL 16 with three instances and required `ANY 1` synchronous replication, Kafka 3.9 with three persistent broker/controllers (RF 3, min ISR 2), and two shared Connect workers with three tasks. Traefik, identity, controllers and monitoring were outside the interrupted worker. All mutations targeted `kind-eurotransit`; AKS was unchanged.
 
@@ -78,6 +87,15 @@ applicable availability/latency SLO and error budget, rather than treated as an
 automatic failure of the failover requirement. This check neither certifies all
 Catalog functionality nor establishes SLO compliance. The original stricter
 zero-error diagnostic result remains recorded unchanged.
+
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | Losing one Catalog replica leaves reads served by the other, with errors limited to the window before the lost replica leaves routing. |
+| Steady state | Nodes, PostgreSQL, Kafka and both Catalog Pods running and Ready; a six-second baseline of 24/24 through the gateway. |
+| Injected fault | SIGSTOP to one Catalog process for 12 s. |
+| Observations | Gateway: five HTTP 504, all from the suspended backend, then 200 once its endpoint was withdrawn after 7.5 s; healthy Pod directly: 52/52 ([details](#controlled-catalog-only-check)). |
+| Conclusion | Held: the surviving replica served correct data throughout; the errors fall in the detection window. |
+| Follow-up change | No Catalog change. Shortening the window between an unresponsive backend and its removal belongs to routing and failure detection. |
 
 ### Historical timeout
 

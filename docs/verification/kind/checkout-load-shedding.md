@@ -1,5 +1,14 @@
 # Checkout load shedding
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | Above the configured rate, Traefik refuses checkouts with 429 before they reach Orders; refused requests leave no business effect, admitted ones confirm, and reads stay available. |
+| Steady state | One Traefik replica, two Orders replicas, healthy CDC and PostgreSQL; a checkout limit of one token per second, burst one. |
+| Injected fault | A k6 spike of eight checkouts from two VUs against the deliberately low limit. |
+| Observations | 3/8 refused with 429, 5/8 admitted and `CONFIRMED`; refused keys absent from Orders and their seats still available; Catalog and order polling 53/53 ([details](#method-and-observations)). |
+| Conclusion | Held for the configured ingress policy. It does not size a production threshold or bound the Kafka backlog. |
+| Follow-up change | The runner renders the complete chart and asserts that the rate-limit middleware is present, after an earlier setup missed it. |
+
 ## Result
 
 **PASS for the configured ingress refusal/recovery policy.** In run

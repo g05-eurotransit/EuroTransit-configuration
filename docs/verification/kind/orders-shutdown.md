@@ -1,5 +1,14 @@
 # Orders Pod shutdown
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | Terminating the listener Pod while a reservation is in progress withdraws its HTTP endpoint, stops within its grace period and lets durable work converge without duplicate reservation or charge. |
+| Steady state | Two Orders replicas Ready on the existing image; a fresh fixture whose order was `RESERVING` on the Pod to delete. |
+| Injected fault | Ordinary deletion of the processing Pod while an 18-second row lock held its reservation. |
+| Observations | Endpoint `ready=false` in the first sampling cycle, readiness 503 after the 10 s preStop, consumer left the group, exit 143 after 14.6 s; 4/4 `CONFIRMED` within the client deadline, four authorizations, no unmatched charge ([details](#method-and-observations)). |
+| Conclusion | Held. |
+| Follow-up change | None for Orders. The CDC baseline repair before the run is tracked in the [CDC slots incident](../incidents/cdc-slots.md). |
+
 ## Result
 
 **PASS for this bounded shutdown/recovery experiment.** All four fresh checkout
@@ -16,7 +25,7 @@ repair. That repair is not counted as automatic shutdown recovery.
 
 Run `et-kind-shutdown-3663800ab3`, context `kind-eurotransit`, existing published
 Orders image `eurotransit/orders:kind-ha`; no application code change.
-The team must review the proposed operational hypothesis: terminating the
+The team accepted the operational hypothesis: terminating the
 listener Pod while a reservation is in progress should withdraw its HTTP
 endpoint, stop within its grace period and allow durable work to converge
 without duplicate reservation or charge.
