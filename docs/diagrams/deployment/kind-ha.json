@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "EuroTransit Kind HA deployment",
+    "output": "docs/diagrams/deployment/kind-ha.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "repository": {
+      "url": "https://github.com/g05-eurotransit/EuroTransit-configuration",
+      "revision": "ea5a1c6d92f964b2c5072688e53609eaf3af3aa7",
+      "link_mode": "web"
+    }
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Customer browser",
+      "sublabel": "Public HTTPS",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "charts/eurotransit/templates/ingressroutes.yaml",
+          "line": 1,
+          "end_line": 111
+        }
+      ]
+    },
+    {
+      "id": "ingress",
+      "type": "cloud",
+      "label": "Traefik",
+      "sublabel": "Host ports 80 / 443",
+      "pos": [
+        330,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/traefik/values-kind.yaml",
+          "line": 1,
+          "end_line": 14
+        },
+        {
+          "path": "charts/eurotransit/templates/ingressroutes.yaml",
+          "line": 11,
+          "end_line": 111
+        },
+        {
+          "path": "platform/environments/keycloak-kind/keycloak-ingressroute-patch.yaml",
+          "line": 1,
+          "end_line": 15
+        }
+      ]
+    },
+    {
+      "id": "workloads",
+      "type": "backend",
+      "label": "Marketplace pods",
+      "sublabel": "Critical APIs x2; frontend x2",
+      "pos": [
+        620,
+        240
+      ],
+      "size": [
+        180,
+        68
+      ],
+      "sources": [
+        {
+          "path": "charts/eurotransit/values-kind-ha.yaml",
+          "line": 12,
+          "end_line": 52
+        },
+        {
+          "path": "charts/eurotransit/templates/orders-deployment.yaml",
+          "line": 59,
+          "end_line": 110
+        },
+        {
+          "path": "platform/kind/kind-ha-config.yaml",
+          "line": 1,
+          "end_line": 15
+        }
+      ],
+      "tag": "Notifications x1"
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL x3",
+      "sublabel": "Required sync ANY 1",
+      "pos": [
+        910,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/environments/kind-ha/postgres-patch.yaml",
+          "line": 6,
+          "end_line": 36
+        },
+        {
+          "path": "platform/cloudnativepg/postgres-cluster.yaml",
+          "line": 21,
+          "end_line": 58
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "type": "security",
+      "label": "Keycloak",
+      "sublabel": "OIDC + service tokens",
+      "pos": [
+        910,
+        40
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/keycloak/keycloak.yaml",
+          "line": 9,
+          "end_line": 33
+        },
+        {
+          "path": "platform/environments/keycloak-kind/keycloak-patch.yaml",
+          "line": 1,
+          "end_line": 8
+        }
+      ]
+    },
+    {
+      "id": "kafka",
+      "type": "messagebus",
+      "label": "Kafka x3",
+      "sublabel": "Persistent; RF3 / min ISR2",
+      "pos": [
+        620,
+        510
+      ],
+      "size": [
+        180,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/environments/kind-ha/kafka-patch.yaml",
+          "line": 1,
+          "end_line": 32
+        },
+        {
+          "path": "platform/strimzi/kafka-cluster.yaml",
+          "line": 1,
+          "end_line": 42
+        }
+      ]
+    },
+    {
+      "id": "connect",
+      "type": "backend",
+      "label": "Connect x2",
+      "sublabel": "Shared group; three tasks",
+      "pos": [
+        910,
+        510
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/connectors/environments/kind-ha/shared-ha-patch.yaml",
+          "line": 1,
+          "end_line": 24
+        },
+        {
+          "path": "platform/connectors/environments/kind-ha/shared-worker-patch.yaml",
+          "line": 1,
+          "end_line": 32
+        },
+        {
+          "path": "platform/connectors/base/orders-outbox-connect.yaml",
+          "line": 69,
+          "end_line": 96
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-to-ingress",
+      "from": "client",
+      "to": "ingress",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ingress-to-workloads",
+      "from": "ingress",
+      "to": "workloads",
+      "label": "Public routes",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ingress-to-identity",
+      "from": "ingress",
+      "to": "identity",
+      "label": "OIDC routes",
+      "variant": "security"
+    },
+    {
+      "id": "workloads-to-postgres",
+      "from": "workloads",
+      "to": "postgres",
+      "label": "Owned DBs",
+      "variant": "default"
+    },
+    {
+      "id": "identity-to-postgres",
+      "from": "identity",
+      "to": "postgres",
+      "label": "keycloak_db",
+      "variant": "default"
+    },
+    {
+      "id": "postgres-to-connect",
+      "from": "postgres",
+      "to": "connect",
+      "label": "Outbox WAL",
+      "variant": "dashed"
+    },
+    {
+      "id": "connect-to-kafka",
+      "from": "connect",
+      "to": "kafka",
+      "label": "Relay events",
+      "variant": "dashed"
+    },
+    {
+      "id": "workloads-to-kafka",
+      "from": "workloads",
+      "to": "kafka",
+      "label": "Kafka clients",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Local failure domain",
+      "items": [
+        "One control plane and three workers on one workstation.",
+        "Critical replicas and data instances use worker anti-affinity.",
+        "Kind HA uses the direct setup path, not Argo release proof."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Durability and recovery",
+      "items": [
+        "Required synchronous PostgreSQL durability remains enabled.",
+        "Three brokers retain persistent volumes; Connect reassigns tasks.",
+        "Promotion, checkout recovery and client errors are separate results."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Coverage limits",
+      "items": [
+        "A worker container loss is not physical-host or AZ failure.",
+        "Keycloak and control-plane placement remain constrained.",
+        "Monitoring is enabled; queryable tracing remains unproven."
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "eurotransit namespace",
+      "wraps": [
+        "workloads",
+        "postgres",
+        "kafka",
+        "connect"
+      ],
+      "pad": 18
+    }
+  ]
+}

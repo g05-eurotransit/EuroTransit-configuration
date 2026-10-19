@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "GitOps: from source push to Root Application",
+    "locale": "en",
+    "output": "docs/diagrams/delivery/gitops-flow.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/g05-eurotransit/EuroTransit-configuration",
+      "revision": "70971f2b01e06d1c3a8d6554d41ede2ee9faf6e2",
+      "link_mode": "web"
+    }
+  },
+  "components": [
+    {
+      "id": "application",
+      "type": "external",
+      "label": "Application Git",
+      "sublabel": "Push main / manual source ref",
+      "pos": [
+        30,
+        40
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "sources": [
+        {
+          "path": "docs/platform/gitops.md",
+          "line": 3,
+          "end_line": 3
+        },
+        {
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
+        }
+      ]
+    },
+    {
+      "id": "ci",
+      "type": "backend",
+      "label": "GitHub Actions",
+      "sublabel": "Build changed services",
+      "pos": [
+        330,
+        40
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "sources": [
+        {
+          "path": "docs/platform/gitops.md",
+          "line": 15,
+          "end_line": 19
+        },
+        {
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
+        }
+      ]
+    },
+    {
+      "id": "configuration",
+      "type": "database",
+      "label": "Configuration Git",
+      "sublabel": "Image values / connector digest",
+      "pos": [
+        630,
+        40
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "sources": [
+        {
+          "path": "docs/platform/gitops.md",
+          "line": 27,
+          "end_line": 29
+        },
+        {
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
+        }
+      ]
+    },
+    {
+      "id": "argo",
+      "type": "backend",
+      "label": "Argo CD",
+      "sublabel": "Read desired state from main",
+      "pos": [
+        930,
+        40
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "sources": [
+        {
+          "path": "apps/argocd-apps/base/eurotransit-platform-root.yaml",
+          "line": 10,
+          "end_line": 23
+        }
+      ]
+    },
+    {
+      "id": "registry",
+      "type": "database",
+      "label": "Azure ACR",
+      "sublabel": "SHA-tagged application images",
+      "pos": [
+        330,
+        220
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "sources": [
+        {
+          "path": "docs/platform/gitops.md",
+          "line": 27,
+          "end_line": 29
+        },
+        {
+          "path": "docs/platform/gitops.md",
+          "line": 57,
+          "end_line": 57
+        }
+      ]
+    },
+    {
+      "id": "root",
+      "type": "backend",
+      "label": "Root Application",
+      "sublabel": "eurotransit-platform-root",
+      "pos": [
+        930,
+        220
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "sources": [
+        {
+          "path": "apps/argocd-apps/base/eurotransit-platform-root.yaml",
+          "line": 1,
+          "end_line": 23
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "application",
+      "to": "ci",
+      "variant": "emphasis",
+      "label": "push main"
+    },
+    {
+      "from": "ci",
+      "to": "configuration",
+      "variant": "emphasis",
+      "label": "commit values"
+    },
+    {
+      "from": "configuration",
+      "to": "argo",
+      "variant": "emphasis",
+      "label": "desired state"
+    },
+    {
+      "from": "ci",
+      "to": "registry",
+      "variant": "default",
+      "label": "publish images"
+    },
+    {
+      "from": "argo",
+      "to": "root",
+      "variant": "emphasis",
+      "label": "reconcile"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Delivery",
+      "items": [
+        "Pushes to application main trigger conditional image builds. Manual runs can select a source ref.",
+        "CI publishes images to ACR and directly commits image references to configuration Git. Debezium has its own digest update workflow.",
+        "A configuration-only change enters at Configuration Git. Argo CD reads main and reconciles the root Application."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Root Application",
+      "items": [
+        "Bootstrap installs Argo CD and repository credentials, then applies apps/argocd-apps/environments/aks.",
+        "Continue in Applications and charts for the child Applications, sync waves and installed resources."
+      ]
+    }
+  ]
+}

@@ -2,15 +2,7 @@
 
 This document owns the platform-side observability stack.
 
-## Required Coverage
-
-- RED metrics for application services.
-- USE metrics for infrastructure.
-- Checkout latency and success-rate dashboards.
-- Symptom-based alerts tied to SLOs.
-- Distributed tracing for the money path.
-
-Service instrumentation conventions are coordinated with the application repository; dashboards, alert rules, and platform deployment live here.
+The application [SLO specification](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/design/slo.md) owns objectives and SLI semantics. This page maps those signals to deployment artifacts. Existing checkout dashboards and alerts use HTTP proxies; [Kind verification](../verification/kind/observability.md) documents the mismatch with asynchronous checkout outcomes. Do not read matching dashboard/alert thresholds as proof of a correct SLI.
 
 ## Current Manifests
 
@@ -51,26 +43,44 @@ Service instrumentation conventions are coordinated with the application reposit
   task, and automatic-restart health through Strimzi.
 - Chaos Mesh installation values live in `platform/chaos-mesh/values.yaml`; experiment manifests are still pending.
 
-## Money-Path Proof Checklist
+## Alert operations
 
-- Public Orders route rejects unauthenticated checkout.
-- Catalog route is reachable according to the selected public/auth policy.
-- Inventory and Payments have no public ingress.
-- A checkout flow carries one `X-Correlation-Id` through Orders, Inventory, Payments, Kafka events, and Notifications where applicable.
-- Duplicate order placement with the same idempotency key does not create a second logical order.
-- Inventory idempotency retention is configured for 30 minutes while seat holds still expire after 10 minutes.
-- Orders and Payments idempotency retention are configured for 24 hours.
-- Payment sandbox credentials are loaded from Kubernetes secret material, not source code.
-- Notifications outage does not fail an already confirmed checkout.
+[Prometheus rules](../../platform/kube-prometheus-stack/prometheus-rules.yaml) own exact thresholds and durations. Reconciliation alerts use durable open-record and nonterminal-age gauges so unresolved work remains visible. Labels are bounded; order IDs, correlation IDs, provider messages and event payloads belong in restricted logs/evidence.
 
-## Reconciliation Alert Policy
+Use the application [recovery runbook](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/operations/orders-recovery-runbook.md) for incident inspection, redrive and settlement. Keep query selectors aligned with loaded Prometheus samples, including namespace, service labels and rollout hashes. Empty samples do not count as healthy gates.
 
-The reconciliation rules complement the checkout SLO alerts with durable
-money-path safety signals. They use gauges for open incidents and non-terminal
-orders because a counter rate would clear while an unresolved incident remains.
-The rules are scoped to the Orders scrape target (`namespace="eurotransit",
-app="orders"`).
+[Kind monitoring verification](../verification/kind/observability.md) records actual metric coverage and committed lag. [AKS monitoring verification](../verification/aks/observability.md) records the injected alert. Trace export/backend deployment remains in [readiness](../readiness.md).
 
+## Grafana directory provisioning
+
+The pinned kube-prometheus-stack 75.15.1 chart still generates its datasources and
+28 standard dashboard ConfigMaps. AKS disables both sidecars and mounts those
+ConfigMaps plus the three EuroTransit and nine Strimzi dashboard ConfigMaps as
+complete directories: 40 dashboards in total. The Strimzi 0.46.1 chart continues
+to own its monitoring-namespace dashboard ConfigMaps; include its render in the
+mount-set validation.
+Datasource names, URLs, default selection, settings and UIDs (`prometheus`,
+`alertmanager`) come from the same chart template. A Helm-owned provider ConfigMap
+is mounted at `/etc/grafana/provisioning/dashboards`; its file provider scans
+`/var/lib/grafana/dashboards` every 30 seconds. All dashboard/provisioning mounts
+use no nonempty `subPath`, allowing projected ConfigMap updates to reach Grafana.
+The chart's independent `grafana.ini` mount remains chart-managed.
+
+Validate the render's dashboard ConfigMap set against the mounted set on every
+chart upgrade. A changed dashboard name needs a corresponding mount before the
+upgrade. Grafana runs exactly one container. All dashboard ConfigMaps have one
+GitOps owner: the chart owns standard dashboards and provisioning; the separate
+`eurotransit-monitoring-config` Application owns the custom dashboards and rules;
+the Strimzi Application owns the nine Strimzi dashboards.
+
+After rollout, compare dashboard JSON/UIDs and datasource definitions with the
+previous render, verify the live dashboard list, and perform a reversible custom
+dashboard update to confirm polling sees the projected update. Preserve existing
+admin Secret references. The 31 dashboards with explicit manifest UIDs retain
+those UIDs; the nine Strimzi dashboards have no explicit UID, so Grafana may
+regenerate their database IDs after a restart of its ephemeral storage, as before.
+Compare all 40 titles and dashboard JSON, and the 31 explicit UIDs. Datasources are provisioned at startup: if their values
+change later, roll Grafana or use the authorized Grafana provisioning reload API.
 | Alert | Signal and threshold | Response intent |
 | --- | --- | --- |
 | `ReconciliationRecordOpen` | Any open record, for 1 minute | Create an operations ticket for the record kind before the 10-minute hold window closes. |
@@ -91,6 +101,8 @@ hold expiration, and the five-minute reconciliation age escalates incidents that
 have not converged. Counter-based event alerts use `increase(...)`, which is
 reset-safe and simply remains inactive before a matching series has ever been scraped.
 
+Rollback: restore the prior AKS Grafana values, roll Grafana, verify both sidecars
+and the original dashboards/datasources. Do not delete custom ConfigMaps.
 ## Inventory Alert Policy
 
 The inventory rules protect seat consistency, prevent capacity leaks from stuck holds, and guard against service-level failures on the synchronous hold creation path. Scoped to the Inventory scrape target (`namespace="eurotransit", app="inventory"`).
@@ -102,6 +114,28 @@ The inventory rules protect seat consistency, prevent capacity leaks from stuck 
 | `InventoryIdempotencyPurgeFailure` | Any idempotency purge error in 10 minutes | Ticket: cleanup of 30-minute idempotency records failed, risking datastore growth. |
 | `InventoryServiceErrorsHigh` | HTTP 5xx error rate exceeds 5% for 5 minutes | Page immediately: internal failures on the synchronous hold path block checkout completion. |
 
+## Prometheus API server filter
+
+The AKS API server ServiceMonitor retains the complete pinned chart default
+noisy-bucket filter and appends only:
+
+```text
+apiserver_(request_duration_seconds|request_body_size_bytes|request_sizes|response_sizes|response_size_bytes)_(bucket|sum|count)
+```
+
+Helm replaces lists, so the default rule must be copied and verified on upgrades.
+The rendered chart and custom dashboard/rule expressions have no dependencies on
+the removed families. The filter does not drop `apiserver_request_sli_duration`,
+`apiserver_request_total`, certificate-expiration, node/container or application
+metrics; the existing chart filter still drops its selected SLI bucket boundaries.
+Retention stays 2d on AKS, 7d in shared/Kind values; scrape intervals are unchanged.
+
+Before release, inspect additional **live** dashboards, PrometheusRule objects,
+recording rules and downstream consumers for dependencies on the dropped families.
+Render-based checks cover Git and the pinned chart only. Verify API availability,
+latency, certificate, infrastructure and application alerts after rollout. Rollback
+by restoring the previous metricRelabelings; filtered samples during the release
+window cannot be recovered retroactively.
 These are deployable platform rules, not end-to-end proof. Alert firing and
 clearing must be demonstrated after the application scrape authorization is
 deployed and the ServiceMonitors successfully scrape `/actuator/prometheus`.

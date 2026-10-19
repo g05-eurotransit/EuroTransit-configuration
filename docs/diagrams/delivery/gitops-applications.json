@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "diagram_type": "tree",
+  "meta": {
+    "title": "AKS Applications: charts and installed resources",
+    "locale": "en",
+    "output": "docs/diagrams/delivery/gitops-applications.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/g05-eurotransit/EuroTransit-configuration",
+      "revision": "70971f2b01e06d1c3a8d6554d41ede2ee9faf6e2",
+      "link_mode": "web"
+    }
+  },
+  "layout": {
+    "direction": "right",
+    "nodeW": 230,
+    "nodeMaxW": 390,
+    "gapX": 48,
+    "gapY": 26
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "label": "eurotransit-platform-root",
+      "sublabel": "Kustomize: platform/argocd/environments/aks",
+      "sources": [
+        {
+          "path": "apps/argocd-apps/base/eurotransit-platform-root.yaml",
+          "line": 1,
+          "end_line": 23
+        },
+        {
+          "path": "platform/argocd/environments/aks/kustomization.yaml",
+          "line": 1,
+          "end_line": 16
+        }
+      ]
+    },
+    {
+      "id": "secrets",
+      "parent": "root",
+      "label": "eurotransit-secrets",
+      "sublabel": "Argo CD Application \u00b7 wave 5",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 93,
+          "end_line": 114
+        }
+      ]
+    },
+    {
+      "id": "secrets-source",
+      "parent": "secrets",
+      "label": "Kustomize: AKS secrets",
+      "sublabel": "SealedSecret resources \u2192 application credentials",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 93,
+          "end_line": 114
+        },
+        {
+          "path": "platform/environments/aks/secrets/kustomization.yaml",
+          "line": 1,
+          "end_line": 18
+        }
+      ]
+    },
+    {
+      "id": "traefik",
+      "parent": "root",
+      "label": "traefik",
+      "sublabel": "Argo CD Application \u00b7 wave 10",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 1,
+          "end_line": 29
+        }
+      ]
+    },
+    {
+      "id": "traefik-source",
+      "parent": "traefik",
+      "label": "Helm chart: traefik",
+      "sublabel": "Ingress controller and Kubernetes integration",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 1,
+          "end_line": 29
+        }
+      ]
+    },
+    {
+      "id": "certmanager",
+      "parent": "root",
+      "label": "cert-manager",
+      "sublabel": "Argo CD Application \u00b7 wave 10",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 31,
+          "end_line": 60
+        }
+      ]
+    },
+    {
+      "id": "certmanager-source",
+      "parent": "certmanager",
+      "label": "Helm chart: cert-manager",
+      "sublabel": "Certificate controller and CRDs",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 31,
+          "end_line": 60
+        }
+      ]
+    },
+    {
+      "id": "strimzi",
+      "parent": "root",
+      "label": "strimzi",
+      "sublabel": "Argo CD Application \u00b7 wave 10",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 62,
+          "end_line": 91
+        }
+      ]
+    },
+    {
+      "id": "strimzi-source",
+      "parent": "strimzi",
+      "label": "Helm chart: strimzi-kafka-operator",
+      "sublabel": "Kafka operator; Kafka instances are in platform-runtime",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 62,
+          "end_line": 91
+        }
+      ]
+    },
+    {
+      "id": "cnpg",
+      "parent": "root",
+      "label": "cloudnativepg",
+      "sublabel": "Argo CD Application \u00b7 wave 10",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 116,
+          "end_line": 145
+        }
+      ]
+    },
+    {
+      "id": "cnpg-source",
+      "parent": "cnpg",
+      "label": "Helm chart: cloudnative-pg",
+      "sublabel": "PostgreSQL operator; database instance is in platform-runtime",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 116,
+          "end_line": 145
+        }
+      ]
+    },
+    {
+      "id": "monitoring",
+      "parent": "root",
+      "label": "kube-prometheus-stack",
+      "sublabel": "Argo CD Application \u00b7 wave 10",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 147,
+          "end_line": 176
+        }
+      ]
+    },
+    {
+      "id": "monitoring-source",
+      "parent": "monitoring",
+      "label": "Helm chart: kube-prometheus-stack",
+      "sublabel": "Prometheus stack, Grafana and Alertmanager",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 147,
+          "end_line": 176
+        }
+      ]
+    },
+    {
+      "id": "monitoringconfig",
+      "parent": "root",
+      "label": "eurotransit-monitoring-config",
+      "sublabel": "Argo CD Application \u00b7 wave 15",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 178,
+          "end_line": 199
+        }
+      ]
+    },
+    {
+      "id": "monitoringconfig-source",
+      "parent": "monitoringconfig",
+      "label": "Kustomize: platform/kube-prometheus-stack",
+      "sublabel": "PrometheusRule and dashboard ConfigMaps",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 178,
+          "end_line": 199
+        },
+        {
+          "path": "platform/kube-prometheus-stack/kustomization.yaml",
+          "line": 1,
+          "end_line": 7
+        }
+      ]
+    },
+    {
+      "id": "keycloakoperator",
+      "parent": "root",
+      "label": "keycloak-operator",
+      "sublabel": "Argo CD Application \u00b7 wave 15",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 201,
+          "end_line": 226
+        }
+      ]
+    },
+    {
+      "id": "keycloakoperator-source",
+      "parent": "keycloakoperator",
+      "label": "Kustomize: Keycloak Operator manifests",
+      "sublabel": "Vendored upstream operator + AKS memory patch; no Helm chart",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 201,
+          "end_line": 226
+        },
+        {
+          "path": "platform/argocd/environments/aks/kustomization.yaml",
+          "line": 6,
+          "end_line": 16
+        },
+        {
+          "path": "platform/keycloak-operator/environments/aks/kustomization.yaml",
+          "line": 1,
+          "end_line": 6
+        }
+      ]
+    },
+    {
+      "id": "runtime",
+      "parent": "root",
+      "label": "eurotransit-platform-runtime",
+      "sublabel": "Argo CD Application \u00b7 wave 20",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 252,
+          "end_line": 275
+        }
+      ]
+    },
+    {
+      "id": "runtime-source",
+      "parent": "runtime",
+      "label": "Kustomize: platform/environments/aks",
+      "sublabel": "PostgreSQL Cluster, Kafka, KafkaNodePool, KafkaTopics and TLS",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 252,
+          "end_line": 275
+        },
+        {
+          "path": "platform/environments/aks/kustomization.yaml",
+          "line": 1,
+          "end_line": 19
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "parent": "root",
+      "label": "eurotransit-keycloak",
+      "sublabel": "Argo CD Application \u00b7 wave 25",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 228,
+          "end_line": 250
+        }
+      ]
+    },
+    {
+      "id": "identity-source",
+      "parent": "identity",
+      "label": "Kustomize: platform/keycloak",
+      "sublabel": "Keycloak instance, realm import, bootstrap jobs and ingress",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 228,
+          "end_line": 250
+        },
+        {
+          "path": "platform/keycloak/kustomization.yaml",
+          "line": 1,
+          "end_line": 10
+        }
+      ]
+    },
+    {
+      "id": "rollouts",
+      "parent": "root",
+      "label": "argo-rollouts",
+      "sublabel": "Argo CD Application \u00b7 wave 29",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 277,
+          "end_line": 317
+        }
+      ]
+    },
+    {
+      "id": "rollouts-source",
+      "parent": "rollouts",
+      "label": "Helm chart: argo-rollouts",
+      "sublabel": "Rollouts controller and CRDs",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 277,
+          "end_line": 317
+        }
+      ]
+    },
+    {
+      "id": "marketplace",
+      "parent": "root",
+      "label": "eurotransit-marketplace",
+      "sublabel": "Argo CD Application \u00b7 wave 30",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 319,
+          "end_line": 357
+        }
+      ]
+    },
+    {
+      "id": "marketplace-source",
+      "parent": "marketplace",
+      "label": "Helm chart: eurotransit",
+      "sublabel": "Five backend services, frontend, Flyway and delivery resources",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 319,
+          "end_line": 357
+        },
+        {
+          "path": "charts/eurotransit/Chart.yaml",
+          "line": 1,
+          "end_line": 6
+        }
+      ]
+    },
+    {
+      "id": "connectors",
+      "parent": "root",
+      "label": "eurotransit-connectors",
+      "sublabel": "Argo CD Application \u00b7 wave 40",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 359,
+          "end_line": 381
+        }
+      ]
+    },
+    {
+      "id": "connectors-source",
+      "parent": "connectors",
+      "label": "Kustomize: connectors/environments/aks",
+      "sublabel": "One shared KafkaConnect worker + three KafkaConnector resources",
+      "sources": [
+        {
+          "path": "platform/argocd/base/platform-applications.yaml",
+          "line": 359,
+          "end_line": 381
+        },
+        {
+          "path": "platform/connectors/environments/aks/kustomization.yaml",
+          "line": 1,
+          "end_line": 24
+        }
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Read this tree",
+      "items": [
+        "All 13 Applications are siblings owned by eurotransit-platform-root. Read rows in sync-wave order.",
+        "Each leaf names the actual Helm chart or Kustomize source and the resources it installs. Operators and the instances they manage are separate Applications.",
+        "Helm platform Applications use their declared shared and AKS value files. Marketplace uses values.yaml + values-production.yaml."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Configured AKS scope",
+      "items": [
+        "Keycloak Operator is installed from vendored upstream YAML, not the experimental upstream Helm chart.",
+        "Kustomize composes bases and AKS patches. These are rendering sources used by Argo CD, not additional cluster services.",
+        "Bootstrap installs Argo CD and repository credentials before applying the root. The tree describes declared resources, not a live-cluster inventory."
+      ]
+    }
+  ]
+}

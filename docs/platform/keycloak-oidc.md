@@ -44,6 +44,8 @@ they must be SealedSecrets; CloudNativePG also needs
 the `eurotransit` copy is consumed by Orders. Kind remains a development demo
 and creates all of these values in-cluster.
 
+The load runner requires `eurotransit-load-test-credentials` with matching `client-secret` values in `keycloak` and `eurotransit`. The ordinary `load-test-client-secret-bootstrap` Job reconciles the confidential service-account client and customer role without interactive/password grants. Follow [identity recovery](../operations/identity-recovery.md) when a changed Pod template needs a new Job instance.
+
 ## Demo accounts
 
 The following accounts are provisioned by `keycloak-demo-users-bootstrap` for

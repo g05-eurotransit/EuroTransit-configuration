@@ -8,3 +8,8 @@
 - Agents expect `EuroTransit-application` and `EuroTransit-configuration` to be checked out in the same parent folder. If either repository is missing, ask the user to clone it into that same folder before making cross-repository documentation changes.
 - When updating documentation, always evaluate both repositories and keep them aligned: application docs own behavior/contracts/team planning, while configuration docs own Kubernetes, GitOps, ingress, secrets, observability, and operational proof.
 - Do not duplicate application service contracts here unless needed for deployment or operational validation; prefer linking to the application repository docs.
+
+- Use the [documentation guide](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/templates/README.md) for structure, templates, ownership and GitHub diagram previews.
+
+- Start documentation reviews from freshly fetched remote `main` in both repositories.
+- Reusable workflows: [cross-repository documentation](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/.agents/skills/eurotransit-cross-repo-docs/SKILL.md) and [Kotlin coroutine pipelines](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/.agents/skills/kotlin-coroutines-webflux-pipeline/SKILL.md). Read a workflow only when its task applies.

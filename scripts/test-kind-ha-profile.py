@@ -83,27 +83,39 @@ class KindHAProfileTest(unittest.TestCase):
             docs = render('kubectl', 'kustomize', 'platform/environments/' + profile)
             self.assertNotIn('kafkaExporter', resource(docs, 'Kafka', 'eurotransit-kafka')['spec'])
 
-    def test_idle_heartbeat_is_ha_only_and_bypasses_outbox_routing(self):
-        topics = {d['spec']['topicName']: d['spec'] for d in self.connect
-                  if d and d['kind'] == 'KafkaTopic'}
-        self.assertEqual(set(topics), {topic for service in ('orders', 'inventory', 'payments')
-                                      for topic in ('__debezium-heartbeat.' + service, service + '.message')})
-        self.assertTrue(all(t['replicas'] == 3 and t['config']['min.insync.replicas'] == 2
-                            for t in topics.values()))
-        for connector in (d for d in self.connect if d and d['kind'] == 'KafkaConnector'):
-            config = connector['spec']['config']
-            self.assertEqual(config['heartbeat.interval.ms'], 10000)
-            self.assertIn('pg_logical_emit_message(true,', config['heartbeat.action.query'])
-            self.assertEqual(config['message.prefix.include.list'], 'eurotransit_kind_heartbeat')
-            self.assertEqual(config['transforms.outbox.predicate'], 'outboxTable')
-            pattern = config['predicates.outboxTable.pattern']
-            self.assertIsNotNone(re.fullmatch(pattern, config['topic.prefix'] + '.public.outbox_events'))
-            self.assertIsNone(re.fullmatch(pattern, '__debezium-heartbeat.' + config['topic.prefix']))
-            self.assertIsNone(re.fullmatch(pattern, config['topic.prefix'] + '.message'))
-        for profile in ('kind', 'aks'):
+    def test_idle_heartbeats_advance_slots_and_bypass_outbox_routing(self):
+        for profile, replicas, min_isr, prefix in (
+            ('kind-ha', 3, 2, 'eurotransit_kind_heartbeat'),
+            ('aks', 1, 1, 'eurotransit_aks_heartbeat'),
+        ):
             docs = render('kubectl', 'kustomize', 'platform/connectors/environments/' + profile)
+            topics = {d['spec']['topicName']: d['spec'] for d in docs
+                      if d and d['kind'] == 'KafkaTopic'}
+            self.assertEqual(set(topics), {topic for service in ('orders', 'inventory', 'payments')
+                                          for topic in ('__debezium-heartbeat.' + service, service + '.message')})
+            self.assertTrue(all(t['replicas'] == replicas and t['config']['min.insync.replicas'] == min_isr
+                                for t in topics.values()))
             for connector in (d for d in docs if d and d['kind'] == 'KafkaConnector'):
-                self.assertNotIn('heartbeat.action.query', connector['spec']['config'])
+                with self.subTest(profile=profile, connector=connector['metadata']['name']):
+                    config = connector['spec']['config']
+                    self.assertEqual(config['heartbeat.interval.ms'], 10000)
+                    self.assertIn('pg_logical_emit_message(true,', config['heartbeat.action.query'])
+                    self.assertIn(prefix, config['heartbeat.action.query'])
+                    self.assertEqual(config['message.prefix.include.list'], prefix)
+                    self.assertEqual(config['transforms.outbox.predicate'], 'outboxTable')
+                    pattern = config['predicates.outboxTable.pattern']
+                    self.assertIsNotNone(re.fullmatch(pattern, config['topic.prefix'] + '.public.outbox_events'))
+                    self.assertIsNone(re.fullmatch(pattern, '__debezium-heartbeat.' + config['topic.prefix']))
+                    self.assertIsNone(re.fullmatch(pattern, config['topic.prefix'] + '.message'))
+        docs = render('kubectl', 'kustomize', 'platform/connectors/environments/kind')
+        for connector in (d for d in docs if d and d['kind'] == 'KafkaConnector'):
+            self.assertNotIn('heartbeat.action.query', connector['spec']['config'])
+
+    def test_aks_bounds_slot_retention_below_volume_capacity(self):
+        docs = render('kubectl', 'kustomize', 'platform/environments/aks')
+        spec = resource(docs, 'Cluster', 'eurotransit-postgres')['spec']
+        self.assertEqual(spec['storage']['size'], '12Gi')
+        self.assertEqual(spec['postgresql']['parameters']['max_slot_wal_keep_size'], '1GB')
 
     def test_critical_backends_have_separate_replicas_and_budgets(self):
         for name in ('catalog', 'orders', 'inventory', 'payments'):

@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "EuroTransit Kind deployment",
+    "subtitle": "Declared environment topology; live health is unverified",
+    "output": "docs/diagrams/deployment/kind.html",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "repository": {
+      "url": "https://github.com/g05-eurotransit/EuroTransit-configuration",
+      "revision": "ea5a1c6d92f964b2c5072688e53609eaf3af3aa7",
+      "link_mode": "web"
+    }
+  },
+  "components": [
+    {
+      "id": "client",
+      "type": "external",
+      "label": "Customer browser",
+      "sublabel": "Public HTTPS",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "charts/eurotransit/templates/ingressroutes.yaml",
+          "line": 1,
+          "end_line": 111
+        }
+      ]
+    },
+    {
+      "id": "ingress",
+      "type": "cloud",
+      "label": "Traefik",
+      "sublabel": "Host ports 80 / 443",
+      "pos": [
+        330,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/traefik/values-kind.yaml",
+          "line": 1,
+          "end_line": 14
+        },
+        {
+          "path": "charts/eurotransit/templates/ingressroutes.yaml",
+          "line": 11,
+          "end_line": 111
+        },
+        {
+          "path": "platform/environments/keycloak-kind/keycloak-ingressroute-patch.yaml",
+          "line": 1,
+          "end_line": 15
+        }
+      ]
+    },
+    {
+      "id": "workloads",
+      "type": "backend",
+      "label": "Marketplace pods",
+      "sublabel": "Frontend + five services",
+      "pos": [
+        620,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "charts/eurotransit/values-kind.yaml",
+          "line": 22,
+          "end_line": 47
+        },
+        {
+          "path": "charts/eurotransit/templates/orders-deployment.yaml",
+          "line": 59,
+          "end_line": 112
+        }
+      ],
+      "tag": "1 replica each"
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "CloudNativePG",
+      "sublabel": "One PostgreSQL instance",
+      "pos": [
+        910,
+        240
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/environments/kind/postgres-patch.yaml",
+          "line": 1,
+          "end_line": 6
+        },
+        {
+          "path": "platform/cloudnativepg/postgres-cluster.yaml",
+          "line": 21,
+          "end_line": 58
+        }
+      ]
+    },
+    {
+      "id": "identity",
+      "type": "security",
+      "label": "Keycloak",
+      "sublabel": "OIDC + service tokens",
+      "pos": [
+        910,
+        40
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/keycloak/keycloak.yaml",
+          "line": 9,
+          "end_line": 33
+        },
+        {
+          "path": "platform/environments/keycloak-kind/keycloak-patch.yaml",
+          "line": 1,
+          "end_line": 8
+        }
+      ]
+    },
+    {
+      "id": "kafka",
+      "type": "messagebus",
+      "label": "Strimzi Kafka",
+      "sublabel": "1 broker; ephemeral",
+      "pos": [
+        620,
+        510
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/environments/kind/kafka-nodepool-patch.yaml",
+          "line": 1,
+          "end_line": 5
+        },
+        {
+          "path": "platform/environments/kind/kafka-patch.yaml",
+          "line": 1,
+          "end_line": 11
+        },
+        {
+          "path": "platform/strimzi/kafka-cluster.yaml",
+          "line": 1,
+          "end_line": 14
+        }
+      ]
+    },
+    {
+      "id": "connect",
+      "type": "backend",
+      "label": "Debezium Connect",
+      "sublabel": "Three outbox connectors",
+      "pos": [
+        910,
+        510
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/connectors/base/kustomization.yaml",
+          "line": 1,
+          "end_line": 6
+        },
+        {
+          "path": "platform/connectors/base/orders-outbox-connect.yaml",
+          "line": 12,
+          "end_line": 33
+        },
+        {
+          "path": "platform/connectors/base/orders-outbox-connect.yaml",
+          "line": 69,
+          "end_line": 96
+        }
+      ]
+    },
+    {
+      "id": "argocd",
+      "type": "backend",
+      "label": "Argo CD",
+      "sublabel": "Optional GitOps path",
+      "pos": [
+        40,
+        510
+      ],
+      "size": [
+        160,
+        68
+      ],
+      "sources": [
+        {
+          "path": "platform/argocd/environments/kind/kustomization.yaml",
+          "line": 1,
+          "end_line": 92
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-to-ingress",
+      "from": "client",
+      "to": "ingress",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ingress-to-workloads",
+      "from": "ingress",
+      "to": "workloads",
+      "label": "Public routes",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ingress-to-identity",
+      "from": "ingress",
+      "to": "identity",
+      "label": "OIDC routes",
+      "variant": "security"
+    },
+    {
+      "id": "workloads-to-postgres",
+      "from": "workloads",
+      "to": "postgres",
+      "label": "Owned DBs",
+      "variant": "default"
+    },
+    {
+      "id": "identity-to-postgres",
+      "from": "identity",
+      "to": "postgres",
+      "label": "keycloak_db",
+      "variant": "default"
+    },
+    {
+      "id": "postgres-to-connect",
+      "from": "postgres",
+      "to": "connect",
+      "label": "Outbox WAL",
+      "variant": "dashed"
+    },
+    {
+      "id": "connect-to-kafka",
+      "from": "connect",
+      "to": "kafka",
+      "label": "Relay events",
+      "variant": "dashed"
+    },
+    {
+      "id": "workloads-to-kafka",
+      "from": "workloads",
+      "to": "kafka",
+      "label": "Kafka clients",
+      "variant": "dashed"
+    },
+    {
+      "id": "argocd-to-workloads",
+      "from": "argocd",
+      "to": "workloads",
+      "label": "Reconcile",
+      "variant": "default"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Placement",
+      "items": [
+        "Application, PostgreSQL, Kafka and Connect: eurotransit.",
+        "Identity: keycloak; ingress: traefik; Argo CD: argocd.",
+        "Single Kind node; monitoring is optional in direct setup."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Availability constraints",
+      "items": [
+        "Single replicas and a single database instance.",
+        "Kafka has one broker and ephemeral storage."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Configuration only",
+      "items": [
+        "Direct Helm setup also exists outside Argo CD.",
+        "Kind retains global PDBs; app scrapes are disabled."
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "eurotransit namespace",
+      "wraps": [
+        "workloads",
+        "postgres",
+        "kafka",
+        "connect"
+      ],
+      "pad": 18
+    }
+  ]
+}

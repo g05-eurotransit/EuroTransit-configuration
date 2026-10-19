@@ -2,9 +2,16 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../base
+  - heartbeat-topics.yaml
 configurations:
   - kustomizeconfig.yaml
 patches:
+  - path: heartbeat-patch.yaml
+    target:
+      group: kafka.strimzi.io
+      version: v1beta2
+      kind: KafkaConnector
+      labelSelector: app.kubernetes.io/part-of=eurotransit-marketplace
   - path: shared-worker-patch.yaml
   - path: connector-worker-patch.yaml
     target:

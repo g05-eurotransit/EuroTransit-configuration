@@ -1,8 +1,8 @@
 # Agent verification log
 
-The historical application log is maintained in
+The application mistake log is maintained in
 [EuroTransit-application/docs/agent-log.md](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/agent-log.md).
-The following configuration/test cases are observed on 2026-10-12. Detection
+The following configuration/test cases record observed mistakes. Detection
 and corrections were performed during agent self-review; the team must review
 these entries and record its own verification before claiming team ownership.
 

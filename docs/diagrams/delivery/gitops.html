@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EuroTransit GitOps</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { margin: 0; background: light-dark(#f4f5f7, #020617); }
+    nav { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; padding: .6rem 1rem; border-bottom: 1px solid light-dark(#cbd5e1, #334155); }
+    nav strong { margin-right: .5rem; }
+    nav a { padding: .4rem .7rem; border-radius: .4rem; color: light-dark(#1559a6, #9acbff); text-decoration: none; }
+    nav a[aria-current="page"] { background: light-dark(#dbeafe, #1e3a5f); font-weight: 600; }
+    a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+    #standalone { margin-left: auto; font-size: .85rem; }
+    iframe { display: block; width: 100%; height: calc(100dvh - 4rem); min-height: 32rem; border: 0; }
+    noscript p { padding: 0 1rem; }
+  </style>
+</head>
+<body>
+  <nav aria-label="GitOps views">
+    <strong>EuroTransit GitOps</strong>
+    <a href="#delivery" data-view="delivery" aria-current="page">Delivery flow</a>
+    <a href="#applications" data-view="applications">Applications and charts</a>
+    <a id="standalone" href="gitops-flow.html" target="_blank" rel="noopener">Open full viewer ↗</a>
+  </nav>
+  <iframe id="viewer" src="gitops-flow.html" title="GitOps delivery flow" allow="fullscreen; clipboard-write" allowfullscreen></iframe>
+  <noscript><p><a href="gitops-flow.html">Delivery flow</a> · <a href="gitops-applications.html">Applications and charts</a></p></noscript>
+  <script>
+    (() => {
+      const views = {
+        delivery: { file: 'gitops-flow.html', title: 'GitOps delivery flow' },
+        applications: { file: 'gitops-applications.html', title: 'AKS Applications, charts and installed resources' }
+      };
+      const frame = document.getElementById('viewer');
+      const standalone = document.getElementById('standalone');
+      function select() {
+        const key = location.hash === '#applications' ? 'applications' : 'delivery';
+        const view = views[key];
+        if (frame.getAttribute('src') !== view.file) frame.src = view.file;
+        frame.title = view.title;
+        standalone.href = view.file;
+        document.querySelectorAll('[data-view]').forEach(link => {
+          if (link.dataset.view === key) link.setAttribute('aria-current', 'page');
+          else link.removeAttribute('aria-current');
+        });
+      }
+      window.addEventListener('hashchange', select);
+      select();
+    })();
+  </script>
+</body>
+</html>
