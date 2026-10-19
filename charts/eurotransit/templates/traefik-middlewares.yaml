@@ -9,7 +9,12 @@ spec:
   headers:
     browserXssFilter: true
     contentTypeNosniff: true
-    frameDeny: true
+    # Not frameDeny: that sends X-Frame-Options: DENY, which also refuses the page to itself, and
+    # the SPA's silent sign-in loads its own /silent-renew.html in a hidden same-origin iframe.
+    # SAMEORIGIN for older browsers, frame-ancestors for the ones that supersede it with CSP.
+    # A third-party site still cannot frame us.
+    customFrameOptionsValue: SAMEORIGIN
+    contentSecurityPolicy: "frame-ancestors 'self'"
     referrerPolicy: no-referrer
     stsSeconds: 31536000
     stsIncludeSubdomains: true
