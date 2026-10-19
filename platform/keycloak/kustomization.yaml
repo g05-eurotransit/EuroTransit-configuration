@@ -8,3 +8,17 @@ resources:
   - demo-users-bootstrap-job.yaml
   - frontend-identity-claims-reconcile-job.yaml
   - ingressroute.yaml
+  - login-theme-reconcile-job.yaml
+
+configMapGenerator:
+  - name: keycloak-theme-eurotransit
+    namespace: keycloak
+    files:
+      - themes/eurotransit/login/theme.properties
+      - themes/eurotransit/login/eurotransit.css
+
+# The Keycloak CR is a custom resource, so kustomize cannot rewrite a hashed ConfigMap name inside
+# its podTemplate. A stable name keeps that reference valid; the pod restart a theme change needs
+# is manual either way, because Keycloak caches themes at startup.
+generatorOptions:
+  disableNameSuffixHash: true

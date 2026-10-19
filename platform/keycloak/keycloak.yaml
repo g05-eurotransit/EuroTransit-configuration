@@ -33,6 +33,27 @@ spec:
     enabled: false
   proxy:
     headers: xforwarded
+  # The login theme travels as a ConfigMap rather than a rebuilt image: it is a stylesheet and a
+  # properties file, and this keeps Keycloak on the upstream tag the operator expects. `items`
+  # carries the CSS into the `resources/css/` subfolder a theme requires — ConfigMap keys cannot
+  # hold a slash, mount paths can. Keycloak caches themes, so a change here needs a pod restart.
+  unsupported:
+    podTemplate:
+      spec:
+        containers:
+          - volumeMounts:
+              - name: eurotransit-login-theme
+                mountPath: /opt/keycloak/themes/eurotransit/login
+                readOnly: true
+        volumes:
+          - name: eurotransit-login-theme
+            configMap:
+              name: keycloak-theme-eurotransit
+              items:
+                - key: theme.properties
+                  path: theme.properties
+                - key: eurotransit.css
+                  path: resources/css/eurotransit.css
   resources:
     requests:
       cpu: 150m
