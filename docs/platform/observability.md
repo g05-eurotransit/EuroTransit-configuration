@@ -8,16 +8,7 @@ The application [SLO specification](https://github.com/g05-eurotransit/EuroTrans
 
 - kube-prometheus-stack values live in `platform/kube-prometheus-stack/values.yaml`.
 - Checkout symptom alerts live in `platform/kube-prometheus-stack/prometheus-rules.yaml`.
-- Grafana dashboards live in `platform/kube-prometheus-stack/dashboards/` as ConfigMaps
-  labelled `grafana_dashboard: "1"`, picked up by the Grafana sidecar
-  (`sidecar.dashboards.searchNamespace: ALL`): RED per service, checkout SLO for the
-  money path, USE for nodes and pods, Payment Safety (circuit breaker and payment transitions),
-  Inventory Correctness (hold lifecycle and invariant violation guards), and Kafka Pipeline
-  (consumer group lag, in-flight pipeline age, DLT, and reconciliation incidents).
-  Their queries reuse the alert label scheme (`namespace="eurotransit"`, `app=...`) and mirror
-  the money path alert thresholds (`CheckoutFastBurn`, `CheckoutLatencyHigh`, `KafkaPipelineStalled`,
-  `InvariantViolation`, `InventorySeatConflict`, etc.), so a dashboard and the alert that pages on
-  it never disagree.
+- Custom dashboards are ConfigMaps under `platform/kube-prometheus-stack/dashboards/`: RED per service, checkout SLO, infrastructure USE, Payment Safety (circuit breaker and payment transitions), Inventory Correctness (hold lifecycle and invariant violation guards) and Kafka Pipeline (consumer lag, in-flight pipeline age, DLT and reconciliation incidents). Shared values use sidecar discovery; the AKS overlay mounts the pinned dashboard set as directories. The effective environment values decide delivery.
 - **Delivery path:** the `kube-prometheus-stack` Application installs the Helm chart only
   and never renders `platform/kube-prometheus-stack/kustomization.yaml`. The rules and
   dashboards are delivered by a separate `eurotransit-monitoring-config` Application
