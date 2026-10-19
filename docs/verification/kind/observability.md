@@ -36,7 +36,7 @@ The canonical targets remain in application
 | Checkout dashboard success panel / `CheckoutFastBurn` | Uses Orders HTTP 5xx ratio, including reads; HTTP 202 can succeed while the later checkout fails or stalls | Map to the team's valid-attempt/confirmed-checkout definition, with explicit pending and ingress-refusal semantics |
 | Checkout dashboard p95 / `CheckoutLatencyHigh` | Uses HTTP request duration across Orders APIs, including polling; omits queueing and asynchronous completion | Use the actual end-to-end checkout histogram with the canonical outcome/population definition |
 | Acceptance p99 panel | Selects POST duration rather than end-to-end duration | Keep as the separately named acceptance SLI; verify gateway coverage too |
-| Reconciliation/age alerts | Durable gauges are present | Preserve the previous alert-firing evidence; check deployed thresholds against the owner's proposed recovery objectives |
+| Reconciliation/age alerts | Durable gauges are present | Preserve the previous alert-firing evidence; check deployed thresholds against the team's adopted recovery objectives |
 
 The distinction is visible in real samples: the 21:23 observation measured
 successful end-to-end p95 around 1.8 seconds versus Orders HTTP p95 around

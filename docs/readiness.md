@@ -17,7 +17,7 @@ This is the configuration acceptance record. The [application DoD](https://githu
 | Tracing | Instrumentation and configured OTLP address exist | Deploy collector/backend, enable export and inspect a real gateway-to-Kafka trace |
 | Gateway / security | JWT checks in services; Inventory and Payments lack public routes; sealed-secret workflow documented | Forward-auth stays disabled, an accepted gap for delivery recorded in the [application DoD](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/capstone-dod.md#remaining-acceptance-work). Review least-privilege runtime/experiment identities and credential history |
 | Capacity | Kind HA uses separated replicas; AKS resource budgets are constrained | Preserve failed-node headroom on any target claiming HA. Standard Kind PDB values mismatch remains documented in deployment |
-| Final delivery | Draft postmortem, agent cases, threat model and demo storyboard exist | Team reviews/authors its judgments, actions and final DoD; attach the recorded demo and presentation material |
+| Final delivery | [Postmortem](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/operations/payments-latency-postmortem.md), agent cases, threat model and demo storyboard exist | Team reviews the postmortem and the final DoD; attach the recorded demo and presentation material |
 
 ## Target deployment checks
 
