@@ -1,0 +1,266 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "EuroTransit testing and evidence",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": "docs/diagrams/testing/testing-tooling.html",
+    "repository": {
+      "url": "git@github.com:g05-eurotransit/EuroTransit-configuration.git",
+      "revision": "74fa12eef7b75a29f07c6d3e3190dd5e1c0ab2df",
+      "link_mode": "local-only"
+    },
+    "legend": {
+      "entries": {
+        "backend": {
+          "label": "Test tooling"
+        },
+        "security": {
+          "label": "Admission / stop"
+        },
+        "database": {
+          "label": "Evidence collection"
+        },
+        "external": {
+          "label": "Provider audit"
+        }
+      }
+    }
+  },
+  "lanes": [
+    {
+      "id": "run",
+      "label": "Bounded checkout verification"
+    },
+    {
+      "id": "exceptions",
+      "label": "Conditional paths",
+      "variant": "exception"
+    }
+  ],
+  "mainPath": [
+    "prepare",
+    "preflight",
+    "traffic",
+    "collect",
+    "audit",
+    "verify"
+  ],
+  "nodes": [
+    {
+      "id": "prepare",
+      "lane": "run",
+      "col": 0,
+      "type": "backend",
+      "label": "Prepare run",
+      "sublabel": "context + unused fixtures",
+      "sources": [
+        {
+          "path": "scripts/reliability-runner.py",
+          "line": 218,
+          "end_line": 250
+        }
+      ]
+    },
+    {
+      "id": "preflight",
+      "lane": "run",
+      "col": 1,
+      "type": "security",
+      "label": "Preflight",
+      "sublabel": "capacity + readiness",
+      "sources": [
+        {
+          "path": "scripts/reliability-runner.py",
+          "line": 166,
+          "end_line": 193
+        },
+        {
+          "path": "scripts/reliability-runner.py",
+          "line": 232,
+          "end_line": 245
+        }
+      ]
+    },
+    {
+      "id": "traffic",
+      "lane": "run",
+      "col": 2,
+      "type": "backend",
+      "label": "Run k6",
+      "sublabel": "bounded HTTP + polling",
+      "sources": [
+        {
+          "path": "load-tests/run.py",
+          "line": 12,
+          "end_line": 55
+        }
+      ]
+    },
+    {
+      "id": "collect",
+      "lane": "run",
+      "col": 3,
+      "type": "database",
+      "label": "Collect evidence",
+      "sublabel": "ledger + DB + metrics",
+      "sources": [
+        {
+          "path": "scripts/reliability-runner.py",
+          "line": 340,
+          "end_line": 385
+        },
+        {
+          "path": "scripts/reliability-runner.py",
+          "line": 403,
+          "end_line": 407
+        }
+      ]
+    },
+    {
+      "id": "audit",
+      "lane": "run",
+      "col": 4,
+      "type": "external",
+      "label": "Audit provider",
+      "sublabel": "Stripe sandbox GET",
+      "sources": [
+        {
+          "path": "scripts/reliability/provider-audit.py",
+          "line": 36,
+          "end_line": 43
+        },
+        {
+          "path": "scripts/reliability/provider-audit.py",
+          "line": 146,
+          "end_line": 168
+        },
+        {
+          "path": "scripts/reliability-runner.py",
+          "line": 386,
+          "end_line": 400
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "lane": "run",
+      "col": 5,
+      "type": "backend",
+      "label": "Verify + report",
+      "sublabel": "invariants + scoped verdict",
+      "sources": [
+        {
+          "path": "load-tests/verify.py",
+          "line": 104,
+          "end_line": 118
+        },
+        {
+          "path": "docs/verification/README.md",
+          "line": 34,
+          "end_line": 36
+        }
+      ]
+    },
+    {
+      "id": "blocked",
+      "lane": "exceptions",
+      "col": 1,
+      "type": "security",
+      "label": "Stop run",
+      "sublabel": "record failed prerequisite",
+      "sources": [
+        {
+          "path": "scripts/reliability-runner.py",
+          "line": 232,
+          "end_line": 244
+        }
+      ]
+    },
+    {
+      "id": "fault",
+      "lane": "exceptions",
+      "col": 2,
+      "type": "backend",
+      "label": "Inject + restore",
+      "sublabel": "explicit fault runbook",
+      "sources": [
+        {
+          "path": "scripts/reliability/fault.py",
+          "line": 35,
+          "end_line": 61
+        },
+        {
+          "path": "docs/operations/load-tests.md",
+          "line": 209,
+          "end_line": 224
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "prepare",
+      "to": "preflight"
+    },
+    {
+      "from": "preflight",
+      "to": "traffic",
+      "label": "admitted",
+      "variant": "emphasis"
+    },
+    {
+      "from": "preflight",
+      "to": "blocked",
+      "label": "blocked",
+      "role": "error",
+      "variant": "security"
+    },
+    {
+      "from": "traffic",
+      "to": "collect",
+      "label": "baseline",
+      "variant": "emphasis"
+    },
+    {
+      "from": "traffic",
+      "to": "fault",
+      "label": "optional fault",
+      "role": "branch"
+    },
+    {
+      "from": "fault",
+      "to": "collect",
+      "label": "after recovery"
+    },
+    {
+      "from": "collect",
+      "to": "audit",
+      "label": "run evidence"
+    },
+    {
+      "from": "audit",
+      "to": "verify",
+      "label": "recollect + audit"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Execution scope",
+      "items": [
+        "Workstation container or admitted cluster Job",
+        "Faults require a fresh matching preflight and explicit execution"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Evidence limits",
+      "items": [
+        "Missing provider audit leaves financial correctness NOT_VERIFIED",
+        "Keep client failures and later recovery verdicts separate"
+      ]
+    }
+  ]
+}

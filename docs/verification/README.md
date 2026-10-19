@@ -2,6 +2,8 @@
 
 The reports below are the current evidence for each environment and scenario. Kind demonstrates failover and progressive-delivery controller behavior; constrained AKS records separate fault and financial audits. Results apply to the recorded revisions and fixtures. They do not establish production availability or long-window SLO compliance.
 
+For the workflow, tool responsibilities and links from each experiment to its procedure, start with [testing and tooling](testing-tooling.md).
+
 ## Kind
 
 | Scenario | Result and material limit | Report |

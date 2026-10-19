@@ -17,7 +17,7 @@ Choose an environment, then follow its setup and verification procedure.
 ## Delivery and experiments
 
 - [Progressive delivery](progressive-delivery.md): promote, abort and roll back.
-- [Load tests](load-tests.md): bounded traffic, faults and evidence collection.
+- [Load tests](load-tests.md): bounded traffic, faults and evidence collection. [Testing and tooling](../verification/testing-tooling.md) maps the workflow and tools to recorded experiments.
 - [Load shedding](load-shedding.md)
 - [HA experiment](ha-experiment.md): isolated worker loss and primary failover.
 
