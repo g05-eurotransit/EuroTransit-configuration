@@ -98,8 +98,8 @@ deployed and the ServiceMonitors successfully scrape `/actuator/prometheus`.
 
 The pinned kube-prometheus-stack 75.15.1 chart still generates its datasources and
 28 standard dashboard ConfigMaps. AKS disables both sidecars and mounts those
-ConfigMaps plus the three EuroTransit and nine Strimzi dashboard ConfigMaps as
-complete directories: 40 dashboards in total. The Strimzi 0.46.1 chart continues
+ConfigMaps plus the six EuroTransit and nine Strimzi dashboard ConfigMaps as
+complete directories: 43 dashboards in total. The Strimzi 0.46.1 chart continues
 to own its monitoring-namespace dashboard ConfigMaps; include its render in the
 mount-set validation.
 Datasource names, URLs, default selection, settings and UIDs (`prometheus`,
@@ -119,10 +119,10 @@ the Strimzi Application owns the nine Strimzi dashboards.
 After rollout, compare dashboard JSON/UIDs and datasource definitions with the
 previous render, verify the live dashboard list, and perform a reversible custom
 dashboard update to confirm polling sees the projected update. Preserve existing
-admin Secret references. The 31 dashboards with explicit manifest UIDs retain
+admin Secret references. The 34 dashboards with explicit manifest UIDs retain
 those UIDs; the nine Strimzi dashboards have no explicit UID, so Grafana may
 regenerate their database IDs after a restart of its ephemeral storage, as before.
-Compare all 40 titles and dashboard JSON, and the 31 explicit UIDs. Datasources are provisioned at startup: if their values
+Compare all 43 titles and dashboard JSON, and the 34 explicit UIDs. Datasources are provisioned at startup: if their values
 change later, roll Grafana or use the authorized Grafana provisioning reload API.
 
 Rollback: restore the prior AKS Grafana values, roll Grafana, verify both sidecars
