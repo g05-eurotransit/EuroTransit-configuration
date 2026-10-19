@@ -11,6 +11,15 @@ Each section records a separate experiment with its own verdict, tested configur
 
 ## Orders canary : Kind
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | A candidate that fails a metric gate is aborted and traffic returns to stable; a healthy candidate passes the ordinary gates at 10, 25 and 50% and is promoted. |
+| Steady state | Orders `45357ef` stable at 100% under Argo Rollouts with `workloadRef`; the ordinary eight gate definitions. |
+| Injected fault | A candidate revision with a test-only impossible gate condition, then a fresh revision under the ordinary gates. |
+| Observations | Automatic abort back to stable 100/0; then 48 successful gate measurements, observed canary shares of 9.7, 25.0 and 49.9%, 90/90 orders `CONFIRMED`, and a Healthy promotion ([details](#orders-canary-method-and-observations)). |
+| Conclusion | Held for the controller and traffic. The 50% batch keeps an automatic NOT_VERIFIED provider audit, closed by manual review. |
+| Follow-up change | The controller selects the Traefik v3 API group explicitly, and the provider audit classifies a declined zero-effect attempt. |
+
 <a id="orders-canary-result"></a>
 
 ### Result
@@ -173,6 +182,15 @@ private in the progressive run's evidence directory.
 
 ## Catalog blue/green : Kind
 
+| Report element | Summary |
+| --- | --- |
+| Hypothesis (accepted by the team) | The preview stays separate, the ordinary gate and a manual promotion control the cutover, and the retained previous revision restores traffic promptly. |
+| Steady state | Two Ready active Catalog replicas; the public Service selecting the original revision. |
+| Injected fault | No fault: a gated promotion of a new revision, then a rollback to the retained one. |
+| Observations | Preview 1042/1042 and public 1316/1316 valid reads; the gate succeeded; rollback in 1.575 s, with access logs confirming the traffic movement ([details](#catalog-bluegreen-method-and-observed-timeline)). |
+| Conclusion | Held for local preview, gated promotion and fast rollback. Configuration-only revisions, not a CI delivery of a new binary. |
+| Follow-up change | The observer handles a Pending Pod without a node assignment, which stopped the first attempt. |
+
 <a id="catalog-bluegreen-result"></a>
 
 ### Result
@@ -195,8 +213,7 @@ demonstrate delivery of a different application binary.
 
 The operational question is whether the preview remains separate, the ordinary
 gate and manual promotion control cutover, and the retained prior revision can
-restore traffic promptly. Team owners review the hypothesis and acceptance
-policy; the evidence below records actual controller and request behavior.
+restore traffic promptly. The team accepted this hypothesis; the evidence below records actual controller and request behavior.
 
 | UTC time | Observation |
 | --- | --- |
