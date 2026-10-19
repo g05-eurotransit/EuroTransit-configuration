@@ -400,7 +400,7 @@ Raw identifiers and provider references are excluded from Git.
 
 ### Complementary recovery finding
 
-An earlier latency experiment kept Catalog healthy (129/129 reads) and observed breaker OPEN/HALF_OPEN, but its eight accepted orders required explicit event replay. That result is superseded for the current automatic recovery policy; the [incident review](../incidents/payments-recovery.md) retains the diagnosis. It is not evidence of automatic convergence.
+An earlier latency experiment kept Catalog healthy (129/129 reads) and observed breaker OPEN/HALF_OPEN, but its eight accepted orders required explicit event replay. That result is superseded for the current automatic recovery policy; the [incident timeline](../incidents/payments-recovery.md) and the application [postmortem](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/operations/payments-latency-postmortem.md) retain the diagnosis. It is not evidence of automatic convergence.
 
 <a id="notifications-outage"></a>
 
