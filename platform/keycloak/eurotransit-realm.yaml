@@ -20,6 +20,10 @@ spec:
     realm: eurotransit
     enabled: true
     displayName: EuroTransit
+    # The navbar wordmark: one word, the app's two greens. Keycloak renders this through its HTML
+    # sanitizer, which keeps a span and its class; if it ever stopped, the word still reads.
+    displayNameHtml: 'Euro<span class="et-brand__t">Transit</span>'
+    loginTheme: eurotransit
     registrationAllowed: false
     resetPasswordAllowed: true
     loginWithEmailAllowed: true

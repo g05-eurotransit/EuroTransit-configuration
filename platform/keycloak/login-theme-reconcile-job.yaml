@@ -1,0 +1,74 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: login-theme-reconcile
+  namespace: keycloak
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+  labels:
+    app.kubernetes.io/part-of: eurotransit-marketplace
+    app.kubernetes.io/component: keycloak-bootstrap
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: eurotransit-marketplace
+        app.kubernetes.io/component: keycloak-bootstrap
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        # KeycloakRealmImport creates a realm, it does not reconcile one that already exists, so
+        # `loginTheme` and `displayNameHtml` in eurotransit-realm.yaml only reach a fresh install.
+        # This applies them to the realm that is already there — the same shape as
+        # frontend-identity-claims-reconcile-job.yaml, and idempotent for the same reason.
+        - name: reconcile-login-theme
+          image: quay.io/keycloak/keycloak:26.7.0
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-ceu"]
+          args:
+            - |
+              kcadm=/opt/keycloak/bin/kcadm.sh
+              attempt=1
+              while [ "$attempt" -le 60 ]; do
+                if "$kcadm" config credentials \
+                  --server http://keycloak-service:8080 --realm master \
+                  --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD"; then
+                  if "$kcadm" get realms/eurotransit --fields realm >/dev/null 2>&1; then
+                    break
+                  fi
+                fi
+                attempt=$((attempt + 1))
+                sleep 5
+              done
+              if [ "$attempt" -gt 60 ]; then
+                echo "the eurotransit realm was not ready before the bootstrap deadline" >&2
+                exit 1
+              fi
+
+              "$kcadm" update realms/eurotransit \
+                -s loginTheme=eurotransit \
+                -s 'displayNameHtml=Euro<span class="et-brand__t">Transit</span>'
+
+              echo "login theme set to eurotransit"
+          env:
+            - name: KEYCLOAK_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-credentials
+                  key: username
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-credentials
+                  key: password
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
