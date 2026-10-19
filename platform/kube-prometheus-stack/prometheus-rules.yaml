@@ -54,12 +54,27 @@ spec:
             sum by (kind) (
               orders_reconciliation_open{namespace="eurotransit",app="orders"}
             ) > 0
-          for: 5m
+          for: 1m
           labels:
             severity: ticket
           annotations:
             summary: EuroTransit reconciliation record is open
             description: An open {{ $labels.kind }} reconciliation record needs operations review or redrive.
+        - alert: PaymentOutcomeUnknown
+          expr: |
+            max(
+              orders_reconciliation_open{
+                namespace="eurotransit",
+                app="orders",
+                kind="PAYMENT_OUTCOME_UNKNOWN"
+              }
+            ) > 0
+          for: 1m
+          labels:
+            severity: page
+          annotations:
+            summary: EuroTransit payment outcome is unknown
+            description: An abandoned order may have taken money but payment outcome is unknown; immediate operator review required.
         - alert: PaymentReversalFailure
           expr: |
             sum(
@@ -96,24 +111,24 @@ spec:
           expr: |
             max by (state) (
               orders_pipeline_oldest_age_seconds{namespace="eurotransit",app="orders"}
-            ) > 300
+            ) > 180
           for: 2m
           labels:
             severity: page
           annotations:
             summary: EuroTransit checkout is stuck in a non-terminal state
-            description: The oldest checkout in {{ $labels.state }} has not converged for more than five minutes.
+            description: The oldest checkout in {{ $labels.state }} has not converged for more than three minutes.
         - alert: ReconciliationAgeHigh
           expr: |
             max(
               orders_reconciliation_oldest_age_seconds{namespace="eurotransit",app="orders"}
-            ) > 900
-          for: 5m
+            ) > 300
+          for: 2m
           labels:
             severity: page
           annotations:
             summary: EuroTransit reconciliation incident is ageing
-            description: The oldest open reconciliation incident has remained unresolved for more than 15 minutes.
+            description: The oldest open reconciliation incident has remained unresolved for more than five minutes.
         - alert: InventorySeatConflict
           expr: |
             sum(
@@ -165,3 +180,77 @@ spec:
           annotations:
             summary: EuroTransit dead-letter event references an unknown order
             description: Orders could parse a dead-letter event but could not attach it to a durable order; investigate the event and data retention before replay.
+        - alert: DeadLetterNotRecorded
+          expr: |
+            sum(
+              increase(
+                orders_events_dlt_total{
+                  namespace="eurotransit",
+                  app="orders",
+                  result="record_failed"
+                }[10m]
+              )
+            ) > 3
+          labels:
+            severity: ticket
+          annotations:
+            summary: EuroTransit dead-letter incident recording is failing
+            description: A dead letter that repeatedly fails to record an incident is stalling its topic on that pod.
+    - name: eurotransit.inventory
+      rules:
+        - alert: InventoryReservationFailures
+          expr: |
+            (
+              sum(rate(inventory_holds_rejected_total{namespace="eurotransit", app="inventory"}[5m]))
+              /
+              sum(rate(inventory_holds_attempted_total{namespace="eurotransit", app="inventory"}[5m]))
+            ) > 0.20
+          for: 5m
+          labels:
+            severity: page
+          annotations:
+            summary: EuroTransit inventory reservation failure ratio is elevated
+            description: Over 20% of seat reservation attempts are failing; investigate potential seat contention or database locking issues.
+        - alert: InventoryHoldSweepFailure
+          expr: |
+            sum(
+              increase(
+                inventory_holds_sweep_errors_total{
+                  namespace="eurotransit",
+                  app="inventory"
+                }[5m]
+              )
+            ) > 0
+          labels:
+            severity: page
+          annotations:
+            summary: EuroTransit inventory expired hold sweeper is failing
+            description: The scheduled sweep of expired seat holds encountered database errors; expired seats may remain locked in HELD status.
+        - alert: InventoryIdempotencyPurgeFailure
+          expr: |
+            sum(
+              increase(
+                inventory_idempotency_purge_errors_total{
+                  namespace="eurotransit",
+                  app="inventory"
+                }[10m]
+              )
+            ) > 0
+          labels:
+            severity: ticket
+          annotations:
+            summary: EuroTransit inventory idempotency record purge is failing
+            description: Scheduled cleanup of expired idempotency records failed; inspect inventory database status and query retention.
+        - alert: InventoryServiceErrorsHigh
+          expr: |
+            (
+              sum(rate(http_server_requests_seconds_count{namespace="eurotransit", app="inventory", status=~"5.."}[5m]))
+              /
+              sum(rate(http_server_requests_seconds_count{namespace="eurotransit", app="inventory"}[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: page
+          annotations:
+            summary: EuroTransit inventory service 5xx error rate is elevated
+            description: Inventory internal error rate exceeds 5%; downstream checkout hold and confirmation calls may fail.

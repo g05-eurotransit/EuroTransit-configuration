@@ -1,0 +1,198 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: eurotransit-dashboard-inventory-correctness
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/part-of: eurotransit-marketplace
+data:
+  inventory-correctness.json: |
+    {
+      "title": "EuroTransit / Inventory Correctness",
+      "uid": "eurotransit-inventory-correctness",
+      "tags": ["eurotransit", "inventory", "correctness"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-1h", "to": "now" },
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": {},
+            "hide": 0,
+            "label": "Data source"
+          }
+        ]
+      },
+      "panels": [
+        {
+          "title": "Hold Operations (Success vs Rejected vs Expired)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(inventory_holds_successful_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Successful Holds/s"
+            },
+            {
+              "refId": "B",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(inventory_holds_rejected_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Rejected Holds/s"
+            },
+            {
+              "refId": "C",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(inventory_holds_expired_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Expired Holds/s"
+            }
+          ]
+        },
+        {
+          "title": "Post-Hold Transitions (Confirmed vs Refunded)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(inventory_holds_confirmed_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Confirmed Sales/s"
+            },
+            {
+              "refId": "B",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(inventory_holds_refunded_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Refunded Seats/s"
+            }
+          ]
+        },
+        {
+          "title": "Idempotency Hits (Duplicate Request Protection)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(inventory_idempotency_hits_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Idempotency Hits/s"
+            }
+          ]
+        },
+        {
+          "title": "Oversell & Invariant Violations",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(increase(orders_reconciliation_required_total{namespace=\"eurotransit\", app=\"orders\", kind=\"INVARIANT_VIOLATION\"}[5m]))",
+              "legendFormat": "Invariant Violations"
+            },
+            {
+              "refId": "B",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(increase(orders_inventory_confirm_total{namespace=\"eurotransit\", app=\"orders\", code=\"RESERVATION_SEAT_CONFLICT\"}[5m]))",
+              "legendFormat": "Seat Conflicts"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "fillOpacity": 20, "lineWidth": 2 }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Invariant Violations" },
+                "properties": [ { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } } ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Seat Conflicts" },
+                "properties": [ { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } } ]
+              }
+            ]
+          }
+        },
+        {
+          "title": "Payment Window Transitions (T2 Timer)",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum by (result) (rate(inventory_holds_payment_window_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Inventory Window: {{result}}"
+            },
+            {
+              "refId": "B",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum by (result) (rate(orders_inventory_payment_window_total{namespace=\"eurotransit\", app=\"orders\"}[5m]))",
+              "legendFormat": "Orders -> Window: {{result}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "fillOpacity": 15, "lineWidth": 2 }
+            }
+          }
+        },
+        {
+          "title": "Background Maintenance & Cleanup",
+          "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(increase(inventory_holds_sweep_errors_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Hold Sweep Errors"
+            },
+            {
+              "refId": "B",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(increase(inventory_idempotency_purge_errors_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Idempotency Purge Errors"
+            },
+            {
+              "refId": "C",
+              "datasource": { "type": "prometheus", "uid": "${datasource}" },
+              "expr": "sum(rate(inventory_idempotency_purged_total{namespace=\"eurotransit\", app=\"inventory\"}[5m]))",
+              "legendFormat": "Purged Idempotency Records/s"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "fillOpacity": 15, "lineWidth": 2 }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Hold Sweep Errors" },
+                "properties": [ { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } } ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Idempotency Purge Errors" },
+                "properties": [ { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } } ]
+              }
+            ]
+          }
+        }
+      ]
+    }

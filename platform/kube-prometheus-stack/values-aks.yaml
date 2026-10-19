@@ -160,6 +160,18 @@ grafana:
     configMap: eurotransit-dashboard-red-services
     mountPath: /var/lib/grafana/dashboards/eurotransit-dashboard-red-services
     readOnly: true
+  - name: dashboard-41
+    configMap: eurotransit-dashboard-payment-safety
+    mountPath: /var/lib/grafana/dashboards/eurotransit-dashboard-payment-safety
+    readOnly: true
+  - name: dashboard-42
+    configMap: eurotransit-dashboard-inventory-correctness
+    mountPath: /var/lib/grafana/dashboards/eurotransit-dashboard-inventory-correctness
+    readOnly: true
+  - name: dashboard-43
+    configMap: eurotransit-dashboard-kafka-pipeline
+    mountPath: /var/lib/grafana/dashboards/eurotransit-dashboard-kafka-pipeline
+    readOnly: true
   - name: dashboard-32
     configMap: strimzi-kafka-oauth
     mountPath: /var/lib/grafana/dashboards/strimzi-kafka-oauth
