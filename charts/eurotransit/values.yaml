@@ -109,7 +109,7 @@ progressiveDelivery:
 catalog:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
-    tag: "7866ea8" # Will be overridden by CI
+    tag: "f327844" # Will be overridden by CI
   replicaCount: 2
   resources: {}
 orders:
