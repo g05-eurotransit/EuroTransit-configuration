@@ -1,5 +1,7 @@
 # Run bounded traffic and collect evidence
 
+Start with [testing and tooling](../verification/testing-tooling.md) for the workflow diagram, tool responsibilities and experiment map.
+
 This repository owns the complete operational harness in [`load-tests`](../../load-tests):
 k6 scenarios, finite fixtures, correctness assertions, image publication, launchers,
 capacity checks, fixture ownership, operational evidence, and reports. Application

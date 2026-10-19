@@ -17,7 +17,7 @@ See [Kind setup](docs/operations/kind.md) for prerequisites, credentials and cle
 
 - [Platform](docs/platform/README.md): topology, GitOps, identity, CDC and observability.
 - [Operations](docs/operations/README.md): environment setup, recovery and controlled experiments.
-- [Verification](docs/verification/README.md): results by environment and scenario.
+- [Verification](docs/verification/README.md): results by environment and scenario; [testing and tooling](docs/verification/testing-tooling.md) explains the process and tools.
 - [Readiness](docs/readiness.md): operational acceptance and remaining work.
 
 Service behavior and API/event contracts live in [application](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/README.md).
