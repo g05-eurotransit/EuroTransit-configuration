@@ -174,7 +174,7 @@ payments:
 notifications:
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/notifications
-    tag: "7866ea8"
+    tag: "53ef866"
   replicaCount: 2
   resources: {}
   publicApi:
