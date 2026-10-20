@@ -55,6 +55,7 @@ seal_db_role() {
 }
 
 orders="$(openssl rand -base64 32)"; inventory="$(openssl rand -base64 32)"
+catalog="$(openssl rand -base64 32)"
 payments="$(openssl rand -base64 32)"; keycloak="$(openssl rand -base64 32)"
 admin="$(openssl rand -base64 32)"; grafana="$(openssl rand -base64 32)"
 client="$(openssl rand -base64 48)"; load_test_client="$(openssl rand -base64 48)"
@@ -80,6 +81,7 @@ read_if_missing chiara_demo_password 'Chiara demo-user password: '
 [[ -n "$alice_demo_password" && -n "$bruno_demo_password" && -n "$chiara_demo_password" ]] \
   || { echo 'Demo-user passwords must not be empty' >&2; exit 1; }
 seal_db_role eurotransit orders-db-credentials orders-db-credentials.sealedsecret.yaml username=orders "password=$orders"
+seal_db_role eurotransit catalog-db-credentials catalog-db-credentials.sealedsecret.yaml username=catalog "password=$catalog"
 seal_db_role eurotransit inventory-db-credentials inventory-db-credentials.sealedsecret.yaml username=inventory "password=$inventory"
 seal_db_role eurotransit payments-db-credentials payments-db-credentials.sealedsecret.yaml username=payments "password=$payments"
 seal_db_role eurotransit keycloak-db-credentials keycloak-db-credentials-eurotransit.sealedsecret.yaml username=keycloak "password=$keycloak"
@@ -92,7 +94,7 @@ seal eurotransit eurotransit-load-test-credentials eurotransit-load-test-credent
 seal keycloak eurotransit-load-test-credentials eurotransit-load-test-credentials-keycloak.sealedsecret.yaml "client-secret=$load_test_client"
 seal eurotransit payments-provider-credentials payments-provider-credentials.sealedsecret.yaml "provider-api-key=$api"
 seal monitoring grafana-admin-credentials grafana-admin-credentials.sealedsecret.yaml username=admin "password=$grafana"
-unset orders inventory payments keycloak admin grafana client load_test_client alice_demo_password bruno_demo_password chiara_demo_password api
+unset catalog orders inventory payments keycloak admin grafana client load_test_client alice_demo_password bruno_demo_password chiara_demo_password api
 
 "$ROOT_DIR/scripts/validate-aks-sealed-secrets.sh" "$staging"
 
@@ -101,4 +103,4 @@ mv "$target" "$previous"
 mv "$staging" "$target"; staging=""
 rm -rf "$previous"; previous=""
 git -C "$ROOT_DIR" diff --check
-echo "Generated and validated 13 AKS SealedSecrets; review, commit through PR, then merge to main."
+echo "Generated and validated 14 AKS SealedSecrets; review, commit through PR, then merge to main."

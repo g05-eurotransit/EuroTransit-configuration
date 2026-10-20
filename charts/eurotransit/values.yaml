@@ -107,6 +107,13 @@ progressiveDelivery:
       maxExhaustedEvents: 0
       maxP95Seconds: 1
 catalog:
+  storage: in-memory
+  database:
+    name: catalog_db
+    secretName: catalog-db-credentials
+    wait:
+      image: postgres:16-alpine
+      timeoutSeconds: 180
   image:
     repository: eurotransitregistry.azurecr.io/eurotransit/catalog
     tag: "f327844" # Will be overridden by CI

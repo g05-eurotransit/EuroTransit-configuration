@@ -8,6 +8,7 @@ For the workflow, tool responsibilities and links from each experiment to its pr
 
 | Scenario | Result and material limit | Report |
 | --- | --- | --- |
+| Catalog PostgreSQL | API equivalence, purchases/refunds, persistence, isolated DB failure and rollback passed; two final replicas. Temporary single-replica transitions and local Helm drift are recorded. | [Catalog storage](kind/catalog-postgres.md) |
 | Worker loss / PostgreSQL primary | Promotion 51.86 s, synchronous quorum 70.30 s, checkout confirmation 179.62 s during a 180 s stop; 5 committed purchases finally confirmed with five independently audited charges. Client timeouts and Catalog 504 remain recorded; no RTO/SLO pass claimed. | [HA failover](kind/ha-failover.md) |
 | Catalog replica failure | Replica attribution and endpoint withdrawal explain transient gateway timeouts; healthy replica returned 52/52 successful reads. | [Catalog failover](kind/ha-failover.md#catalog-failover-verification) |
 | Orders shutdown | 4/4 confirmed with readiness refusal, endpoint withdrawal, bounded drain and independent payment audit. | [Orders shutdown](kind/orders-shutdown.md) |

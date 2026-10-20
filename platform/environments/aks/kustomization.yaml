@@ -3,11 +3,29 @@ kind: Kustomization
 resources:
   - namespaces.yaml
   - ../../cloudnativepg
+  - catalog-database.yaml
   - ../../strimzi
   - letsencrypt-cluster-issuer.yaml
   - production-certificate.yaml
   - keycloak-production-certificate.yaml
 patches:
+  - target:
+      group: postgresql.cnpg.io
+      version: v1
+      kind: Cluster
+      name: eurotransit-postgres
+    patch: |-
+      - op: add
+        path: /spec/managed/roles/-
+        value:
+          name: catalog
+          ensure: present
+          login: true
+          superuser: false
+          createdb: false
+          createrole: false
+          passwordSecret:
+            name: catalog-db-credentials
   - path: postgres-patch.yaml
   - path: kafka-nodepool-patch.yaml
   - path: kafka-patch.yaml
