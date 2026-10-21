@@ -46,6 +46,23 @@ series is not zero errors. During progressive delivery, duplicate scrape paths
 also require per-instance counter deduplication, as already done by the canary
 gates.
 
+**Follow-up correction (2026-10-20).** The checkout dashboard, `CheckoutFastBurn`,
+the new `CheckoutSlowBurn` and `CheckoutLatencyHigh` now use terminal outcomes and
+`orders_checkout_e2e_duration_seconds`, with the valid-attempt population defined in
+the application SLO specification; the [alert policy](../../platform/observability.md#checkout-slo-alert-policy)
+lists the thresholds. The findings above remain the record of this Kind run.
+
+| Check | Result |
+| --- | --- |
+| promtool unit tests (six cases) | Pass: business refusals burn no budget; 50% system failures fire both burn alerts; 1% stays quiet; one pod scraped through two Services counts once; 20% of confirmed checkouts over 2 s fire the latency alert, 2% do not |
+| Negative control | Summing instead of deduplicating per instance makes the two-Service case fire |
+| Compose samples (`main` at `53ef866`, provider replaced locally by `stripe-mock`) | 43 checkouts: 40 `confirmed`, 3 `seats_unavailable`. Success SLI 100% (refusals excluded; 93% if counted). Real label shapes match the queries, including `le="2.0"` and `reason` |
+| Latency on the same samples | First 20 checkouts after a cold start: 7.5 s mean, none within 2 s. Next 20: all within 1.43 s. End-to-end p95 9.2 s while the old HTTP p95 query returned 0.61 s; the latency rule expression evaluated true |
+| Old success panel | Returned no data: with no 5xx series, the HTTP ratio is empty |
+
+The rules were evaluated as queries on compose, which loads no rule files; firing on
+Kind or AKS is not demonstrated by this follow-up.
+
 ## Distributed tracing
 
 All five workload templates declare `MANAGEMENT_TRACING_EXPORT_OTLP_ENABLED=false`

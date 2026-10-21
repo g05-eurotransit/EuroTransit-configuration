@@ -10,31 +10,86 @@ spec:
   groups:
     - name: eurotransit.checkout
       rules:
+        # Checkout SLIs come from terminal outcomes, not HTTP: POST answers 202 and the
+        # checkout succeeds or fails later in the Kafka pipeline (application slo.md).
+        # Error ratio = failed / (confirmed + failed), where failed excludes the business
+        # refusals payment_declined and seats_unavailable. Burn-rate factors for the 1%
+        # budget over 30 days: 14.4 (2% of budget in 1h) and 6 (5% in 6h).
+        # max by (instance, ...) counts a pod once when two Services scrape it (canary).
         - alert: CheckoutFastBurn
           expr: |
             (
-              sum(rate(http_server_requests_seconds_count{namespace="eurotransit",app="orders",status=~"5.."}[10m]))
+              sum(max by (instance, reason) (rate(orders_checkout_failed_total{namespace="eurotransit",app="orders",reason!~"payment_declined|seats_unavailable"}[1h])))
               /
-              sum(rate(http_server_requests_seconds_count{namespace="eurotransit",app="orders"}[10m]))
-            ) > 0.02
-          for: 10m
+              (
+                sum(max by (instance) (rate(orders_checkout_completed_total{namespace="eurotransit",app="orders",result="confirmed"}[1h])))
+                +
+                sum(max by (instance, reason) (rate(orders_checkout_failed_total{namespace="eurotransit",app="orders",reason!~"payment_declined|seats_unavailable"}[1h])))
+              )
+            ) > (14.4 * 0.01)
+            and
+            (
+              sum(max by (instance, reason) (rate(orders_checkout_failed_total{namespace="eurotransit",app="orders",reason!~"payment_declined|seats_unavailable"}[5m])))
+              /
+              (
+                sum(max by (instance) (rate(orders_checkout_completed_total{namespace="eurotransit",app="orders",result="confirmed"}[5m])))
+                +
+                sum(max by (instance, reason) (rate(orders_checkout_failed_total{namespace="eurotransit",app="orders",reason!~"payment_declined|seats_unavailable"}[5m])))
+              )
+            ) > (14.4 * 0.01)
+            and
+            sum(max by (instance, result) (increase(orders_checkout_completed_total{namespace="eurotransit",app="orders"}[1h]))) >= 10
+          for: 2m
           labels:
             severity: page
           annotations:
             summary: Checkout success-rate SLO is burning fast
-            description: Orders is returning elevated 5xx errors on the checkout path.
-        - alert: CheckoutLatencyHigh
+            description: More than 14.4% of terminal checkouts failed for non-business reasons over both the last hour and the last 5 minutes.
+        - alert: CheckoutSlowBurn
           expr: |
-            histogram_quantile(
-              0.95,
-              sum by (le) (rate(http_server_requests_seconds_bucket{namespace="eurotransit",app="orders",uri=~"/api/orders.*"}[15m]))
-            ) > 2
+            (
+              sum(max by (instance, reason) (rate(orders_checkout_failed_total{namespace="eurotransit",app="orders",reason!~"payment_declined|seats_unavailable"}[6h])))
+              /
+              (
+                sum(max by (instance) (rate(orders_checkout_completed_total{namespace="eurotransit",app="orders",result="confirmed"}[6h])))
+                +
+                sum(max by (instance, reason) (rate(orders_checkout_failed_total{namespace="eurotransit",app="orders",reason!~"payment_declined|seats_unavailable"}[6h])))
+              )
+            ) > (6 * 0.01)
+            and
+            (
+              sum(max by (instance, reason) (rate(orders_checkout_failed_total{namespace="eurotransit",app="orders",reason!~"payment_declined|seats_unavailable"}[30m])))
+              /
+              (
+                sum(max by (instance) (rate(orders_checkout_completed_total{namespace="eurotransit",app="orders",result="confirmed"}[30m])))
+                +
+                sum(max by (instance, reason) (rate(orders_checkout_failed_total{namespace="eurotransit",app="orders",reason!~"payment_declined|seats_unavailable"}[30m])))
+              )
+            ) > (6 * 0.01)
+            and
+            sum(max by (instance, result) (increase(orders_checkout_completed_total{namespace="eurotransit",app="orders"}[6h]))) >= 10
           for: 15m
           labels:
             severity: ticket
           annotations:
-            summary: Checkout p95 latency is above 2 seconds
-            description: The money-path latency target is breached for Orders checkout endpoints.
+            summary: Checkout success-rate SLO is burning slowly
+            description: More than 6% of terminal checkouts failed for non-business reasons over both the last 6 hours and the last 30 minutes.
+        - alert: CheckoutLatencyHigh
+          expr: |
+            (
+              1 -
+              sum(max by (instance) (rate(orders_checkout_e2e_duration_seconds_bucket{namespace="eurotransit",app="orders",outcome="confirmed",le="2.0"}[30m])))
+              /
+              sum(max by (instance) (rate(orders_checkout_e2e_duration_seconds_count{namespace="eurotransit",app="orders",outcome="confirmed"}[30m])))
+            ) > 0.05
+            and
+            sum(max by (instance) (increase(orders_checkout_e2e_duration_seconds_count{namespace="eurotransit",app="orders",outcome="confirmed"}[30m]))) >= 10
+          for: 15m
+          labels:
+            severity: ticket
+          annotations:
+            summary: Checkout latency SLO is breached
+            description: More than 5% of confirmed checkouts took over 2 seconds from the accepted payment to confirmation in the last 30 minutes.
         - alert: KafkaPipelineStalled
           expr: |
             sum(kafka_consumergroup_lag{namespace="eurotransit"}) by (consumergroup) > 100

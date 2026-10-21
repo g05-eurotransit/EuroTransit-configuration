@@ -2,7 +2,7 @@
 
 This document owns the platform-side observability stack.
 
-The application [SLO specification](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/design/slo.md) owns objectives and SLI semantics. This page maps those signals to deployment artifacts. Existing checkout dashboards and alerts use HTTP proxies; [Kind verification](../verification/kind/observability.md) documents the mismatch with asynchronous checkout outcomes. Do not read matching dashboard/alert thresholds as proof of a correct SLI.
+The application [SLO specification](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/design/slo.md) owns objectives and SLI semantics. This page maps those signals to deployment artifacts. The checkout SLO dashboard and alerts use terminal checkout outcomes and the end-to-end histogram, not HTTP proxies; the [Kind verification](../verification/kind/observability.md) records the earlier mismatch and its correction. Deployed rules are not proof of SLO compliance on an environment.
 
 ## Current Manifests
 
@@ -41,6 +41,18 @@ The application [SLO specification](https://github.com/g05-eurotransit/EuroTrans
 Use the application [recovery runbook](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/operations/orders-recovery-runbook.md) for incident inspection, redrive and settlement. Keep query selectors aligned with loaded Prometheus samples, including namespace, service labels and rollout hashes. Empty samples do not count as healthy gates.
 
 [Kind monitoring verification](../verification/kind/observability.md) records actual metric coverage and committed lag. [AKS monitoring verification](../verification/aks/observability.md) records the injected alert. Trace export/backend deployment remains in [readiness](../readiness.md).
+
+### Checkout SLO Alert Policy
+
+The checkout rules implement the application [error budget](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/design/slo.md#error-budget) on terminal outcomes. A failed checkout counts against the budget unless its `reason` is `payment_declined` or `seats_unavailable`. Each pod is counted once (`max by (instance, …)`), as in the canary gates, because a canary pod is scraped through two Services.
+
+| Alert | Signal and threshold | Response intent |
+| --- | --- | --- |
+| `CheckoutFastBurn` | Failed share of terminal checkouts above 14.4% over both 1 hour and 5 minutes, at least 10 checkouts in the hour, for 2 minutes | Page: 2% of the 30-day budget is going in an hour. |
+| `CheckoutSlowBurn` | Failed share above 6% over both 6 hours and 30 minutes, at least 10 checkouts in 6 hours, for 15 minutes | Ticket: a sustained burn that would exhaust the budget early. |
+| `CheckoutLatencyHigh` | More than 5% of confirmed checkouts above 2 s (`le="2.0"` of `orders_checkout_e2e_duration_seconds`) in 30 minutes, at least 10 of them, for 15 minutes | Ticket: the latency objective is breached from the accepted payment to confirmation. |
+
+Pending orders are not in these ratios; `CheckoutStuckNonTerminal` covers them. The acceptance latency (`POST` p99) remains a separate dashboard SLI.
 
 ### Reconciliation Alert Policy
 
