@@ -90,15 +90,29 @@ spec:
           annotations:
             summary: Checkout latency SLO is breached
             description: More than 5% of confirmed checkouts took over 2 seconds from the accepted payment to confirmation in the last 30 minutes.
+        # Broker committed-offset lag where the Kafka exporter runs (Kind HA); otherwise the
+        # Spring Kafka client fetch lag, named by app like the Kafka Pipeline dashboard. AKS
+        # has no exporter. max by (app, topic, partition) counts a pod once when two Services
+        # scrape it (canary). Client lag cannot see a stopped consumer, whose series vanish:
+        # CheckoutStuckNonTerminal and the reconciliation alerts cover that case.
         - alert: KafkaPipelineStalled
           expr: |
-            sum(kafka_consumergroup_lag{namespace="eurotransit"}) by (consumergroup) > 100
+            (
+              sum by (consumergroup) (kafka_consumergroup_lag{namespace="eurotransit"})
+              or
+              sum by (consumergroup) (
+                label_replace(
+                  max by (app, topic, partition) (kafka_consumer_fetch_manager_records_lag{namespace="eurotransit"}),
+                  "consumergroup", "$1", "app", "(.*)"
+                )
+              )
+            ) > 100
           for: 15m
           labels:
             severity: ticket
           annotations:
             summary: Kafka consumer lag is growing
-            description: The async checkout or notification pipeline is not converging.
+            description: The {{ $labels.consumergroup }} consumers are more than 100 records behind for 15 minutes; the async checkout or notification pipeline is not converging.
     - name: eurotransit.reconciliation
       rules:
         # These business gauges deliberately publish zero-valued series for every
