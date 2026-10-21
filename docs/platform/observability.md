@@ -40,6 +40,8 @@ The application [SLO specification](https://github.com/g05-eurotransit/EuroTrans
 
 Use the application [recovery runbook](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/operations/orders-recovery-runbook.md) for incident inspection, redrive and settlement. Keep query selectors aligned with loaded Prometheus samples, including namespace, service labels and rollout hashes. Empty samples do not count as healthy gates.
 
+On AKS the chart's `KubeControllerManagerDown`, `KubeSchedulerDown` and `KubeProxyDown` rules are disabled through `defaultRules.rules` in `values-aks.yaml`: AKS manages those components outside the cluster, so the alerts would fire on absent targets for ever. Their dashboards stay mounted. `KubeCPUOvercommit` and `KubeMemoryOvercommit` remain, because they report the cluster's real capacity limit.
+
 [Kind monitoring verification](../verification/kind/observability.md) records actual metric coverage and committed lag. [AKS monitoring verification](../verification/aks/observability.md) records the injected alert. Kubernetes trace export has no backend, an accepted gap recorded in [readiness](../readiness.md).
 
 ### Checkout SLO Alert Policy
@@ -53,6 +55,8 @@ The checkout rules implement the application [error budget](https://github.com/g
 | `CheckoutLatencyHigh` | More than 5% of confirmed checkouts above 2 s (`le="2.0"` of `orders_checkout_e2e_duration_seconds`) in 30 minutes, at least 10 of them, for 15 minutes | Ticket: the latency objective is breached from the accepted payment to confirmation. |
 
 Pending orders are not in these ratios; `CheckoutStuckNonTerminal` covers them. The acceptance latency (`POST` p99) remains a separate dashboard SLI.
+
+`KafkaPipelineStalled` (ticket) fires when a consumer group is more than 100 records behind for 15 minutes. It reads broker committed-offset lag where the Kafka exporter runs (Kind HA) and otherwise the Spring Kafka client fetch lag by `app`, as the Kafka Pipeline dashboard does; AKS has no exporter. Client lag cannot see a stopped consumer, whose series vanish: `CheckoutStuckNonTerminal` and the reconciliation alerts cover that case.
 
 ### Reconciliation Alert Policy
 
