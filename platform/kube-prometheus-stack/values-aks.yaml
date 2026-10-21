@@ -1,6 +1,14 @@
 # AKS-only: keep the chart-generated datasources and dashboard ConfigMaps.
 # Mount complete directories so kubelet updates remain visible to the file provider.
 # Dashboard mounts match kube-prometheus-stack 75.15.1 and Strimzi 0.46.1; verify on upgrades.
+# AKS manages the controller manager, scheduler and kube-proxy health outside the cluster's
+# reach, so their absent()-based Down alerts would fire for ever. Only the rules go: the
+# components stay enabled because their dashboard ConfigMaps are mounted below.
+defaultRules:
+  rules:
+    kubeControllerManager: false
+    kubeSchedulerAlerting: false
+    kubeProxy: false
 prometheus:
   prometheusSpec:
     retention: 2d
