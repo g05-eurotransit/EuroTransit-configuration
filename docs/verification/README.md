@@ -15,7 +15,7 @@ For the workflow, tool responsibilities and links from each experiment to its pr
 | Progressive delivery | Orders canary and Catalog blue/green; controller results retain placement and delivery-proof limits. | [Experiments](kind/progressive-delivery.md) |
 | Notifications pause | 2/2 purchases confirmed; committed lag 0 → 2 → 0 on the same process. | [Notifications lag](kind/notifications-lag.md) |
 | CDC idle recovery | Transactional heartbeats advance all three logical slots after manual baseline repair. | [CDC recovery](incidents/cdc-slots.md) |
-| Monitoring | Real asynchronous metrics and committed Kafka lag available; checkout dashboard/alert SLI mapping remains incorrect and queryable tracing is absent. | [Observability](kind/observability.md) |
+| Monitoring | Real asynchronous metrics and committed Kafka lag available; the incorrect checkout dashboard/alert SLI mapping found here is corrected in a follow-up; queryable tracing is absent, an accepted gap. | [Observability](kind/observability.md) |
 
 ## AKS
 

@@ -40,7 +40,7 @@ The application [SLO specification](https://github.com/g05-eurotransit/EuroTrans
 
 Use the application [recovery runbook](https://github.com/g05-eurotransit/EuroTransit-application/blob/main/docs/operations/orders-recovery-runbook.md) for incident inspection, redrive and settlement. Keep query selectors aligned with loaded Prometheus samples, including namespace, service labels and rollout hashes. Empty samples do not count as healthy gates.
 
-[Kind monitoring verification](../verification/kind/observability.md) records actual metric coverage and committed lag. [AKS monitoring verification](../verification/aks/observability.md) records the injected alert. Trace export/backend deployment remains in [readiness](../readiness.md).
+[Kind monitoring verification](../verification/kind/observability.md) records actual metric coverage and committed lag. [AKS monitoring verification](../verification/aks/observability.md) records the injected alert. Kubernetes trace export has no backend, an accepted gap recorded in [readiness](../readiness.md).
 
 ### Checkout SLO Alert Policy
 
