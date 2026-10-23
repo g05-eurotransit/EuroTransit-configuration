@@ -4,6 +4,8 @@ source "$(dirname "$0")/lib.sh"
 
 require_commands docker kind kubectl helm python3
 KIND_PROFILE="${KIND_PROFILE:-dev}"
+CATALOG_STORAGE="${CATALOG_STORAGE:-in-memory}"
+case "$CATALOG_STORAGE" in in-memory|postgres) ;; *) echo "Invalid CATALOG_STORAGE" >&2; exit 2 ;; esac
 case "$KIND_PROFILE" in
   dev) platform_profile=kind; app_values=values-kind.yaml; cluster_config=kind-config.yaml ;;
   ha)
@@ -169,6 +171,9 @@ PY_LOCAL_CLIENT
 
 kubectl apply -k "$ROOT_DIR/platform/environments/$platform_profile"
 kubectl -n eurotransit wait cluster/eurotransit-postgres --for=condition=Ready --timeout=8m
+if [[ "$CATALOG_STORAGE" == postgres ]]; then
+  python3 "$ROOT_DIR/scripts/provision-kind-catalog.py" --context "kind-$KIND_CLUSTER_NAME"
+fi
 kubectl -n eurotransit wait kafka/eurotransit-kafka --for=condition=Ready --timeout=10m
 
 kubectl apply -f https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.7.0/kubernetes/keycloaks.k8s.keycloak.org-v1.yml
@@ -202,6 +207,7 @@ kubectl -n keycloak wait keycloak/eurotransit-keycloak --for=condition=Ready --t
 helm upgrade --install eurotransit "$ROOT_DIR/charts/eurotransit" -n eurotransit \
   -f "$ROOT_DIR/charts/eurotransit/values.yaml" \
   -f "$ROOT_DIR/charts/eurotransit/$app_values" \
+  --set-string catalog.storage="$CATALOG_STORAGE" \
   --set-string catalog.image.tag="$KIND_IMAGE_TAG",orders.image.tag="$KIND_IMAGE_TAG",inventory.image.tag="$KIND_IMAGE_TAG",payments.image.tag="$KIND_IMAGE_TAG",notifications.image.tag="$KIND_IMAGE_TAG",frontend.image.tag="$KIND_IMAGE_TAG" \
   --wait --timeout 8m
 kubectl -n eurotransit rollout restart deployment/payments

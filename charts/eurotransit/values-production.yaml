@@ -15,6 +15,8 @@ ingress:
     secretName: eurotransit-production-tls
 
 catalog:
+  # Requires application PR #167 and its published image before this change is merged.
+  storage: postgres
   replicaCount: 1
   resources:
     requests: { cpu: 75m, memory: 224Mi }

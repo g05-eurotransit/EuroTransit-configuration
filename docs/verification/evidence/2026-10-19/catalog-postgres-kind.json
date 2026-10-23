@@ -1,0 +1,443 @@
+{
+  "context": "kind-eurotransit",
+  "aksChanged": false,
+  "applicationSource": {
+    "applicationBase": "f327844e88a40aed7e4cb445c96507a3d8bab814",
+    "catalogSourceSha256": "140b5929d808ad0e79da1fa9e38a0c561d8b4e3e2db6d4a9500052bbf21588be",
+    "image": "eurotransit/catalog:pg-20261019-2036",
+    "manifestDigest": "sha256:cb2a8b7556bc2fdda6122bb370cf948223393018a5a8084c10bf8fa1ebfea42c"
+  },
+  "configurationBase": "74fa12eef7b75a29f07c6d3e3190dd5e1c0ab2df",
+  "hostRecovery": {
+    "before": {
+      "max_user_instances": "128",
+      "max_user_watches": "124390"
+    },
+    "after": {
+      "max_user_instances": "1024",
+      "max_user_watches": "524288"
+    },
+    "symptom": "kube-proxy: too many open files; CoreDNS and Service connectivity unavailable",
+    "clusterAndPVCsPreserved": true
+  },
+  "tests": {
+    "catalog": {
+      "tests": 34,
+      "failures": 0,
+      "errors": 0
+    },
+    "orders": {
+      "tests": 46,
+      "failures": 0,
+      "errors": 0
+    }
+  },
+  "configurationTests": {
+    "catalogWiringCombinations": 4,
+    "kindHaProfileTests": 15,
+    "passed": true
+  },
+  "baseline": {
+    "passed": true,
+    "startedAt": "2026-10-19T20:35:59.580871+00:00",
+    "finishedAt": "2026-10-19T20:36:19.106696+00:00",
+    "catalogBackend": "original in-memory image",
+    "catalogImages": [],
+    "priceTamperingRejected": true,
+    "orders": [
+      {
+        "offerId": "of-001",
+        "amount": 24.9,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "e312d24aecea7466c59586a17c99bd322b354cbf58de3d853b9d6f963f602c53",
+          "sandbox": true,
+          "amountCents": 2490,
+          "refundedCents": 0
+        }
+      },
+      {
+        "offerId": "of-002",
+        "amount": 99.8,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "b468ecba1aa0fb3c25bfa581752e355b2fb5017abd1d558ca996fdb51417f414",
+          "sandbox": true,
+          "amountCents": 9980,
+          "refundedCents": 0
+        }
+      }
+    ]
+  },
+  "postgres": {
+    "passed": true,
+    "startedAt": "2026-10-19T20:42:00.191052+00:00",
+    "finishedAt": "2026-10-19T20:42:08.757587+00:00",
+    "catalogBackend": "postgres",
+    "catalogImages": [],
+    "priceTamperingRejected": true,
+    "orders": [
+      {
+        "offerId": "of-001",
+        "amount": 24.9,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "3949be2d4bb9ebace2d953612ba8684aef5d4416157b357ffa826c94c7a6bc2d",
+          "sandbox": true,
+          "amountCents": 2490,
+          "refundedCents": 0
+        },
+        "refund": {
+          "status": 409,
+          "code": "OFFER_NOT_REFUNDABLE"
+        }
+      },
+      {
+        "offerId": "of-002",
+        "amount": 99.8,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "d83fd7bc741c54a3cd008b7509f1f8c651839b3426ba2f9f4ea8b833e24f03b5",
+          "sandbox": true,
+          "amountCents": 9980,
+          "refundedCents": 0
+        },
+        "refund": {
+          "status": "REFUNDED",
+          "provider": {
+            "chargeHash": "d83fd7bc741c54a3cd008b7509f1f8c651839b3426ba2f9f4ea8b833e24f03b5",
+            "sandbox": true,
+            "amountCents": 9980,
+            "refundedCents": 9980
+          }
+        }
+      }
+    ]
+  },
+  "preview": {
+    "routes": 5,
+    "offers": 6,
+    "allDetailsEquivalent": true,
+    "standardConditions": "Non-refundable."
+  },
+  "persistence": {
+    "startedAt": "2026-10-19T20:44:40.223292+00:00",
+    "context": "kind-eurotransit",
+    "passed": true,
+    "replacedPod": "catalog-79dc679f8c-6nxnz",
+    "replacementPod": "catalog-79dc679f8c-xs286",
+    "storedNoteSurvived": true,
+    "migrationCount": 2,
+    "noteRestored": true,
+    "finishedAt": "2026-10-19T20:45:42.465025+00:00"
+  },
+  "databaseFault": {
+    "context": "kind-eurotransit",
+    "startedAt": "2026-10-19T20:45:53.140542+00:00",
+    "health": [
+      {
+        "pod": "catalog-79dc679f8c-lnbnk",
+        "liveness": "UP",
+        "readinessHttp": 503
+      },
+      {
+        "pod": "catalog-79dc679f8c-xs286",
+        "liveness": "UP",
+        "readinessHttp": 503
+      }
+    ],
+    "checkoutRefusal": {
+      "httpStatus": 503,
+      "code": "OFFER_UNRESOLVABLE",
+      "seconds": 0.45
+    },
+    "noBusinessEffects": {
+      "before": {
+        "orders": 184,
+        "reservations": 184,
+        "payments": 184
+      },
+      "after": {
+        "orders": 184,
+        "reservations": 184,
+        "payments": 184
+      },
+      "providerChargesUnchanged": true
+    },
+    "historicalOrdersReadable": true,
+    "historicalStandardRefund": {
+      "status": 409,
+      "code": "OFFER_NOT_REFUNDABLE"
+    },
+    "historicalBusinessRefund": {
+      "status": "REFUNDED",
+      "provider": {
+        "chargeHash": "b468ecba1aa0fb3c25bfa581752e355b2fb5017abd1d558ca996fdb51417f414",
+        "sandbox": true,
+        "amountCents": 9980,
+        "refundedCents": 9980
+      }
+    },
+    "passed": true,
+    "accessRestored": true,
+    "finishedAt": "2026-10-19T20:46:00.052055+00:00",
+    "catalogRecovered": true
+  },
+  "rollbackPreview": {
+    "startedAt": "2026-10-19T20:47:08.185516+00:00",
+    "routes": 5,
+    "offers": 6,
+    "allDetailsEquivalent": true,
+    "storage": "in-memory",
+    "previewHash": "5fddb498bf",
+    "requests": 342,
+    "passed": true,
+    "analysis": {
+      "name": "catalog-5fddb498bf-9-pre",
+      "status": "Successful"
+    },
+    "finishedAt": "2026-10-19T20:48:36.887042+00:00"
+  },
+  "rollbackCheckout": {
+    "passed": true,
+    "startedAt": "2026-10-19T20:48:46.372789+00:00",
+    "finishedAt": "2026-10-19T20:48:54.791170+00:00",
+    "catalogBackend": "original in-memory image",
+    "catalogImages": [
+      "eurotransit/catalog:dev-f9f6562"
+    ],
+    "priceTamperingRejected": true,
+    "orders": [
+      {
+        "offerId": "of-001",
+        "amount": 24.9,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "6e94a637ae04bbcde8573de53d09c34e2913e39602e1523b2cc94fab1a0d00a7",
+          "sandbox": true,
+          "amountCents": 2490,
+          "refundedCents": 0
+        },
+        "refund": {
+          "status": 409,
+          "code": "OFFER_NOT_REFUNDABLE"
+        }
+      },
+      {
+        "offerId": "of-002",
+        "amount": 99.8,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "613fc33ca9d775295a3ed6c5b776f3f15687046613eff9a68ab7ad30f0b59bc0",
+          "sandbox": true,
+          "amountCents": 9980,
+          "refundedCents": 0
+        },
+        "refund": {
+          "status": "REFUNDED",
+          "provider": {
+            "chargeHash": "613fc33ca9d775295a3ed6c5b776f3f15687046613eff9a68ab7ad30f0b59bc0",
+            "sandbox": true,
+            "amountCents": 9980,
+            "refundedCents": 9980
+          }
+        }
+      }
+    ]
+  },
+  "finalRestoration": {
+    "startedAt": "2026-10-19T20:50:35.742945+00:00",
+    "routes": 5,
+    "offers": 6,
+    "allDetailsEquivalent": true,
+    "storage": "postgres",
+    "previewHash": "79dc679f8c",
+    "requests": 2,
+    "passed": true,
+    "analysis": {
+      "name": "catalog-79dc679f8c-8-pre",
+      "status": "Successful"
+    },
+    "restoredPreviouslyVerifiedStable": true,
+    "finishedAt": "2026-10-19T20:50:35.997548+00:00"
+  },
+  "finalCheckout": {
+    "passed": true,
+    "startedAt": "2026-10-19T20:50:47.097217+00:00",
+    "finishedAt": "2026-10-19T20:50:57.273068+00:00",
+    "catalogBackend": "postgres",
+    "catalogImages": [
+      "eurotransit/catalog:pg-20261019-2036"
+    ],
+    "priceTamperingRejected": true,
+    "orders": [
+      {
+        "offerId": "of-001",
+        "amount": 24.9,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "52ad810f86951c2703f0e2b22dfc62a43f45f0b2391fc5f139fd73a60a134f39",
+          "sandbox": true,
+          "amountCents": 2490,
+          "refundedCents": 0
+        },
+        "refund": {
+          "status": 409,
+          "code": "OFFER_NOT_REFUNDABLE"
+        }
+      },
+      {
+        "offerId": "of-002",
+        "amount": 99.8,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "4941cebe162faef3defc522bc33cb901b5f5fce6ebf0fabf95659918e821c765",
+          "sandbox": true,
+          "amountCents": 9980,
+          "refundedCents": 0
+        },
+        "refund": {
+          "status": "REFUNDED",
+          "provider": {
+            "chargeHash": "4941cebe162faef3defc522bc33cb901b5f5fce6ebf0fabf95659918e821c765",
+            "sandbox": true,
+            "amountCents": 9980,
+            "refundedCents": 9980
+          }
+        }
+      }
+    ]
+  },
+  "analysisRuns": {
+    "catalog-695cc9d594-7-pre": {
+      "phase": "Successful",
+      "metrics": [
+        {
+          "consecutiveSuccess": 2,
+          "count": 2,
+          "measurements": [
+            {
+              "finishedAt": "2026-10-19T20:39:36Z",
+              "phase": "Successful",
+              "startedAt": "2026-10-19T20:39:36Z",
+              "value": "[4.133333333333333]"
+            },
+            {
+              "finishedAt": "2026-10-19T20:40:06Z",
+              "phase": "Successful",
+              "startedAt": "2026-10-19T20:40:06Z",
+              "value": "[4.2]"
+            }
+          ],
+          "metadata": {
+            "ResolvedPrometheusQuery": "sum(rate(http_server_requests_seconds_count{app=\"catalog\",rollouts_pod_template_hash=\"695cc9d594\"}[1m])) or vector(0)\n"
+          },
+          "name": "preview-requests",
+          "phase": "Successful",
+          "successful": 2
+        }
+      ]
+    },
+    "catalog-79dc679f8c-8-pre": {
+      "phase": "Successful",
+      "metrics": [
+        {
+          "consecutiveSuccess": 2,
+          "count": 2,
+          "measurements": [
+            {
+              "finishedAt": "2026-10-19T20:43:33Z",
+              "phase": "Successful",
+              "startedAt": "2026-10-19T20:43:33Z",
+              "value": "[4.166666666666667]"
+            },
+            {
+              "finishedAt": "2026-10-19T20:44:03Z",
+              "phase": "Successful",
+              "startedAt": "2026-10-19T20:44:03Z",
+              "value": "[4.233333333333333]"
+            }
+          ],
+          "metadata": {
+            "ResolvedPrometheusQuery": "sum(rate(http_server_requests_seconds_count{app=\"catalog\",rollouts_pod_template_hash=\"79dc679f8c\"}[1m])) or vector(0)\n"
+          },
+          "name": "preview-requests",
+          "phase": "Successful",
+          "successful": 2
+        }
+      ]
+    },
+    "catalog-5fddb498bf-9-pre": {
+      "phase": "Successful",
+      "metrics": [
+        {
+          "consecutiveSuccess": 2,
+          "count": 2,
+          "measurements": [
+            {
+              "finishedAt": "2026-10-19T20:48:06Z",
+              "phase": "Successful",
+              "startedAt": "2026-10-19T20:48:06Z",
+              "value": "[4.146896666666667]"
+            },
+            {
+              "finishedAt": "2026-10-19T20:48:36Z",
+              "phase": "Successful",
+              "startedAt": "2026-10-19T20:48:36Z",
+              "value": "[4.133333333333333]"
+            }
+          ],
+          "metadata": {
+            "ResolvedPrometheusQuery": "sum(rate(http_server_requests_seconds_count{app=\"catalog\",rollouts_pod_template_hash=\"5fddb498bf\"}[1m])) or vector(0)\n"
+          },
+          "name": "preview-requests",
+          "phase": "Successful",
+          "successful": 2
+        }
+      ]
+    }
+  },
+  "finalState": {
+    "unrelatedDeploymentSpecsUnchanged": true,
+    "ordersRolloutSpecUnchanged": true,
+    "replicas": 2,
+    "rolloutPhase": "Healthy",
+    "activeSelector": {
+      "app": "catalog",
+      "rollouts-pod-template-hash": "79dc679f8c"
+    },
+    "pods": [
+      {
+        "name": "catalog-79dc679f8c-jbnkb",
+        "node": "eurotransit-worker2",
+        "ready": true,
+        "image": "eurotransit/catalog:pg-20261019-2036",
+        "imageId": "sha256:eb769725a9559bb103a68200e667a75fffe01104d645ecc889fb33d15f4d0780",
+        "restartCount": 0
+      },
+      {
+        "name": "catalog-79dc679f8c-lnbnk",
+        "node": "eurotransit-worker",
+        "ready": true,
+        "image": "eurotransit/catalog:pg-20261019-2036",
+        "imageId": "sha256:eb769725a9559bb103a68200e667a75fffe01104d645ecc889fb33d15f4d0780",
+        "restartCount": 0
+      }
+    ]
+  },
+  "limits": [
+    "Kind validates local behavior; Azure storage, networking and production SLOs were not qualified.",
+    "The first rollout and rollback to the legacy app-wide required anti-affinity temporarily used one active replica on three workers.",
+    "Final restoration returned to the identical previously verified stable pod hash; Argo fast-tracked it without a new AnalysisRun.",
+    "Catalog was patched locally; Helm stored values remain unchanged and future Helm upgrades must explicitly preserve the storage selection.",
+    "Offer administration and historical Catalog revisions remain outside this change."
+  ]
+}

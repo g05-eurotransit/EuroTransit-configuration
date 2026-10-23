@@ -24,6 +24,7 @@ spec:
       topologySpreadConstraints:
         - maxSkew: {{ .Values.global.deployment.topologySpreadConstraints.maxSkew }}
           topologyKey: {{ .Values.global.deployment.topologySpreadConstraints.topologyKey }}
+          nodeTaintsPolicy: Honor
           whenUnsatisfiable: {{ .Values.global.deployment.topologySpreadConstraints.whenUnsatisfiable }}
           labelSelector:
             matchLabels:
@@ -34,7 +35,11 @@ spec:
         podAntiAffinity:
           {{- if eq .Values.global.deployment.podAntiAffinity.type "required" }}
           requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
+            - {{- if .Values.progressiveDelivery.enabled }}
+              matchLabelKeys:
+                - rollouts-pod-template-hash
+              {{- end }}
+              labelSelector:
                 matchLabels:
                   app: catalog
               topologyKey: {{ .Values.global.deployment.podAntiAffinity.topologyKey }}
@@ -42,11 +47,19 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
             - weight: {{ .Values.global.deployment.podAntiAffinity.weight }}
               podAffinityTerm:
+                {{- if .Values.progressiveDelivery.enabled }}
+                matchLabelKeys:
+                  - rollouts-pod-template-hash
+                {{- end }}
                 labelSelector:
                   matchLabels:
                     app: catalog
                 topologyKey: {{ .Values.global.deployment.podAntiAffinity.topologyKey }}
           {{- end }}
+      {{- end }}
+      {{- if eq .Values.catalog.storage "postgres" }}
+      initContainers:
+        {{- include "eurotransit.catalogDatabaseGate" . | nindent 8 }}
       {{- end }}
       containers:
         - name: catalog
@@ -61,6 +74,27 @@ spec:
               value: "8080"
             - name: SPRING_PROFILES_ACTIVE
               value: "cluster"
+            - name: CATALOG_STORAGE
+              value: {{ .Values.catalog.storage | quote }}
+            {{- if eq .Values.catalog.storage "postgres" }}
+            - name: DB_HOST
+              value: {{ .Values.global.database.host | quote }}
+            - name: DB_PORT
+              value: {{ .Values.global.database.port | quote }}
+            - name: DB_NAME
+              value: {{ .Values.catalog.database.name | quote }}
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.catalog.database.secretName | quote }}
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.catalog.database.secretName | quote }}
+                  key: password
+            {{- include "eurotransit.r2dbcPoolEnv" . | nindent 12 }}
+            {{- end }}
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
               value: {{ .Values.global.oidc.issuerUri | quote }}
             - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI

@@ -1,0 +1,14 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: catalog
+  namespace: eurotransit
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  name: catalog_db
+  owner: catalog
+  cluster:
+    name: eurotransit-postgres
+  ensure: present
+  databaseReclaimPolicy: retain

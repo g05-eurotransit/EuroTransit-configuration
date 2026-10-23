@@ -1,0 +1,127 @@
+{
+  "context": "kind-eurotransit",
+  "applicationCommit": "80cd7fd4aaa6c022ffb9bd3b3c4ed0b2f6c8da19",
+  "configurationBase": "74fa12e",
+  "aksMutated": false,
+  "provisioning": {
+    "context": "kind-eurotransit",
+    "startedAt": "2026-10-19T21:30:33.657883+00:00",
+    "cases": {
+      "missingDatabaseBlocksStartup": true,
+      "controllerCreatesDatabaseAndUnblocksGate": true,
+      "gateRevokesPublicConnect": true,
+      "boundedFailure": true,
+      "wrongOwnerRejectedWithoutOwnershipChange": true,
+      "existingCatalogAdoptedWithoutReset": true
+    },
+    "catalogCounts": {
+      "offers": 6,
+      "routes": 5,
+      "migrations": 2
+    },
+    "passed": true,
+    "temporaryResourcesDeleted": true,
+    "finishedAt": "2026-10-19T21:31:01.817242+00:00"
+  },
+  "preview": {
+    "startedAt": "2026-10-19T21:39:48.789457+00:00",
+    "routes": 5,
+    "offers": 6,
+    "allDetailsEquivalent": true,
+    "storage": "postgres",
+    "previewHash": "7787d7d74f",
+    "requests": 422,
+    "passed": true,
+    "analysis": {
+      "name": "catalog-7787d7d74f-13-pre",
+      "status": "Successful"
+    },
+    "finishedAt": "2026-10-19T21:41:41.987682+00:00"
+  },
+  "postPromotionCheckout": {
+    "context": "kind-eurotransit",
+    "startedAt": "2026-10-19T21:42:24.957945+00:00",
+    "orders": [
+      {
+        "offerId": "of-001",
+        "amount": 24.9,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "b5f3722272b3710cacefe45e9cf53768e73c046013fecccab557881ae00298ac",
+          "sandbox": true,
+          "amountCents": 2490,
+          "refundedCents": 0
+        },
+        "refund": {
+          "status": 409,
+          "code": "OFFER_NOT_REFUNDABLE"
+        }
+      },
+      {
+        "offerId": "of-002",
+        "amount": 99.8,
+        "status": "CONFIRMED",
+        "notification": true,
+        "provider": {
+          "chargeHash": "67892e5ae92fd042a3795790e9d99fce217c7b9c0c3a411915ba5cd09c283969",
+          "sandbox": true,
+          "amountCents": 9980,
+          "refundedCents": 0
+        },
+        "refund": {
+          "status": "REFUNDED",
+          "provider": {
+            "chargeHash": "67892e5ae92fd042a3795790e9d99fce217c7b9c0c3a411915ba5cd09c283969",
+            "sandbox": true,
+            "amountCents": 9980,
+            "refundedCents": 9980
+          }
+        }
+      }
+    ],
+    "catalogPods": [
+      "catalog-7787d7d74f-6cmtb",
+      "catalog-7787d7d74f-ws9z4"
+    ],
+    "catalogImages": [
+      "eurotransit/catalog:pg-20261019-2036"
+    ],
+    "catalogBackend": "postgres",
+    "priceTamperingRejected": true,
+    "passed": true,
+    "finishedAt": "2026-10-19T21:42:34.973062+00:00"
+  },
+  "verificationAnnotation": "eurotransit.io/catalog-verification=gitops-final-20261019",
+  "scheduling": {
+    "revisionScopedAntiAffinity": true,
+    "nodeTaintsPolicy": "Honor"
+  },
+  "ciphertext": {
+    "generatedLocallyOnly": true,
+    "existingCiphertextsChanged": 0
+  },
+  "restartRecovery": {
+    "observedAt": "2026-10-20T08:26:33.530957+00:00",
+    "hostInotifyLimitsRestoredAfterReboot": true,
+    "catalogPodsRecreatedAfterNetworkRecovery": true,
+    "pods": [
+      {
+        "name": "catalog-7787d7d74f-nn94d",
+        "node": "eurotransit-worker2",
+        "ready": true,
+        "image": "docker.io/eurotransit/catalog:pg-20261019-2036",
+        "imageId": "sha256:eb769725a9559bb103a68200e667a75fffe01104d645ecc889fb33d15f4d0780",
+        "databaseInitExitCode": 0
+      },
+      {
+        "name": "catalog-7787d7d74f-zqlpw",
+        "node": "eurotransit-worker",
+        "ready": true,
+        "image": "docker.io/eurotransit/catalog:pg-20261019-2036",
+        "imageId": "sha256:eb769725a9559bb103a68200e667a75fffe01104d645ecc889fb33d15f4d0780",
+        "databaseInitExitCode": 0
+      }
+    ]
+  }
+}

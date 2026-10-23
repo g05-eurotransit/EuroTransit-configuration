@@ -13,6 +13,8 @@ Choose an environment, then follow its setup and verification procedure.
 - [Identity recovery](identity-recovery.md)
 - [Connect migration](connect-migration.md): preserve CDC offsets during worker migration.
 - [Inventory](inventory.md): development-data bootstrap and reset.
+- [Catalog PostgreSQL on Kind](catalog-postgres-kind.md): provision, verify and roll back persistent offers.
+- [Catalog PostgreSQL on AKS](catalog-postgres-aks.md): GitOps resources, startup gating and reviewed delivery.
 
 ## Delivery and experiments
 

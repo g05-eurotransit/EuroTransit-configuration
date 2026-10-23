@@ -52,6 +52,8 @@ The [Kind runtime overlay](../../platform/environments/kind/kustomization.yaml) 
 
 ## Operational constraints
 
+Catalog's application/chart default remains in-memory. The production profile declares PostgreSQL storage, a dedicated managed role and a retained CNPG Database resource; its [AKS delivery procedure](../operations/catalog-postgres-aks.md) requires reviewed application publication before the activation is merged. The [Kind procedure](../operations/catalog-postgres-kind.md) verifies local behavior separately. Both ordinary Deployment and progressive `workloadRef` use the same database variables and authenticated startup gate. Database health participates in readiness; liveness remains independent. These production manifests were prepared without applying them to AKS.
+
 In standard Kind and AKS, single service replicas interrupt their own traffic during replacement. A single PostgreSQL instance has no standby for primary promotion; a single Kafka broker with ephemeral storage provides neither broker redundancy nor a durable replicated log. Node capacity and persistent storage behavior require separate operational verification.
 
 PDBs differ between the overlays. The [PDB template](../../charts/eurotransit/templates/poddisruptionbudgets.yaml) reads `global.podDisruptionBudget.enabled`: production disables it at that path, but Kind's override sets a top-level `podDisruptionBudget.enabled` and leaves the base global setting enabled. Kind therefore renders five PDBs with `minAvailable: 1` for single-replica services, which can block voluntary eviction. The mismatch is documented here for a later configuration fix.

@@ -18,12 +18,16 @@ Never commit plaintext credentials or controller private keys. Orders, Inventory
 - The cluster admin installs and upgrades the controller with the reviewed
   values in `platform/sealed-secrets/values.yaml`; it is not an Argo CD
   Application and its key backup/restore is an admin responsibility.
-- The eleven AKS application ciphertexts live in
+- The fourteen AKS runtime ciphertexts live in
   `platform/environments/aks/secrets/` and are owned by the Argo
   `eurotransit-secrets` Application at wave 5, with pruning and self-heal.
 - `scripts/generate-aks-sealed-secrets.sh` creates those ciphertexts for the
   target controller without writing plaintext files;
   `scripts/validate-aks-sealed-secrets.sh` verifies their required inventory.
+- For an existing cluster, the Catalog-only generator and [delivery procedure](../operations/catalog-postgres-aks.md)
+  add its ciphertext without rotating any other credential. Generation writes
+  local ciphertext and performs only cluster reads; applying it requires the
+  separately approved GitOps delivery.
 - The sole manual SealedSecret is the private Argo repository credential in
   `argocd`: it is generated and applied by the cluster admin before Argo can
   read the repository. Only its ciphertext is committed under
